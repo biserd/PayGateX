@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   ChartLine, 
   Plug, 
@@ -22,6 +23,12 @@ const navigation = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  const { user } = useAuth();
+
+  // Generate initials from username
+  const getInitials = (username: string) => {
+    return username?.substring(0, 2).toUpperCase() || "U";
+  };
 
   return (
     <div className="w-64 bg-slate-900 text-white flex-shrink-0">
@@ -30,7 +37,7 @@ export function Sidebar() {
           <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
             <Coins className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold text-white">PayGate 402</span>
+          <span className="text-xl font-bold text-white">PayGate x402</span>
         </div>
         
         <nav className="space-y-2">
@@ -57,11 +64,15 @@ export function Sidebar() {
       <div className="px-6 py-4 border-t border-slate-700 mt-auto">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-sm font-medium text-white">
-            <span>DM</span>
+            <span>{user ? getInitials(user.username) : "U"}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-white">David Miller</p>
-            <p className="text-xs text-gray-400 truncate">david@example.com</p>
+            <p className="text-sm font-medium truncate text-white">
+              {user?.username || "User"}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {user?.email || "No email provided"}
+            </p>
           </div>
         </div>
       </div>
