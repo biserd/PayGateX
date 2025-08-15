@@ -1,57 +1,169 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, boolean, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Organization model for multi-tenant support
+export const organizations = pgTable("organizations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  email: text("email").notNull(),
+  walletAddress: text("wallet_address"),
+  escrowHoldHours: integer("escrow_hold_hours").notNull().default(24),
+  freeTierLimit: integer("free_tier_limit").notNull().default(100),
+  freeTierPeriodDays: integer("free_tier_period_days").notNull().default(30),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
+  role: text("role").notNull().default("member"), // admin, member, viewer
   walletAddress: text("wallet_address"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const apiEndpoints = pgTable("api_endpoints", {
+// Services (collection of endpoints)
+export const services = pgTable("services", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
   name: text("name").notNull(),
   description: text("description"),
-  path: text("path").notNull(),
-  targetUrl: text("target_url").notNull(),
-  price: decimal("price", { precision: 18, scale: 6 }).notNull(),
-  priceUnit: text("price_unit").notNull().default("USDC"),
+  slug: text("slug").notNull(),
   isActive: boolean("is_active").notNull().default(true),
-  network: text("network").notNull().default("base"),
+  baseUrl: text("base_url").notNull(),
+  healthCheckPath: text("health_check_path").default("/health"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const transactions = pgTable("transactions", {
+// API Endpoints
+export const endpoints = pgTable("endpoints", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  endpointId: varchar("endpoint_id").notNull().references(() => apiEndpoints.id),
-  payerAddress: text("payer_address").notNull(),
+  serviceId: varchar("service_id").notNull().references(() => services.id),
+  path: text("path").notNull(),
+  method: text("method").notNull().default("POST"),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  supportedNetworks: jsonb("supported_networks").notNull().default(['base']),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Pricing with versioning
+export const pricebooks = pgTable("pricebooks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  endpointId: varchar("endpoint_id").notNull().references(() => endpoints.id),
+  version: integer("version").notNull().default(1),
+  price: decimal("price", { precision: 18, scale: 6 }).notNull(),
+  currency: text("currency").notNull().default("USDC"),
+  network: text("network").notNull().default("base"),
+  isActive: boolean("is_active").notNull().default(true),
+  effectiveFrom: timestamp("effective_from").notNull().defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Usage records with full metering
+export const usageRecords = pgTable("usage_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  requestId: varchar("request_id").notNull().unique(), // For idempotency
+  endpointId: varchar("endpoint_id").notNull().references(() => endpoints.id),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  payerAddress: text("payer_address"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  price: decimal("price", { precision: 18, scale: 6 }).notNull(),
+  currency: text("currency").notNull().default("USDC"),
+  network: text("network").notNull(),
+  proofId: text("proof_id"), // Payment proof/transaction hash
+  status: text("status").notNull().default("unpaid"), // unpaid, paid, failed, refunded
+  latencyMs: integer("latency_ms"),
+  responseStatus: integer("response_status"),
+  errorCode: text("error_code"),
+  isFreeRequest: boolean("is_free_request").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  paidAt: timestamp("paid_at"),
+});
+
+// Disputes and refunds
+export const disputes = pgTable("disputes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  usageRecordId: varchar("usage_record_id").notNull().references(() => usageRecords.id),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  reason: text("reason").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("pending"), // pending, approved, denied, resolved
+  refundAmount: decimal("refund_amount", { precision: 18, scale: 6 }),
+  refundTxHash: text("refund_tx_hash"),
+  resolvedBy: varchar("resolved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Payouts tracking
+export const payouts = pgTable("payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
   amount: decimal("amount", { precision: 18, scale: 6 }).notNull(),
   currency: text("currency").notNull().default("USDC"),
-  status: text("status").notNull().default("pending"), // pending, completed, failed, refunded
+  network: text("network").notNull(),
+  status: text("status").notNull().default("pending"), // pending, processing, completed, failed
   txHash: text("tx_hash"),
-  escrowReleaseAt: timestamp("escrow_release_at"),
+  toAddress: text("to_address").notNull(),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  usageCount: integer("usage_count").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
+  processedAt: timestamp("processed_at"),
 });
 
-export const analytics = pgTable("analytics", {
+// Free tier tracking
+export const freeTierUsage = pgTable("free_tier_usage", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  endpointId: varchar("endpoint_id").notNull().references(() => apiEndpoints.id),
-  date: timestamp("date").notNull(),
-  requests: integer("requests").notNull().default(0),
-  paidRequests: integer("paid_requests").notNull().default(0),
-  revenue: decimal("revenue", { precision: 18, scale: 6 }).notNull().default("0"),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  endpointId: varchar("endpoint_id").notNull().references(() => endpoints.id),
+  payerAddress: text("payer_address").notNull(),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  requestCount: integer("request_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Audit log for pricing changes and admin actions
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  userId: varchar("user_id").references(() => users.id),
+  action: text("action").notNull(),
+  resourceType: text("resource_type").notNull(),
+  resourceId: varchar("resource_id").notNull(),
+  oldValues: jsonb("old_values"),
+  newValues: jsonb("new_values"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Webhook registrations
+export const webhookEndpoints = pgTable("webhook_endpoints", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  url: text("url").notNull(),
+  secret: text("secret").notNull(),
+  events: jsonb("events").notNull().default(['payment.confirmed']),
+  isActive: boolean("is_active").notNull().default(true),
+  lastDelivery: timestamp("last_delivery"),
+  failureCount: integer("failure_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const complianceRules = pgTable("compliance_rules", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  type: text("type").notNull(), // geo_block, wallet_allow, wallet_deny
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  type: text("type").notNull(), // geo_block, ip_block, wallet_allow, wallet_deny
   rules: jsonb("rules").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -59,33 +171,77 @@ export const complianceRules = pgTable("compliance_rules", {
 
 export const escrowHoldings = pgTable("escrow_holdings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  usageRecordId: varchar("usage_record_id").notNull().references(() => usageRecords.id),
   amount: decimal("amount", { precision: 18, scale: 6 }).notNull(),
   currency: text("currency").notNull().default("USDC"),
+  network: text("network").notNull(),
   releaseAt: timestamp("release_at").notNull(),
-  status: text("status").notNull().default("pending"), // pending, released, refunded
+  status: text("status").notNull().default("pending"), // pending, released, refunded, disputed
+  proofId: text("proof_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  releasedAt: timestamp("released_at"),
 });
 
 // Insert schemas
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertApiEndpointSchema = createInsertSchema(apiEndpoints).omit({
+export const insertServiceSchema = createInsertSchema(services).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertTransactionSchema = createInsertSchema(transactions).omit({
+export const insertEndpointSchema = createInsertSchema(endpoints).omit({
   id: true,
   createdAt: true,
-  completedAt: true,
 });
 
-export const insertAnalyticsSchema = createInsertSchema(analytics).omit({
+export const insertPricebookSchema = createInsertSchema(pricebooks).omit({
   id: true,
+  createdAt: true,
+  effectiveFrom: true,
+});
+
+export const insertUsageRecordSchema = createInsertSchema(usageRecords).omit({
+  id: true,
+  createdAt: true,
+  paidAt: true,
+});
+
+export const insertDisputeSchema = createInsertSchema(disputes).omit({
+  id: true,
+  createdAt: true,
+  resolvedAt: true,
+});
+
+export const insertPayoutSchema = createInsertSchema(payouts).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+
+export const insertFreeTierUsageSchema = createInsertSchema(freeTierUsage).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertWebhookEndpointSchema = createInsertSchema(webhookEndpoints).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertComplianceRuleSchema = createInsertSchema(complianceRules).omit({
@@ -96,23 +252,50 @@ export const insertComplianceRuleSchema = createInsertSchema(complianceRules).om
 export const insertEscrowHoldingSchema = createInsertSchema(escrowHoldings).omit({
   id: true,
   createdAt: true,
+  releasedAt: true,
 });
 
 // Types
+export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
-export type ApiEndpoint = typeof apiEndpoints.$inferSelect;
-export type InsertApiEndpoint = z.infer<typeof insertApiEndpointSchema>;
+export type Service = typeof services.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
 
-export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+export type Endpoint = typeof endpoints.$inferSelect;
+export type InsertEndpoint = z.infer<typeof insertEndpointSchema>;
 
-export type Analytics = typeof analytics.$inferSelect;
-export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
+export type Pricebook = typeof pricebooks.$inferSelect;
+export type InsertPricebook = z.infer<typeof insertPricebookSchema>;
+
+export type UsageRecord = typeof usageRecords.$inferSelect;
+export type InsertUsageRecord = z.infer<typeof insertUsageRecordSchema>;
+
+export type Dispute = typeof disputes.$inferSelect;
+export type InsertDispute = z.infer<typeof insertDisputeSchema>;
+
+export type Payout = typeof payouts.$inferSelect;
+export type InsertPayout = z.infer<typeof insertPayoutSchema>;
+
+export type FreeTierUsage = typeof freeTierUsage.$inferSelect;
+export type InsertFreeTierUsage = z.infer<typeof insertFreeTierUsageSchema>;
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+
+export type WebhookEndpoint = typeof webhookEndpoints.$inferSelect;
+export type InsertWebhookEndpoint = z.infer<typeof insertWebhookEndpointSchema>;
 
 export type ComplianceRule = typeof complianceRules.$inferSelect;
 export type InsertComplianceRule = z.infer<typeof insertComplianceRuleSchema>;
 
 export type EscrowHolding = typeof escrowHoldings.$inferSelect;
 export type InsertEscrowHolding = z.infer<typeof insertEscrowHoldingSchema>;
+
+// Legacy support - keeping old schema for backward compatibility
+export const apiEndpoints = endpoints;
+export const transactions = usageRecords;
+export const analytics = freeTierUsage;

@@ -11,13 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertApiEndpointSchema } from "@shared/schema";
+import { insertEndpointSchema } from "@shared/schema";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
-const endpointFormSchema = insertApiEndpointSchema.omit({ userId: true });
+const endpointFormSchema = insertEndpointSchema.omit({ serviceId: true });
 type EndpointFormData = z.infer<typeof endpointFormSchema>;
 
 export default function Endpoints() {

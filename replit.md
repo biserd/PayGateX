@@ -18,23 +18,60 @@ The client is built with React 18 and TypeScript, using Vite as the build tool. 
 ### Backend Architecture
 The server uses Express.js with TypeScript in ESM format, implementing a RESTful API design. The application follows a service-oriented architecture with dedicated services for payment processing, analytics computation, and x402 protocol handling. A custom storage interface abstracts database operations, allowing for flexible data layer implementations. The x402 proxy middleware intercepts API calls and enforces payment requirements before forwarding requests to target endpoints.
 
-### Database Design
-The schema is defined using Drizzle ORM with PostgreSQL as the underlying database. Core entities include users, API endpoints, transactions, analytics, compliance rules, and escrow holdings. The design supports multi-tenant usage with user-scoped data isolation. Transaction records track payment status and escrow timing, while analytics tables enable real-time performance monitoring and revenue calculations.
+### Database Design - UPDATED (Aug 2025)
+The schema has been completely redesigned to support a comprehensive multi-tenant SaaS platform. Core entities now include:
+- **Organizations**: Multi-tenant structure with configurable escrow periods and free tier limits
+- **Services**: Grouping of related API endpoints under an organization
+- **Endpoints**: Individual API routes with configurable pricing and network support
+- **Pricebooks**: Versioned pricing with effective dates and network-specific rates
+- **UsageRecords**: Comprehensive request tracking with payment status, latency, and billing data
+- **FreeTierUsage**: Per-endpoint free tier tracking with period-based limits
+- **ComplianceRules**: Geo-blocking, IP filtering, and wallet restrictions
+- **EscrowHoldings**: Time-based payment escrow with automatic release mechanisms
+- **Disputes**: Dispute resolution system for payment conflicts
+- **AuditLogs**: Complete audit trail of system actions
+- **WebhookEndpoints**: Payment confirmation webhooks
 
 ### Authentication & Authorization
-The current implementation uses a demo user pattern for development, with infrastructure in place for proper user authentication. API endpoints are scoped to individual users, ensuring data isolation. The system tracks user ownership of endpoints and transactions, with middleware handling user context propagation throughout the request lifecycle.
+The current implementation uses a demo organization pattern for development, with infrastructure in place for proper user authentication. API endpoints are scoped to organizations, ensuring data isolation. The system tracks organization ownership of endpoints and transactions, with middleware handling user context propagation throughout the request lifecycle.
 
-### Payment Processing
-The payment system implements the x402 protocol specification, supporting blockchain-based micropayments primarily on the Base network. A configurable payment processor service handles verification through either mock implementations for development or real Coinbase facilitator APIs for production. The system supports USDC transactions with configurable pricing per endpoint and automatic escrow functionality with time-based release mechanisms.
+### Payment Processing - ENHANCED
+The payment system implements the x402 protocol specification with comprehensive features:
+- **Facilitator Adapters**: Pluggable payment verification (mock, Coinbase, x402.rs)
+- **Metering Service**: Request tracking with idempotency keys and free tier enforcement
+- **Usage Analytics**: Real-time metrics calculation with conversion rates and latency tracking
+- **Multi-Network Support**: Base, Ethereum, and other blockchain networks
+- **Static Pricing**: Per-call USDC pricing with versioned pricebooks
+- **Escrow System**: Configurable hold periods with automatic release and refund capabilities
 
-### Analytics & Monitoring
-Real-time analytics track API usage, revenue, and performance metrics across multiple time periods. The analytics service computes daily summaries, growth rates, and user-specific statistics. Revenue tracking includes escrow status monitoring and refund processing. The dashboard provides comprehensive insights into API performance with exportable data and trend analysis.
+### x402 Proxy System - COMPLETE
+The comprehensive proxy layer includes:
+- **Request Interception**: Matches incoming requests to configured endpoints
+- **Payment Verification**: Checks for valid payment proofs before forwarding
+- **HTTP 402 Responses**: Returns signed quotes for unpaid requests
+- **Origin URL Forwarding**: Configurable target URLs per endpoint
+- **Health Checks**: Built-in endpoint health monitoring
+- **Compliance Enforcement**: Real-time geo-blocking and IP filtering
+- **Usage Tracking**: Complete request/response lifecycle logging
 
-### Compliance Framework
-A flexible compliance system supports geographic restrictions, wallet blacklisting, and regulatory requirements. Rules are stored as JSON configurations with type-based categorization, allowing for dynamic policy enforcement. The system includes geo-blocking capabilities and transaction monitoring for suspicious activity detection.
+### Analytics & Monitoring - ENHANCED
+Advanced analytics system with:
+- **Real-time Metrics**: Request counts, revenue, conversion rates, latency
+- **Organization-scoped Data**: Multi-tenant analytics with proper isolation  
+- **Usage Record Analysis**: Detailed tracking of paid vs unpaid requests
+- **Escrow Monitoring**: Pending amounts, daily releases, refund tracking
+- **Performance Metrics**: Average latency, error rates, success rates
+
+### Compliance Framework - EXPANDED
+Comprehensive compliance system supporting:
+- **Geographic Restrictions**: IP-based geo-blocking with configurable rules
+- **Wallet Management**: Allow/deny lists for payer addresses
+- **Regulatory Compliance**: Configurable rules for different jurisdictions
+- **Real-time Enforcement**: Middleware-level compliance checking
+- **Audit Trail**: Complete logging of compliance actions and decisions
 
 ### Development Infrastructure
-The application uses modern development tooling including TypeScript for type safety, ESLint for code quality, and Vite for fast development builds. The build process supports both development and production deployments with automatic asset optimization. Environment-specific configurations handle database connections, API keys, and feature flags.
+The application uses modern development tooling including TypeScript for type safety, ESLint for code quality, and Vite for fast development builds. The build process supports both development and production deployments with automatic asset optimization. Environment-specific configurations handle database connections, API keys, and feature flags. The storage layer is fully abstracted with comprehensive in-memory implementation for development and database implementation ready for production.
 
 ## External Dependencies
 

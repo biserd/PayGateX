@@ -1,85 +1,94 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertApiEndpointSchema, insertTransactionSchema, insertComplianceRuleSchema } from "@shared/schema";
+import { insertEndpointSchema, insertUsageRecordSchema, insertComplianceRuleSchema, insertServiceSchema, insertPricebookSchema } from "@shared/schema";
 import { z } from "zod";
 import { x402ProxyMiddleware } from "./middleware/x402-proxy";
-import { PaymentProcessor } from "./services/payment-processor";
-import { AnalyticsService } from "./services/analytics";
+import { createFacilitatorAdapter } from "./services/facilitator-adapter";
+import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 
-const paymentProcessor = new PaymentProcessor();
-const analyticsService = new AnalyticsService(storage);
+const facilitatorAdapter = createFacilitatorAdapter("mock"); // Use mock for development
+const meteringService = new DatabaseMeteringService(storage);
+const usageAnalytics = new UsageAnalytics(storage);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Mock current user (in production, this would come from authentication)
+  // Mock current org/user (in production, this would come from authentication)
+  const DEMO_ORG_ID = "demo-org-1";
   const DEMO_USER_ID = "demo-user-1";
 
   // Add x402 proxy middleware for API endpoints
-  app.use("/proxy", x402ProxyMiddleware(storage, paymentProcessor));
+  app.use("/proxy", x402ProxyMiddleware(storage, facilitatorAdapter, meteringService));
 
   // Dashboard analytics
   app.get("/api/dashboard/summary", async (req, res) => {
     try {
-      const summary = await storage.getUserAnalyticsSummary(DEMO_USER_ID);
-      const escrowSummary = await storage.getEscrowSummary(DEMO_USER_ID);
-      const recentTransactions = await storage.getRecentTransactions(DEMO_USER_ID, 5);
+      const metrics = await usageAnalytics.getUsageMetrics(DEMO_ORG_ID);
+      const escrowSummary = await storage.getEscrowSummary(DEMO_ORG_ID);
+      const recentUsage = await storage.getRecentUsageRecords(DEMO_ORG_ID, 5);
       
       res.json({
-        ...summary,
+        totalRequests: metrics.totalRequests,
+        paidRequests: metrics.paidRequests,
+        totalRevenue: metrics.totalRevenue.toFixed(6),
+        conversionRate: metrics.conversionRate.toFixed(2),
+        averageLatency: metrics.averageLatency,
         escrow: escrowSummary,
-        recentTransactions
+        recentTransactions: recentUsage
       });
     } catch (error) {
+      console.error("Dashboard summary error:", error);
       res.status(500).json({ error: "Failed to fetch dashboard summary" });
     }
   });
 
-  // API Endpoints management
+  // Services and Endpoints management combined
   app.get("/api/endpoints", async (req, res) => {
     try {
-      const endpoints = await storage.getApiEndpointsByUserId(DEMO_USER_ID);
+      const serviceId = req.query.serviceId as string;
+      const endpoints = serviceId 
+        ? await storage.getEndpointsByServiceId(serviceId)
+        : await storage.getEndpointsByOrgId(DEMO_ORG_ID);
       
-      // Get analytics for each endpoint
-      const endpointsWithAnalytics = await Promise.all(
+      // Get metrics for each endpoint using usage records
+      const endpointsWithMetrics = await Promise.all(
         endpoints.map(async (endpoint) => {
-          const transactions = await storage.getTransactionsByEndpointId(endpoint.id);
-          const todayTransactions = transactions.filter(tx => {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            return tx.createdAt! >= today;
-          });
-          
-          const revenue = transactions
-            .filter(tx => tx.status === "completed")
-            .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+          const metrics = await usageAnalytics.getUsageMetrics(DEMO_ORG_ID, endpoint.id);
+          const pricing = await storage.getCurrentPricing(endpoint.id);
           
           return {
             ...endpoint,
-            analytics: {
-              requestsToday: todayTransactions.length,
-              totalRevenue: revenue.toFixed(6),
+            pricing: pricing ? {
+              price: pricing.price,
+              currency: pricing.currency,
+              network: pricing.network
+            } : null,
+            metrics: {
+              requestsToday: metrics.totalRequests,
+              totalRevenue: metrics.totalRevenue.toFixed(6),
+              conversionRate: metrics.conversionRate.toFixed(2),
               status: endpoint.isActive ? "active" : "paused"
             }
           };
         })
       );
-      
-      res.json(endpointsWithAnalytics);
+
+      res.json(endpointsWithMetrics);
     } catch (error) {
+      console.error("Get endpoints error:", error);
       res.status(500).json({ error: "Failed to fetch endpoints" });
     }
   });
 
   app.post("/api/endpoints", async (req, res) => {
     try {
-      const validatedData = insertApiEndpointSchema.parse({
+      const validatedData = insertEndpointSchema.parse({
         ...req.body,
-        userId: DEMO_USER_ID
+        serviceId: req.body.serviceId || "demo-service-1"
       });
       
-      const endpoint = await storage.createApiEndpoint(validatedData);
+      const endpoint = await storage.createEndpoint(validatedData);
       res.status(201).json(endpoint);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -95,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const updates = req.body;
       
-      const endpoint = await storage.updateApiEndpoint(id, updates);
+      const endpoint = await storage.updateEndpoint(id, updates);
       if (!endpoint) {
         return res.status(404).json({ error: "Endpoint not found" });
       }
@@ -109,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/endpoints/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteApiEndpoint(id);
+      const deleted = await storage.deleteEndpoint(id);
       
       if (!deleted) {
         return res.status(404).json({ error: "Endpoint not found" });
@@ -125,15 +134,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/transactions", async (req, res) => {
     try {
       const { limit = "50" } = req.query;
-      const transactions = await storage.getRecentTransactions(DEMO_USER_ID, parseInt(limit as string));
+      const transactions = await storage.getRecentUsageRecords(DEMO_ORG_ID, parseInt(limit as string));
       
       // Enrich with endpoint information
       const enrichedTransactions = await Promise.all(
         transactions.map(async (tx) => {
-          const endpoint = await storage.getApiEndpoint(tx.endpointId);
+          const endpoint = await storage.getEndpoint(tx.endpointId);
           return {
             ...tx,
-            endpoint: endpoint ? { name: endpoint.name, path: endpoint.path } : null
+            endpoint: endpoint ? { path: endpoint.path, method: endpoint.method } : null
           };
         })
       );
@@ -168,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Compliance rules
   app.get("/api/compliance/rules", async (req, res) => {
     try {
-      const rules = await storage.getComplianceRules(DEMO_USER_ID);
+      const rules = await storage.getComplianceRules(DEMO_ORG_ID);
       res.json(rules);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch compliance rules" });
@@ -179,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertComplianceRuleSchema.parse({
         ...req.body,
-        userId: DEMO_USER_ID
+        orgId: DEMO_ORG_ID
       });
       
       const rule = await storage.createComplianceRule(validatedData);
