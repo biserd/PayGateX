@@ -52,8 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
       });
-      // Direct redirect to dashboard
-      window.location.href = "/dashboard";
+      // Small delay to ensure state update, then redirect
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
@@ -75,8 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Registration successful",
         description: `Welcome to PayGate x402, ${user.username}!`,
       });
-      // Direct redirect to dashboard
-      window.location.href = "/dashboard";
+      // Small delay to ensure state update, then redirect
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
