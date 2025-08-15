@@ -1,8 +1,8 @@
-# PayGate 402 - HTTP 402 Payment Required Proxy Platform
+# PayGate x402 - x402 Payment Required Proxy Platform
 
 ## Overview
 
-PayGate 402 is a sophisticated web application that implements the x402 payment protocol for APIs, allowing developers to monetize their API endpoints through automated micropayments. The platform acts as a payment proxy that intercepts API calls, verifies payments via blockchain transactions, and forwards requests to target APIs only after successful payment verification.
+PayGate x402 is a sophisticated web application that implements the x402 payment protocol for APIs, allowing developers to monetize their API endpoints through automated micropayments. The platform acts as a payment proxy that intercepts API calls, verifies payments via blockchain transactions, and forwards requests to target APIs only after successful payment verification.
 
 The application provides a comprehensive dashboard for API endpoint management, real-time analytics, compliance controls, and escrow functionality. It's built as a full-stack TypeScript application with a React frontend and Express.js backend, utilizing PostgreSQL for data persistence and supporting multiple payment networks including Base blockchain.
 

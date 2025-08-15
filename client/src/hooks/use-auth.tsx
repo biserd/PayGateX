@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
       toast({
         title: "Registration successful",
-        description: `Welcome to PayGate 402, ${user.username}!`,
+        description: `Welcome to PayGate x402, ${user.username}!`,
       });
       // Redirect will be handled by the auth page component
     },

@@ -12,14 +12,21 @@ import {
   CreditCard, 
   Server, 
   Plus,
-  Activity
+  Activity,
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Dashboard() {
+  const { user, logoutMutation } = useAuth();
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["/api/dashboard/summary"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   if (isLoading) {
     return (
@@ -70,6 +77,19 @@ export default function Dashboard() {
                 <div className="w-2 h-2 bg-success rounded-full"></div>
                 <span className="text-sm font-medium text-success">x402 Active</span>
               </div>
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.username}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLogout}
+                disabled={logoutMutation.isPending}
+                data-testid="button-logout"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+              </Button>
               <Button data-testid="add-endpoint-button">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Endpoint

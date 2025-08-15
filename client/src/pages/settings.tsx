@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Sidebar } from "@/components/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -145,13 +146,16 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your PayGate 402 account settings and preferences
-        </p>
-      </div>
+    <div className="min-h-screen flex bg-background-light">
+      <Sidebar />
+      <div className="flex-1 overflow-auto p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Settings</h1>
+            <p className="text-muted-foreground">
+              Manage your PayGate x402 account settings and preferences
+            </p>
+          </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid grid-cols-4 w-full max-w-md">
@@ -511,7 +515,9 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

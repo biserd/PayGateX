@@ -42,7 +42,7 @@ export default function AuthPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <DollarSign className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-2xl">PayGate 402</CardTitle>
+                <CardTitle className="text-2xl">PayGate x402</CardTitle>
                 <CardDescription>
                   Sign in to manage your API monetization platform
                 </CardDescription>
@@ -145,11 +145,11 @@ export default function AuthPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                 Monetize Your APIs with
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  HTTP 402 Protocol
+                  x402 Protocol
                 </span>
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Transform any API into a revenue stream with automated micropayments, 
+                Transform any API into a revenue stream with automated micropayments using the x402 protocol, 
                 escrow management, and enterprise-grade compliance controls.
               </p>
             </div>
@@ -162,7 +162,7 @@ export default function AuthPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Automated Payments</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    HTTP 402 proxy enforces payments before API access
+                    x402 proxy enforces payments before API access
                   </p>
                 </div>
               </div>

@@ -13,7 +13,7 @@ export default function Landing() {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">PayGate 402</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">PayGate x402</h1>
           </div>
           <Button 
             onClick={() => window.location.href = "/auth"}
@@ -29,7 +29,7 @@ export default function Landing() {
       <section className="py-20">
         <div className="container mx-auto px-6 text-center">
           <Badge className="mb-6 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            Built on HTTP 402 Protocol
+            Built on x402 Protocol
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Monetize Your APIs
@@ -38,7 +38,7 @@ export default function Landing() {
             </span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
-            Transform any API into a revenue stream with automated micropayments. PayGate 402 handles payment verification, 
+            Transform any API into a revenue stream with automated micropayments. PayGate x402 handles payment verification, 
             escrow management, and compliance while you focus on building great APIs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -82,7 +82,7 @@ export default function Landing() {
                 </div>
                 <CardTitle>Automated Payment Enforcement</CardTitle>
                 <CardDescription>
-                  HTTP 402 proxy intercepts requests and enforces payment before forwarding to your APIs
+                  x402 proxy intercepts requests and enforces payment before forwarding to your APIs
                 </CardDescription>
               </CardHeader>
             </Card>
