@@ -24,13 +24,13 @@ export function Sidebar() {
   const [location] = useLocation();
 
   return (
-    <div className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0">
+    <div className="w-64 bg-slate-900 text-white flex-shrink-0">
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <Coins className="w-4 h-4 text-sidebar-primary-foreground" />
+          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+            <Coins className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold">PayGate 402</span>
+          <span className="text-xl font-bold text-white">PayGate 402</span>
         </div>
         
         <nav className="space-y-2">
@@ -54,14 +54,14 @@ export function Sidebar() {
         </nav>
       </div>
       
-      <div className="px-6 py-4 border-t border-sidebar-border mt-auto">
+      <div className="px-6 py-4 border-t border-slate-700 mt-auto">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-sidebar-primary rounded-full flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-sm font-medium text-white">
             <span>DM</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">David Miller</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">david@example.com</p>
+            <p className="text-sm font-medium truncate text-white">David Miller</p>
+            <p className="text-xs text-gray-400 truncate">david@example.com</p>
           </div>
         </div>
       </div>
