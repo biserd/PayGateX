@@ -9,6 +9,7 @@ import Endpoints from "@/pages/endpoints";
 import Analytics from "@/pages/analytics";
 import Compliance from "@/pages/compliance";
 import Escrow from "@/pages/escrow";
+import Settings from "@/pages/settings";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/compliance" component={Compliance} />
       <Route path="/escrow" component={Escrow} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
