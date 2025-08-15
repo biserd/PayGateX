@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, ensureSeeded } from "./storage";
 import { insertEndpointSchema, insertUsageRecordSchema, insertComplianceRuleSchema, insertServiceSchema, insertPricebookSchema } from "@shared/schema";
 import { z } from "zod";
 import { x402ProxyMiddleware } from "./middleware/x402-proxy";
@@ -12,6 +12,9 @@ const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure database is seeded with demo data
+  await ensureSeeded();
+  
   const httpServer = createServer(app);
 
   // Mock current org/user (in production, this would come from authentication)

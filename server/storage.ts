@@ -117,8 +117,29 @@ export interface IStorage {
   deleteApiEndpoint(id: string): Promise<boolean>;
 }
 
-// Import the actual implementation
-import { MemStorage } from "./storage-impl";
+// Import database implementation
+import { DatabaseStorage } from "./storage-db";
+import { seedDatabase } from "./seed-database";
 
-// Export a singleton instance
-export const storage = new MemStorage();
+// Export a singleton instance using real database
+export const storage = new DatabaseStorage();
+
+// Seed database on first run
+let hasSeeded = false;
+export async function ensureSeeded() {
+  if (!hasSeeded) {
+    try {
+      // Check if data already exists
+      const existingOrg = await storage.getOrganization("demo-org-1");
+      if (!existingOrg) {
+        await seedDatabase();
+      } else {
+        console.log("📊 Database already seeded, skipping...");
+      }
+      hasSeeded = true;
+    } catch (error) {
+      console.error("❌ Database seeding failed:", error);
+      // Don't throw - let app continue with empty database
+    }
+  }
+}
