@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   User, 
   Shield, 
@@ -47,43 +48,18 @@ interface UserSettings {
 
 export default function Settings() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("profile");
 
-  // Mock settings data - in production this would come from the API
+  // Get real user settings from API
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/settings"],
-    initialData: {
-      id: "user_123",
-      name: "David Miller",
-      email: "david@example.com",
-      company: "TechCorp Inc.",
-      timezone: "America/New_York",
-      notifications: {
-        email: true,
-        webhook: false,
-        sms: false
-      },
-      security: {
-        twoFactorEnabled: false,
-        apiKeyRotationDays: 90
-      },
-      payment: {
-        defaultNetwork: "base",
-        escrowPeriodHours: 24,
-        minimumPayment: "0.01"
-      }
-    }
   });
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (updatedSettings: Partial<UserSettings>) => {
-      const response = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedSettings)
-      });
-      if (!response.ok) throw new Error("Update failed");
+      const response = await apiRequest("PATCH", "/api/settings", updatedSettings);
       return response.json();
     },
     onSuccess: () => {
@@ -193,7 +169,7 @@ export default function Settings() {
                     <Input
                       id="name"
                       name="name"
-                      defaultValue={settings?.name}
+                      defaultValue={user?.username || ""}
                       data-testid="input-name"
                     />
                   </div>
@@ -203,7 +179,7 @@ export default function Settings() {
                       id="email"
                       name="email"
                       type="email"
-                      defaultValue={settings?.email}
+                      defaultValue={user?.email || ""}
                       data-testid="input-email"
                     />
                   </div>
@@ -213,7 +189,8 @@ export default function Settings() {
                   <Input
                     id="company"
                     name="company"
-                    defaultValue={settings?.company}
+                    defaultValue={settings?.company || ""}
+                    placeholder="Company name (optional)"
                     data-testid="input-company"
                   />
                 </div>

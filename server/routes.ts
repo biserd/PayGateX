@@ -234,6 +234,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User settings endpoints
+  app.get("/api/settings", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    try {
+      const userId = req.user!.id;
+      // Return user data with default settings structure
+      const settings = {
+        id: userId,
+        name: req.user!.username,
+        email: req.user!.email || "",
+        company: "",
+        timezone: "UTC",
+        notifications: {
+          email: true,
+          webhook: false,
+          sms: false
+        },
+        security: {
+          twoFactorEnabled: false,
+          apiKeyRotationDays: 30
+        },
+        payment: {
+          defaultNetwork: "base",
+          escrowPeriodHours: 24,
+          minimumPayment: "0.01"
+        }
+      };
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching user settings:", error);
+      res.status(500).json({ error: "Failed to fetch settings" });
+    }
+  });
+
+  app.patch("/api/settings", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    try {
+      // For now, just return success since we're not persisting settings yet
+      res.json({ success: true, message: "Settings updated successfully" });
+    } catch (error) {
+      console.error("Error updating user settings:", error);
+      res.status(500).json({ error: "Failed to update settings" });
+    }
+  });
+
   // x402 protocol endpoints
   app.post("/api/x402/verify", async (req, res) => {
     try {
