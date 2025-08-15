@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
       });
+      // Redirect will be handled by the auth page component
     },
     onError: (error: Error) => {
       toast({
@@ -73,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Registration successful",
         description: `Welcome to PayGate 402, ${user.username}!`,
       });
+      // Redirect will be handled by the auth page component
     },
     onError: (error: Error) => {
       toast({
