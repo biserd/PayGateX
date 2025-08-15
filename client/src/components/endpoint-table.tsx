@@ -1,15 +1,21 @@
-import { ApiEndpoint } from "@shared/schema";
+import { Endpoint } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, BarChart3, Settings, Plug, Bot, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface EndpointWithAnalytics extends ApiEndpoint {
-  analytics: {
+interface EndpointWithAnalytics extends Endpoint {
+  metrics: {
     requestsToday: number;
     totalRevenue: string;
+    conversionRate: string;
     status: string;
   };
+  pricing: {
+    price: string;
+    currency: string;
+    network: string;
+  } | null;
 }
 
 interface EndpointTableProps {
@@ -104,18 +110,18 @@ export function EndpointTable({ endpoints, onEdit, onViewAnalytics, onSettings }
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm font-mono font-medium text-primary" data-testid={`endpoint-price-${endpoint.id}`}>
-                      ${endpoint.price}
+                      ${endpoint.pricing?.price || '0.001'}
                     </span>
                     <div className="text-xs text-gray-500">per request</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-primary" data-testid={`endpoint-requests-${endpoint.id}`}>
-                      {endpoint.analytics.requestsToday}
+                      {endpoint.metrics.requestsToday}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm font-medium text-primary" data-testid={`endpoint-revenue-${endpoint.id}`}>
-                      ${endpoint.analytics.totalRevenue}
+                      ${endpoint.metrics.totalRevenue}
                     </span>
                   </td>
                   <td className="px-6 py-4">
