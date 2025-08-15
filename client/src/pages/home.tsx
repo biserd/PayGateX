@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { DollarSign, LogOut, User, Settings } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -23,7 +23,7 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
               <User className="w-3 h-3 mr-1" />
-              {(user as any)?.email || (user as any)?.username || 'User'}
+              {user?.email || user?.username || 'User'}
             </Badge>
             <Link to="/dashboard">
               <Button variant="ghost" size="sm" data-testid="button-dashboard">
@@ -38,7 +38,7 @@ export default function Home() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={() => logoutMutation.mutate()}
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />

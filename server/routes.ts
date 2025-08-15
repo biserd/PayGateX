@@ -6,18 +6,26 @@ import { z } from "zod";
 import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth } from "./auth";
 
 const facilitatorAdapter = createFacilitatorAdapter("mock"); // Use mock for development
 const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
+
+// Simple authentication middleware
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure database is seeded with demo data
   await ensureSeeded();
   
   // Setup authentication
-  await setupAuth(app);
+  setupAuth(app);
   
   const httpServer = createServer(app);
 
@@ -28,17 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add x402 proxy middleware for API endpoints
   app.use("/proxy", x402ProxyMiddleware(storage, facilitatorAdapter, meteringService));
 
-  // Authentication routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Note: Auth routes are now handled in auth.ts
 
   // Dashboard analytics (protected)
   app.get("/api/dashboard/summary", isAuthenticated, async (req, res) => {

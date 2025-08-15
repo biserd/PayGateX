@@ -16,7 +16,7 @@ export default function Landing() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">PayGate 402</h1>
           </div>
           <Button 
-            onClick={() => window.location.href = "/api/login"}
+            onClick={() => window.location.href = "/auth"}
             className="bg-blue-600 hover:bg-blue-700"
             data-testid="button-login"
           >
@@ -44,7 +44,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              onClick={() => window.location.href = "/api/login"}
+              onClick={() => window.location.href = "/auth"}
               className="bg-blue-600 hover:bg-blue-700 px-8 py-3"
               data-testid="button-get-started"
             >
@@ -207,7 +207,7 @@ export default function Landing() {
           </p>
           <Button 
             size="lg" 
-            onClick={() => window.location.href = "/api/login"}
+            onClick={() => window.location.href = "/auth"}
             className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-3 text-lg"
             data-testid="button-start-earning"
           >
