@@ -79,6 +79,21 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async upsertUser(userData: any): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          createdAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
   // Service methods
   async getService(id: string): Promise<Service | undefined> {
     const [service] = await db.select().from(services).where(eq(services.id, id));

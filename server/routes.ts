@@ -6,6 +6,7 @@ import { z } from "zod";
 import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 const facilitatorAdapter = createFacilitatorAdapter("mock"); // Use mock for development
 const meteringService = new DatabaseMeteringService(storage);
@@ -14,6 +15,9 @@ const usageAnalytics = new UsageAnalytics(storage);
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure database is seeded with demo data
   await ensureSeeded();
+  
+  // Setup authentication
+  await setupAuth(app);
   
   const httpServer = createServer(app);
 
@@ -24,8 +28,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add x402 proxy middleware for API endpoints
   app.use("/proxy", x402ProxyMiddleware(storage, facilitatorAdapter, meteringService));
 
-  // Dashboard analytics
-  app.get("/api/dashboard/summary", async (req, res) => {
+  // Authentication routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Dashboard analytics (protected)
+  app.get("/api/dashboard/summary", isAuthenticated, async (req, res) => {
     try {
       const metrics = await usageAnalytics.getUsageMetrics(DEMO_ORG_ID);
       const escrowSummary = await storage.getEscrowSummary(DEMO_ORG_ID);
@@ -46,8 +62,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Services and Endpoints management combined
-  app.get("/api/endpoints", async (req, res) => {
+  // Services and Endpoints management combined  
+  app.get("/api/endpoints", isAuthenticated, async (req, res) => {
     try {
       const serviceId = req.query.serviceId as string;
       const endpoints = serviceId 
