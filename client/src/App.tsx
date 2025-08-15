@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import AuthPage from "@/pages/auth-page";
-import Home from "@/pages/home";
+
 import Dashboard from "@/pages/dashboard";
 import Endpoints from "@/pages/endpoints";
 import Analytics from "@/pages/analytics";
