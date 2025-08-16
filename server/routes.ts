@@ -241,26 +241,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     try {
       const userId = req.user!.id;
-      // Return user data with default settings structure
+      const user = await storage.getUser(userId);
+      
+      // Get stored settings or use defaults
+      const userSettings = (user as any)?.settings || {};
+      
       const settings = {
         id: userId,
-        name: req.user!.username,
-        email: req.user!.email || "",
-        company: "",
-        timezone: "UTC",
+        name: userSettings.name || req.user!.username,
+        email: userSettings.email || req.user!.email || "",
+        company: userSettings.company || "",
+        timezone: userSettings.timezone || "UTC", 
         notifications: {
-          email: true,
-          webhook: false,
-          sms: false
+          email: userSettings.notifications?.email ?? true,
+          webhook: userSettings.notifications?.webhook ?? false,
+          sms: userSettings.notifications?.sms ?? false
         },
         security: {
-          twoFactorEnabled: false,
-          apiKeyRotationDays: 30
+          twoFactorEnabled: userSettings.security?.twoFactorEnabled ?? false,
+          apiKeyRotationDays: userSettings.security?.apiKeyRotationDays ?? 30
         },
         payment: {
-          defaultNetwork: "base",
-          escrowPeriodHours: 24,
-          minimumPayment: "0.01"
+          defaultNetwork: userSettings.payment?.defaultNetwork || "base",
+          escrowPeriodHours: userSettings.payment?.escrowPeriodHours ?? 24,
+          minimumPayment: userSettings.payment?.minimumPayment || "0.01"
         }
       };
       res.json(settings);
@@ -275,7 +279,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ error: "Unauthorized" });
     }
     try {
-      // For now, just return success since we're not persisting settings yet
+      const userId = req.user!.id;
+      const updates = req.body;
+      
+      console.log("Updating user settings:", userId, updates);
+      
+      // Update user settings in database
+      await storage.updateUserSettings(userId, updates);
+      
       res.json({ success: true, message: "Settings updated successfully" });
     } catch (error) {
       console.error("Error updating user settings:", error);

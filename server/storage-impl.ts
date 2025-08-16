@@ -259,6 +259,24 @@ export class MemStorage implements IStorage {
     return newUser;
   }
 
+  async updateUserSettings(id: string, settings: any): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+
+    // Store settings by extending the user object with settings data
+    // In production, you'd have a separate user_settings table
+    const updatedUser: User & { settings?: any } = {
+      ...user,
+      settings: {
+        ...(user as any).settings || {},
+        ...settings
+      }
+    };
+    
+    this.users.set(id, updatedUser as User);
+    return updatedUser as User;
+  }
+
   // Service methods
   async getService(id: string): Promise<Service | undefined> {
     return this.services.get(id);

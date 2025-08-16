@@ -59,6 +59,7 @@ export default function Settings() {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (updatedSettings: Partial<UserSettings>) => {
+      console.log("Sending settings update:", updatedSettings);
       const response = await apiRequest("PATCH", "/api/settings", updatedSettings);
       return response.json();
     },
