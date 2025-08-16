@@ -242,29 +242,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const user = await storage.getUser(userId);
-      
-      // Get stored settings or use defaults
-      const userSettings = (user as any)?.settings || {};
+      const userSettings = await (storage as any).getUserSettings(userId);
       
       const settings = {
         id: userId,
-        name: userSettings.name || req.user!.username,
-        email: userSettings.email || req.user!.email || "",
-        company: userSettings.company || "",
-        timezone: userSettings.timezone || "UTC", 
+        name: user?.username || "",
+        email: user?.email || "",
+        company: userSettings?.company || "",
+        timezone: userSettings?.timezone || "UTC", 
         notifications: {
-          email: userSettings.notifications?.email ?? true,
-          webhook: userSettings.notifications?.webhook ?? false,
-          sms: userSettings.notifications?.sms ?? false
+          email: userSettings?.emailNotifications ?? true,
+          webhook: userSettings?.webhookNotifications ?? false,
+          sms: userSettings?.smsNotifications ?? false
         },
         security: {
-          twoFactorEnabled: userSettings.security?.twoFactorEnabled ?? false,
-          apiKeyRotationDays: userSettings.security?.apiKeyRotationDays ?? 30
+          twoFactorEnabled: userSettings?.twoFactorEnabled ?? false,
+          apiKeyRotationDays: userSettings?.apiKeyRotationDays ?? 30
         },
         payment: {
-          defaultNetwork: userSettings.payment?.defaultNetwork || "base",
-          escrowPeriodHours: userSettings.payment?.escrowPeriodHours ?? 24,
-          minimumPayment: userSettings.payment?.minimumPayment || "0.01"
+          defaultNetwork: userSettings?.defaultNetwork || "base",
+          escrowPeriodHours: userSettings?.escrowPeriodHours ?? 24,
+          minimumPayment: userSettings?.minimumPayment || "0.01"
         }
       };
       res.json(settings);

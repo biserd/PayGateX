@@ -1,6 +1,8 @@
 import { 
   type User, 
   type InsertUser,
+  type UserSettings,
+  type InsertUserSettings,
   type Organization,
   type InsertOrganization,
   type Service,
@@ -24,6 +26,7 @@ import {
   type WebhookEndpoint,
   type InsertWebhookEndpoint,
   users,
+  userSettings,
   organizations,
   services,
   endpoints,
@@ -84,23 +87,59 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateUserSettings(id: string, settings: any): Promise<User | undefined> {
-    // For now, we'll store settings in a simple way by updating user fields
-    // In production, you'd have a separate user_settings table
-    const updates: any = {};
+  async getUserSettings(userId: string): Promise<UserSettings | undefined> {
+    const [settings] = await db.select().from(userSettings).where(eq(userSettings.userId, userId));
+    return settings || undefined;
+  }
+
+  async updateUserSettings(userId: string, settingsData: any): Promise<UserSettings> {
+    // Update basic user info if provided
+    const userUpdates: any = {};
+    if (settingsData.name) userUpdates.username = settingsData.name;
+    if (settingsData.email) userUpdates.email = settingsData.email;
     
-    if (settings.name) updates.username = settings.name;
-    if (settings.email) updates.email = settings.email;
-    // Note: company, timezone, notifications etc. aren't in the current user schema
-    // but we'll still return the user for consistency
-    
-    if (Object.keys(updates).length > 0) {
-      const [updated] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
-      return updated || undefined;
+    if (Object.keys(userUpdates).length > 0) {
+      await db.update(users).set(userUpdates).where(eq(users.id, userId));
     }
+
+    // Prepare settings data for user_settings table
+    const settingsUpdate = {
+      userId,
+      company: settingsData.company,
+      timezone: settingsData.timezone,
+      emailNotifications: settingsData.notifications?.email,
+      webhookNotifications: settingsData.notifications?.webhook,
+      smsNotifications: settingsData.notifications?.sms,
+      twoFactorEnabled: settingsData.security?.twoFactorEnabled,
+      apiKeyRotationDays: settingsData.security?.apiKeyRotationDays,
+      defaultNetwork: settingsData.payment?.defaultNetwork,
+      escrowPeriodHours: settingsData.payment?.escrowPeriodHours,
+      minimumPayment: settingsData.payment?.minimumPayment,
+      updatedAt: new Date(),
+    };
+
+    // Remove undefined values
+    Object.keys(settingsUpdate).forEach(key => {
+      if (settingsUpdate[key] === undefined) {
+        delete settingsUpdate[key];
+      }
+    });
+
+    // Try to update existing settings, or insert new ones
+    const existingSettings = await this.getUserSettings(userId);
     
-    // Return the existing user if no updates were made
-    return this.getUser(id);
+    if (existingSettings) {
+      const [updated] = await db.update(userSettings)
+        .set(settingsUpdate)
+        .where(eq(userSettings.userId, userId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(userSettings)
+        .values(settingsUpdate)
+        .returning();
+      return created;
+    }
   }
 
   async upsertUser(userData: any): Promise<User> {

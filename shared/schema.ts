@@ -38,6 +38,24 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// User settings table for storing user preferences
+export const userSettings = pgTable("user_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  company: text("company"),
+  timezone: text("timezone").default("UTC"),
+  emailNotifications: boolean("email_notifications").default(true),
+  webhookNotifications: boolean("webhook_notifications").default(false),
+  smsNotifications: boolean("sms_notifications").default(false),
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  apiKeyRotationDays: integer("api_key_rotation_days").default(30),
+  defaultNetwork: text("default_network").default("base"),
+  escrowPeriodHours: integer("escrow_period_hours").default(24),
+  minimumPayment: decimal("minimum_payment", { precision: 18, scale: 6 }).default("0.01"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Services (collection of endpoints)
 export const services = pgTable("services", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -205,6 +223,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
 });
 
+export const insertUserSettingsSchema = createInsertSchema(userSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertServiceSchema = createInsertSchema(services).omit({
   id: true,
   createdAt: true,
@@ -272,6 +296,9 @@ export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type UserSettings = typeof userSettings.$inferSelect;
+export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
 
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
