@@ -5,7 +5,7 @@ import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Sparkle
 
 export default function Landing() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-slate-950 text-white">
+    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
         <div className="absolute inset-0" style={{
