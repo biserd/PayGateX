@@ -84,6 +84,25 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async updateUserSettings(id: string, settings: any): Promise<User | undefined> {
+    // For now, we'll store settings in a simple way by updating user fields
+    // In production, you'd have a separate user_settings table
+    const updates: any = {};
+    
+    if (settings.name) updates.username = settings.name;
+    if (settings.email) updates.email = settings.email;
+    // Note: company, timezone, notifications etc. aren't in the current user schema
+    // but we'll still return the user for consistency
+    
+    if (Object.keys(updates).length > 0) {
+      const [updated] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+      return updated || undefined;
+    }
+    
+    // Return the existing user if no updates were made
+    return this.getUser(id);
+  }
+
   async upsertUser(userData: any): Promise<User> {
     const [user] = await db
       .insert(users)
