@@ -34,18 +34,31 @@ export default function Endpoints() {
       const response = await apiRequest("POST", "/api/endpoints", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (newEndpoint) => {
+      // Invalidate and refetch the endpoints list
       queryClient.invalidateQueries({ queryKey: ["/api/endpoints"] });
+      
+      // Optionally update the cache optimistically
+      queryClient.setQueryData(["/api/endpoints"], (oldData: any) => {
+        if (oldData && Array.isArray(oldData)) {
+          return [newEndpoint, ...oldData];
+        }
+        return [newEndpoint];
+      });
+      
+      // Reset form and close dialog
+      form.reset();
       setIsCreateDialogOpen(false);
+      
       toast({
         title: "Success",
         description: "API endpoint created successfully",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to create API endpoint",
+        description: error?.message || "Failed to create API endpoint",
         variant: "destructive",
       });
     },
