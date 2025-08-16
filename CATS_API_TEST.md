@@ -10,15 +10,20 @@
 
 ### Step 2: Test Unpaid Request (Should Return HTTP 402)
 
-Based on typical organization setup, try this command (replace with your actual IDs):
+First, check what endpoints you actually created. Based on the seeded data, try these:
 
 ```bash
-# For demo organization (most common)
-curl -v "http://localhost:5000/proxy/demo-org/demo-service/cats"
+# Test the seeded AI endpoint (if you haven't created your own yet)
+curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/ai/chat" -X POST
 
-# Or if you see different IDs in your dashboard, use:
-curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/[your-endpoint-path]"
+# Test the seeded analytics endpoint  
+curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/data/analytics"
+
+# If you created a cats endpoint, use the exact path you configured:
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/[your-exact-endpoint-path]"
 ```
+
+**Important**: The path must exactly match what you configured in the endpoint creation form!
 
 **Expected Result**: HTTP 402 Payment Required with payment quote
 

@@ -33,8 +33,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const DEMO_ORG_ID = "demo-org-1";
   const DEMO_USER_ID = "demo-user-1";
 
-  // Add x402 proxy middleware for API endpoints
-  app.use("/proxy", x402ProxyMiddleware(storage, facilitatorAdapter, meteringService));
+  // Add manual proxy route handler to bypass Vite interference
+  app.all("/proxy/*", async (req, res, next) => {
+    console.log(`[DEBUG] Manual proxy handler: ${req.method} ${req.originalUrl}`);
+    
+    // Call the x402 proxy middleware directly
+    const middleware = x402ProxyMiddleware(storage, facilitatorAdapter, meteringService);
+    return middleware(req, res, next);
+  });
 
   // Note: Auth routes are now handled in auth.ts
 
