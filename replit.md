@@ -79,6 +79,8 @@ Comprehensive testing guide (TESTING_GUIDE.md) covers all platform features incl
 ### Documentation and Repository Management
 Complete GitHub repository documentation (README.md) provides comprehensive overview of platform architecture, quick start guides, API documentation, deployment instructions, and contribution guidelines. Includes detailed feature descriptions, security best practices, production deployment checklists, and roadmap for future enhancements. Documentation covers both technical implementation details and business use cases for API monetization.
 
+Comprehensive testing documentation includes both command-line testing guide (TESTING_GUIDE.md) and Postman-specific testing guide (POSTMAN_TESTING_GUIDE.md). The Postman guide covers collection setup, automated test scripts, environment configurations, and CI/CD integration with Newman for x402 payment protocol validation.
+
 ## External Dependencies
 
 ### Database Infrastructure
