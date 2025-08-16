@@ -32,7 +32,7 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/auth" component={AuthPage} />
-          <Route component={NotFound} />
+          <Route path="*" component={NotFound} />
         </>
       ) : (
         <>
@@ -43,7 +43,7 @@ function Router() {
           <Route path="/compliance" component={Compliance} />
           <Route path="/escrow" component={Escrow} />
           <Route path="/settings" component={Settings} />
-          <Route component={Dashboard} />
+          <Route path="*" component={NotFound} />
         </>
       )}
     </Switch>
