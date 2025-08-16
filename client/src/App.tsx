@@ -26,26 +26,26 @@ function Router() {
     );
   }
 
+  if (!user) {
+    return (
+      <Switch>
+        <Route path="/" component={Landing} />
+        <Route path="/auth" component={AuthPage} />
+        <Route path="*" component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
-      {!user ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/auth" component={AuthPage} />
-          <Route path="*" component={NotFound} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/endpoints" component={Endpoints} />
-          <Route path="/analytics" component={Analytics} />
-          <Route path="/compliance" component={Compliance} />
-          <Route path="/escrow" component={Escrow} />
-          <Route path="/settings" component={Settings} />
-          <Route path="*" component={NotFound} />
-        </>
-      )}
+      <Route path="/" component={Dashboard} />
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/endpoints" component={Endpoints} />
+      <Route path="/analytics" component={Analytics} />
+      <Route path="/compliance" component={Compliance} />
+      <Route path="/escrow" component={Escrow} />
+      <Route path="/settings" component={Settings} />
+      <Route path="*" component={NotFound} />
     </Switch>
   );
 }
