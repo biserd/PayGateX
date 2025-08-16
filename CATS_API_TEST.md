@@ -1,0 +1,91 @@
+# Testing Your Cats API with x402 Payment Protocol
+
+## Quick Test Guide for Your Cats API
+
+### Step 1: Get Your Endpoint Details
+
+1. Go to your endpoints page in the dashboard
+2. Find your Cats API endpoint 
+3. Note the organization ID and service ID from the URL or interface
+
+### Step 2: Test Unpaid Request (Should Return HTTP 402)
+
+Based on typical organization setup, try this command (replace with your actual IDs):
+
+```bash
+# For demo organization (most common)
+curl -v "http://localhost:5000/proxy/demo-org/demo-service/cats"
+
+# Or if you see different IDs in your dashboard, use:
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/[your-endpoint-path]"
+```
+
+**Expected Result**: HTTP 402 Payment Required with payment quote
+
+### Step 2: Get Your Endpoint Details
+
+Check your endpoint configuration in the dashboard or via API:
+```bash
+curl -s "http://localhost:5000/api/endpoints" | jq '.'
+```
+
+### Step 3: Test the 402 Payment Flow
+
+1. **Make the unpaid request** and note the quote ID from the response
+2. **Simulate payment** (for development testing):
+```bash
+curl -X POST "http://localhost:5000/api/payments/simulate" \
+-H "Content-Type: application/json" \
+-d '{
+  "quoteId": "[quote-id-from-402-response]",
+  "payerAddress": "0x1234567890123456789012345678901234567890",
+  "transactionHash": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+}'
+```
+
+3. **Make paid request** with payment proof:
+```bash
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/cats" \
+-H "x402-payment-hash: 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+```
+
+**Expected Result**: HTTP 200 with actual cat data from the API
+
+### Step 4: Verify Analytics
+
+1. Go to your dashboard
+2. Check that metrics updated:
+   - Total requests increased
+   - Paid requests increased 
+   - Revenue shows the price you set
+
+## Common Cats API Endpoints to Test
+
+If you're using a public cats API, try these variations:
+
+```bash
+# Random cat fact
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/fact"
+
+# Random cat image
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/image"
+
+# Cat breeds
+curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/breeds"
+```
+
+## Troubleshooting
+
+- **404 Error**: Check your endpoint path configuration
+- **502 Bad Gateway**: Verify your target URL is correct and accessible
+- **No 402 Response**: Ensure pricing is configured and endpoint is active
+- **Payment Not Accepted**: Check transaction hash format and payment simulation
+
+## Expected Flow Summary
+
+1. **First Request** → HTTP 402 with payment quote
+2. **Payment Simulation** → Success confirmation  
+3. **Second Request with Payment** → HTTP 200 with cat data
+4. **Dashboard Analytics** → Updated metrics
+
+Your Cats API is now monetized with automated micropayments!
