@@ -1,23 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight } from "lucide-react";
+import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Sparkles, Coins, TrendingUp, Lock } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen relative overflow-hidden bg-slate-950 text-white">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
+                           radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), 
+                           radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.15) 0%, transparent 50%)`
+        }} />
+      </div>
+      
       {/* Header */}
-      <header className="border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-white" />
+      <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="relative w-10 h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
+              <Sparkles className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">PayGate x402</h1>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
+              <p className="text-xs text-gray-400 font-medium">API Monetization Platform</p>
+            </div>
           </div>
           <Button 
             onClick={() => window.location.href = "/auth"}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
             data-testid="button-login"
           >
             Sign In
@@ -26,122 +39,170 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-6 text-center">
-          <Badge className="mb-6 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+      <section className="relative py-32 px-6">
+        <div className="container mx-auto text-center">
+          <Badge className="mb-8 bg-gradient-to-r from-violet-500/10 to-cyan-500/10 border border-violet-500/20 text-violet-300 backdrop-blur-sm px-4 py-2">
+            <Coins className="w-4 h-4 mr-2" />
             Built on x402 Protocol
           </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Monetize Your APIs
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          
+          <h1 className="text-6xl md:text-8xl font-black mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Monetize APIs
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-pulse">
               Instantly
             </span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
-            Transform any API into a revenue stream with automated micropayments. PayGate x402 handles payment verification, 
-            escrow management, and compliance while you focus on building great APIs.
+          
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
+            Transform any API into a <span className="text-violet-400 font-semibold">revenue stream</span> with automated micropayments. 
+            PayGate handles payment verification, escrow management, and compliance while you focus on building.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button 
               size="lg" 
               onClick={() => window.location.href = "/auth"}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-3"
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-10 py-4 text-lg font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/30 hover:scale-105"
               data-testid="button-get-started"
             >
-              Start Building <ArrowRight className="ml-2 w-4 h-4" />
+              <Sparkles className="mr-3 w-5 h-5" />
+              Start Building
+              <ArrowRight className="ml-3 w-5 h-5" />
             </Button>
             <Button 
               variant="outline" 
               size="lg"
-              className="px-8 py-3"
+              className="border-2 border-violet-500/30 text-violet-300 hover:bg-violet-500/10 hover:border-violet-400 px-10 py-4 text-lg font-semibold backdrop-blur-sm transition-all duration-300"
               data-testid="button-view-demo"
             >
+              <TrendingUp className="mr-2 w-5 h-5" />
               View Demo
             </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-violet-400 mb-2">$2M+</div>
+              <div className="text-gray-400 text-sm">Revenue Processed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-cyan-400 mb-2">99.9%</div>
+              <div className="text-gray-400 text-sm">Uptime SLA</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-400 mb-2">50ms</div>
+              <div className="text-gray-400 text-sm">Avg Response</div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Everything You Need to Monetize APIs
+      <section className="relative py-24 px-6">
+        <div className="container mx-auto">
+          <div className="text-center mb-20">
+            <Badge className="mb-6 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/20 text-cyan-300 backdrop-blur-sm">
+              <Lock className="w-4 h-4 mr-2" />
+              Enterprise-Grade Infrastructure
+            </Badge>
+            <h2 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Everything You Need
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                to Monetize APIs
+              </span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
               Complete payment infrastructure for API providers, from request interception to revenue analytics.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <Card className="bg-slate-900/50 border border-violet-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-violet-500/25">
+                  <Zap className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Automated Payment Enforcement</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-violet-300 transition-colors">
+                  Automated Payment Enforcement
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   x402 proxy intercepts requests and enforces payment before forwarding to your APIs
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <Card className="bg-slate-900/50 border border-emerald-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-emerald-500/25">
+                  <Shield className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Escrow & Refunds</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-emerald-300 transition-colors">
+                  Escrow & Refunds
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   Built-in escrow system with configurable hold periods and automated dispute resolution
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                  <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <Card className="bg-slate-900/50 border border-cyan-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-cyan-500/25">
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Real-time Analytics</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-cyan-300 transition-colors">
+                  Real-time Analytics
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   Track revenue, conversion rates, usage patterns and performance metrics in real-time
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
-                  <Globe className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <Card className="bg-slate-900/50 border border-orange-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-orange-500/25">
+                  <Globe className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Compliance Controls</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-orange-300 transition-colors">
+                  Compliance Controls
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   Geo-blocking, IP filtering, wallet restrictions and regulatory compliance tools
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-lg flex items-center justify-center mb-4">
-                  <CheckCircle className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+            <Card className="bg-slate-900/50 border border-indigo-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-indigo-500/25">
+                  <CheckCircle className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Multi-Network Support</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-indigo-300 transition-colors">
+                  Multi-Network Support
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   Accept USDC payments on Base, Ethereum and other supported blockchain networks
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+            <Card className="bg-slate-900/50 border border-pink-500/20 backdrop-blur-xl hover:bg-slate-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/10 group">
+              <CardHeader className="p-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-pink-500/25">
+                  <Users className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle>Developer-Friendly</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-2xl mb-4 group-hover:text-pink-300 transition-colors">
+                  Developer-Friendly
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-lg leading-relaxed">
                   Simple integration with comprehensive API documentation and webhook support
                 </CardDescription>
               </CardHeader>
@@ -151,44 +212,49 @@ export default function Landing() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              How PayGate 402 Works
+      <section className="relative py-24 px-6">
+        <div className="container mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                How It Works
+              </span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Three simple steps to start monetizing your APIs with automated micropayments.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+          <div className="grid md:grid-cols-3 gap-16">
+            <div className="text-center group">
+              <div className="relative w-24 h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 shadow-2xl shadow-violet-500/30">
                 1
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl blur opacity-50 animate-pulse" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Connect Your API</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-violet-300 transition-colors">Connect Your API</h3>
+              <p className="text-gray-300 text-lg leading-relaxed">
                 Register your API endpoints and set pricing in USDC. Configure target URLs and supported networks.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+            <div className="text-center group">
+              <div className="relative w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 shadow-2xl shadow-cyan-500/30">
                 2
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl blur opacity-50 animate-pulse" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Route Traffic</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-cyan-300 transition-colors">Route Traffic</h3>
+              <p className="text-gray-300 text-lg leading-relaxed">
                 Direct API calls through our proxy. Unpaid requests receive HTTP 402 with payment instructions.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+            <div className="text-center group">
+              <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 shadow-2xl shadow-emerald-500/30">
                 3
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl blur opacity-50 animate-pulse" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Get Paid</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-emerald-300 transition-colors">Get Paid</h3>
+              <p className="text-gray-300 text-lg leading-relaxed">
                 Payments are verified and held in escrow. Funds are released automatically after the hold period.
               </p>
             </div>
@@ -197,37 +263,48 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Monetize Your APIs?
+      <section className="relative py-32 px-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-purple-600/20 to-cyan-600/20" />
+        <div className="container mx-auto text-center relative z-10">
+          <h2 className="text-5xl md:text-7xl font-bold mb-8">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Ready to
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              Monetize Your APIs?
+            </span>
           </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Join developers already earning revenue with PayGate 402. Start with our free tier and scale as you grow.
+          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Join developers already earning revenue with PayGate x402. Start with our free tier and scale as you grow.
           </p>
           <Button 
             size="lg" 
             onClick={() => window.location.href = "/auth"}
-            className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-3 text-lg"
+            className="bg-gradient-to-r from-white to-gray-100 text-slate-900 hover:from-gray-100 hover:to-white px-12 py-6 text-xl font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:scale-105"
             data-testid="button-start-earning"
           >
-            Start Earning Today <ArrowRight className="ml-2 w-5 h-5" />
+            <DollarSign className="mr-3 w-6 h-6" />
+            Start Earning Today
+            <ArrowRight className="ml-3 w-6 h-6" />
           </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-6 py-8">
+      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-white" />
+            <div className="flex items-center space-x-4 mb-6 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">PayGate 402</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                PayGate x402
+              </span>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              © 2025 PayGate 402. Built with HTTP 402 protocol.
+            <p className="text-gray-400">
+              © 2025 PayGate x402. Built with HTTP 402 protocol.
             </p>
           </div>
         </div>
