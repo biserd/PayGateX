@@ -42,13 +42,17 @@ pm.test("Status is 402", function () {
     pm.response.to.have.status(402);
 });
 
-pm.test("Response has quote", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData).to.have.property('quote');
-    pm.expect(jsonData.quote).to.have.property('id');
+pm.test("Response has quote header", function () {
+    const quoteHeader = pm.response.headers.get("X-402-QUOTE");
+    pm.expect(quoteHeader).to.not.be.null;
     
-    // Save quote ID for next request
-    pm.collectionVariables.set("quote_id", jsonData.quote.id);
+    // Decode the base64 quote
+    const quoteData = JSON.parse(atob(quoteHeader));
+    pm.expect(quoteData).to.have.property('nonce');
+    
+    // Save quote nonce as quote ID for next request
+    pm.collectionVariables.set("quote_id", quoteData.nonce);
+    pm.collectionVariables.set("quote_signature", quoteData.signature);
 });
 ```
 
@@ -62,15 +66,38 @@ pm.test("Response has quote", function () {
 - **Body** (raw JSON):
 ```json
 {
-  "quoteId": "{{quote_id}}",
-  "payerAddress": "0x1234567890123456789012345678901234567890",
-  "transactionHash": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+  "endpointId": "endpoint-1",
+  "amount": "0.001"
 }
 ```
 
 **Expected Response:**
 - **Status**: 200 OK
 - **Body**: Success confirmation
+
+**Postman Test Script:**
+```javascript
+pm.test("Payment simulation successful", function () {
+    pm.response.to.have.status(200);
+    const jsonData = pm.response.json();
+    pm.expect(jsonData).to.have.property('transactionHash');
+    
+    // Save transaction hash for paid request
+    pm.collectionVariables.set("tx_hash", jsonData.transactionHash);
+});
+```
+
+### Test 3: Make Paid Request
+
+**Request Setup:**
+- **Method**: GET
+- **URL**: `{{base_url}}/proxy/demo-org-1/demo-service-1/api/v1/cats`
+- **Headers**: 
+  - `x-payment`: `{{tx_hash}}`
+
+**Expected Response:**
+- **Status**: 200 OK
+- **Body**: Actual cat data from the target API
 
 **Postman Test Script:**
 ```javascript
@@ -88,7 +115,7 @@ pm.collectionVariables.set("tx_hash", "0xabcdef1234567890abcdef1234567890abcdef1
 - **Method**: GET (same as Test 1)
 - **URL**: `{{base_url}}/proxy/{{org_id}}/{{service_id}}/{{endpoint_path}}`
 - **Headers**:
-  - `x402-payment-hash`: `{{tx_hash}}`
+  - `x-payment`: `{{tx_hash}}`
 
 **Expected Response:**
 - **Status**: 200 OK

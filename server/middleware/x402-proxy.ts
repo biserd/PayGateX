@@ -295,35 +295,39 @@ export function x402ProxyMiddleware(
 
       // Create escrow holding for paid requests
       if (!isFreeRequest && proofId) {
-        const org = await storage.getOrganization(service.orgId);
-        const escrowReleaseAt = new Date(Date.now() + (org?.escrowHoldHours || 24) * 60 * 60 * 1000);
-        
-        await storage.createEscrowHolding({
-          orgId: service.orgId,
-          usageRecordId: requestId, // Link to usage record
-          amount: pricing.price,
-          currency: pricing.currency,
-          network: pricing.network,
-          releaseAt: escrowReleaseAt,
-          status: "pending",
-          proofId
-        });
-
-        // Set payment response header
-        if (proofId) {
-          const settlementResponseHeader = X402Utils.createPaymentHeader({
-            x402Version: 1,
-            scheme: "exact",
-            network: pricing.network,
-            payload: {
-              txHash: proofId,
-              status: "settled",
-              amount: pricing.price
-            }
-          });
+        try {
+          const org = await storage.getOrganization(service.orgId);
+          const escrowReleaseAt = new Date(Date.now() + (org?.escrowHoldHours || 24) * 60 * 60 * 1000);
           
-          res.setHeader("X-PAYMENT-RESPONSE", settlementResponseHeader);
+          await storage.createEscrowHolding({
+            orgId: service.orgId,
+            usageRecordId: requestId, // Link to usage record
+            amount: pricing.price,
+            currency: pricing.currency,
+            network: pricing.network,
+            releaseAt: escrowReleaseAt,
+            status: "pending",
+            proofId
+          });
+        } catch (escrowError) {
+          console.warn("Failed to create escrow holding:", escrowError);
+          // Continue without escrow - the payment is still valid
         }
+
+      // Set payment response header
+      if (!isFreeRequest && proofId) {
+        const settlementResponseHeader = X402Utils.createPaymentHeader({
+          x402Version: 1,
+          scheme: "exact",
+          network: pricing.network,
+          payload: {
+            txHash: proofId,
+            status: "settled",
+            amount: pricing.price
+          }
+        });
+        
+        res.setHeader("X-PAYMENT-RESPONSE", settlementResponseHeader);
       }
 
       // Set custom headers
