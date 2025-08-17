@@ -9,7 +9,8 @@ import {
   Shield, 
   Lock, 
   Settings,
-  Coins
+  Coins,
+  Wallet
 } from "lucide-react";
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Compliance", href: "/compliance", icon: Shield },
   { name: "Escrow", href: "/escrow", icon: Lock },
+  { name: "Wallet Test", href: "/wallet-test", icon: Wallet },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
