@@ -24,6 +24,19 @@ export default function Endpoints() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingEndpoint, setEditingEndpoint] = useState<any>(null);
+
+  const editForm = useForm<EndpointFormData>({
+    resolver: zodResolver(endpointFormSchema),
+    defaultValues: {
+      path: "",
+      method: "GET",
+      targetUrl: "",
+      description: "",
+      priceAmount: "0.001",
+      supportedNetworks: ["base"],
+      isActive: true,
+    },
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -66,6 +79,31 @@ export default function Endpoints() {
     },
   });
 
+  const editEndpointMutation = useMutation({
+    mutationFn: async (data: EndpointFormData) => {
+      if (!editingEndpoint?.id) throw new Error("No endpoint ID");
+      const response = await apiRequest("PUT", `/api/endpoints/${editingEndpoint.id}`, data);
+      return response.json();
+    },
+    onSuccess: (updatedEndpoint) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/endpoints"] });
+      setIsEditDialogOpen(false);
+      setEditingEndpoint(null);
+      editForm.reset();
+      toast({
+        title: "Endpoint updated",
+        description: `Successfully updated ${updatedEndpoint.path}`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const form = useForm<EndpointFormData>({
     resolver: zodResolver(endpointFormSchema),
     defaultValues: {
@@ -80,6 +118,25 @@ export default function Endpoints() {
 
   const onSubmit = (data: EndpointFormData) => {
     createEndpointMutation.mutate(data);
+  };
+
+  const handleEditEndpoint = (data: EndpointFormData) => {
+    editEndpointMutation.mutate(data);
+  };
+
+  // Reset edit form when editing endpoint changes
+  const handleEditClick = (endpoint: any) => {
+    setEditingEndpoint(endpoint);
+    editForm.reset({
+      path: endpoint.path,
+      method: endpoint.method,
+      targetUrl: endpoint.targetUrl || "",
+      description: endpoint.description || "",
+      priceAmount: endpoint.priceAmount || "0.001",
+      supportedNetworks: endpoint.supportedNetworks || ["base"],
+      isActive: endpoint.isActive,
+    });
+    setIsEditDialogOpen(true);
   };
 
   if (isLoading) {
@@ -286,19 +343,185 @@ export default function Endpoints() {
                     Update the endpoint configuration
                   </DialogDescription>
                 </DialogHeader>
-                {editingEndpoint && (
-                  <div className="space-y-4">
-                    <p>Editing: {editingEndpoint.path}</p>
-                    <p>Current Method: {editingEndpoint.method}</p>
-                    <p>Target URL: {editingEndpoint.targetUrl || 'Not set'}</p>
-                    <Button 
-                      onClick={() => setIsEditDialogOpen(false)}
-                      data-testid="close-edit-dialog"
-                    >
-                      Close (Feature coming soon)
-                    </Button>
-                  </div>
-                )}
+                <Form {...editForm}>
+                  <form onSubmit={editForm.handleSubmit(handleEditEndpoint)} className="space-y-4">
+                    <FormField
+                      control={editForm.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Real-time weather data API" 
+                              {...field}
+                              data-testid="edit-endpoint-description-input"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={editForm.control}
+                      name="path"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>API Path</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="/api/weather" 
+                              {...field}
+                              data-testid="edit-endpoint-path-input"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={editForm.control}
+                        name="method"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>HTTP Method</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="edit-endpoint-method-select">
+                                  <SelectValue placeholder="Select method" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="GET">GET</SelectItem>
+                                <SelectItem value="POST">POST</SelectItem>
+                                <SelectItem value="PUT">PUT</SelectItem>
+                                <SelectItem value="DELETE">DELETE</SelectItem>
+                                <SelectItem value="PATCH">PATCH</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editForm.control}
+                        name="supportedNetworks"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Network</FormLabel>
+                            <Select onValueChange={(value) => field.onChange([value])} value={Array.isArray(field.value) ? field.value[0] : "base"}>
+                              <FormControl>
+                                <SelectTrigger data-testid="edit-endpoint-network-select">
+                                  <SelectValue placeholder="Select network" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="base">Base</SelectItem>
+                                <SelectItem value="ethereum">Ethereum</SelectItem>
+                                <SelectItem value="polygon">Polygon</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={editForm.control}
+                      name="targetUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Target URL</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://api.example.com/weather" 
+                              {...field} 
+                              data-testid="edit-endpoint-target-url-input"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            The actual API endpoint URL to forward requests to
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={editForm.control}
+                      name="priceAmount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price (USDC)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number"
+                              step="0.0001"
+                              placeholder="0.001" 
+                              {...field}
+                              data-testid="edit-endpoint-price-input"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Price in USDC per API call
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={editForm.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Active</FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Enable this endpoint for payments
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="edit-endpoint-active-switch"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="flex gap-3 pt-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsEditDialogOpen(false);
+                          setEditingEndpoint(null);
+                          editForm.reset();
+                        }}
+                        className="flex-1"
+                        data-testid="cancel-edit-endpoint"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        className="flex-1"
+                        disabled={editEndpointMutation.isPending}
+                        data-testid="submit-edit-endpoint"
+                      >
+                        {editEndpointMutation.isPending ? "Updating..." : "Update Endpoint"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
               </DialogContent>
             </Dialog>
           </div>
@@ -307,10 +530,7 @@ export default function Endpoints() {
         <main className="p-6">
           <EndpointTable 
             endpoints={(endpoints as any[]) || []}
-            onEdit={(endpoint) => {
-              setEditingEndpoint(endpoint);
-              setIsEditDialogOpen(true);
-            }}
+            onEdit={handleEditClick}
             onViewAnalytics={(endpoint) => {
               toast({
                 title: "Analytics",
