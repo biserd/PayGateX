@@ -377,5 +377,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Payment simulation endpoint
+  app.post("/api/payments/simulate", async (req, res) => {
+    try {
+      const { endpointId, amount } = req.body;
+      
+      if (!endpointId) {
+        return res.status(400).json({ error: "endpointId is required" });
+      }
+
+      // Get the endpoint to validate it exists
+      const endpoint = await storage.getEndpoint(endpointId);
+      if (!endpoint) {
+        return res.status(404).json({ error: "Endpoint not found" });
+      }
+
+      // Create a mock payment simulation
+      const simulationResult = {
+        endpointId,
+        amount: amount || endpoint.priceAmount,
+        network: endpoint.supportedNetworks?.[0] || "base",
+        asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+        status: "simulated",
+        transactionHash: "0x" + Math.random().toString(16).substr(2, 64), // Mock hash
+        timestamp: new Date().toISOString(),
+        gasUsed: Math.floor(Math.random() * 50000) + 21000, // Mock gas usage
+        gasFee: (Math.random() * 0.01).toFixed(6),
+        message: `Payment simulation successful for ${endpoint.path}`
+      };
+
+      // For simulation, we'll skip recording usage since this is a mock transaction
+      console.log(`Simulated payment for endpoint ${endpoint.path}: ${simulationResult.amount} USDC`);
+      console.log(`Mock transaction hash: ${simulationResult.transactionHash}`);
+
+      res.json(simulationResult);
+    } catch (error) {
+      console.error("Payment simulation error:", error);
+      res.status(500).json({ error: "Payment simulation failed" });
+    }
+  });
+
   return httpServer;
 }
