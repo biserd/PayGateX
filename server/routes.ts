@@ -296,6 +296,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Organization settings
+  app.get("/api/organization", async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(DEMO_ORG_ID);
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch organization" });
+    }
+  });
+
+  app.patch("/api/organization", async (req, res) => {
+    try {
+      const updates = req.body;
+      const organization = await storage.updateOrganization(DEMO_ORG_ID, updates);
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update organization" });
+    }
+  });
+
+  // Service settings
+  app.get("/api/services", async (req, res) => {
+    try {
+      const services = await storage.getServicesByOrgId(DEMO_ORG_ID);
+      res.json(services);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch services" });
+    }
+  });
+
+  app.patch("/api/services/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const service = await storage.updateService(id, updates);
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+      res.json(service);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update service" });
+    }
+  });
+
   // x402 protocol endpoints
   app.post("/api/x402/verify", async (req, res) => {
     try {

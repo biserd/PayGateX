@@ -135,18 +135,26 @@ export default function Settings() {
           </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-md">
+        <TabsList className="grid grid-cols-6 w-full">
           <TabsTrigger value="profile" data-testid="tab-profile">
             <User className="w-4 h-4 mr-2" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="notifications" data-testid="tab-notifications">
-            <Bell className="w-4 h-4 mr-2" />
-            Alerts
+          <TabsTrigger value="organization" data-testid="tab-organization">
+            <Globe className="w-4 h-4 mr-2" />
+            Organization
+          </TabsTrigger>
+          <TabsTrigger value="services" data-testid="tab-services">
+            <Key className="w-4 h-4 mr-2" />
+            Services
           </TabsTrigger>
           <TabsTrigger value="security" data-testid="tab-security">
             <Shield className="w-4 h-4 mr-2" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="notifications" data-testid="tab-notifications">
+            <Bell className="w-4 h-4 mr-2" />
+            Alerts
           </TabsTrigger>
           <TabsTrigger value="payment" data-testid="tab-payment">
             <CreditCard className="w-4 h-4 mr-2" />
@@ -220,6 +228,148 @@ export default function Settings() {
                   {updateSettingsMutation.isPending ? "Saving..." : "Save Profile"}
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="organization" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Organization Settings</CardTitle>
+              <CardDescription>
+                Manage your organization details and billing preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="org-name">Organization Name</Label>
+                  <Input
+                    id="org-name"
+                    defaultValue="Demo Organization"
+                    data-testid="input-org-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="org-slug">Organization ID</Label>
+                  <Input
+                    id="org-slug"
+                    defaultValue="demo-org-1"
+                    disabled
+                    data-testid="input-org-slug"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="org-description">Description</Label>
+                <Textarea
+                  id="org-description"
+                  placeholder="Brief description of your organization"
+                  defaultValue="Demo organization for API monetization platform"
+                  data-testid="input-org-description"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="free-tier-limit">Free Tier Limit</Label>
+                  <Input
+                    id="free-tier-limit"
+                    type="number"
+                    defaultValue="100"
+                    data-testid="input-free-tier-limit"
+                  />
+                  <p className="text-xs text-gray-500">Requests per month per endpoint</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="escrow-period">Escrow Period (hours)</Label>
+                  <Input
+                    id="escrow-period"
+                    type="number"
+                    defaultValue="24"
+                    data-testid="input-escrow-period"
+                  />
+                  <p className="text-xs text-gray-500">Payment hold period</p>
+                </div>
+              </div>
+
+              <Button data-testid="button-save-organization">
+                Save Organization Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="services" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Service Configuration</CardTitle>
+              <CardDescription>
+                Manage your API services and their settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Demo Service</h4>
+                    <p className="text-sm text-gray-500">Primary API service</p>
+                  </div>
+                  <Badge variant="default">Active</Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="service-name">Service Name</Label>
+                    <Input
+                      id="service-name"
+                      defaultValue="Demo Service"
+                      data-testid="input-service-name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-slug">Service Slug</Label>
+                    <Input
+                      id="service-slug"
+                      defaultValue="demo-service-1"
+                      disabled
+                      data-testid="input-service-slug"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="base-url">Base URL</Label>
+                  <Input
+                    id="base-url"
+                    placeholder="https://api.example.com"
+                    defaultValue="https://httpbin.org"
+                    data-testid="input-base-url"
+                  />
+                  <p className="text-xs text-gray-500">Default base URL for this service's endpoints</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="health-check">Health Check Path</Label>
+                  <Input
+                    id="health-check"
+                    placeholder="/health"
+                    defaultValue="/status"
+                    data-testid="input-health-check"
+                  />
+                  <p className="text-xs text-gray-500">Path for monitoring service health</p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch id="service-active" defaultChecked data-testid="switch-service-active" />
+                  <Label htmlFor="service-active">Service Active</Label>
+                </div>
+              </div>
+
+              <Button data-testid="button-save-service">
+                Save Service Settings
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

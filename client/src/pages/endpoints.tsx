@@ -22,6 +22,8 @@ type EndpointFormData = z.infer<typeof endpointFormSchema>;
 
 export default function Endpoints() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingEndpoint, setEditingEndpoint] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -274,6 +276,31 @@ export default function Endpoints() {
                 </Form>
               </DialogContent>
             </Dialog>
+            
+            {/* Edit Endpoint Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Edit Endpoint</DialogTitle>
+                  <DialogDescription>
+                    Update the endpoint configuration
+                  </DialogDescription>
+                </DialogHeader>
+                {editingEndpoint && (
+                  <div className="space-y-4">
+                    <p>Editing: {editingEndpoint.path}</p>
+                    <p>Current Method: {editingEndpoint.method}</p>
+                    <p>Target URL: {editingEndpoint.targetUrl || 'Not set'}</p>
+                    <Button 
+                      onClick={() => setIsEditDialogOpen(false)}
+                      data-testid="close-edit-dialog"
+                    >
+                      Close (Feature coming soon)
+                    </Button>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
         </header>
 
@@ -281,10 +308,8 @@ export default function Endpoints() {
           <EndpointTable 
             endpoints={endpoints || []}
             onEdit={(endpoint) => {
-              toast({
-                title: "Edit Endpoint",
-                description: `Editing ${endpoint.path}`,
-              });
+              setEditingEndpoint(endpoint);
+              setIsEditDialogOpen(true);
             }}
             onViewAnalytics={(endpoint) => {
               toast({
