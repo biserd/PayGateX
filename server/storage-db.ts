@@ -40,7 +40,7 @@ import {
   webhookEndpoints
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc, inArray } from "drizzle-orm";
+import { eq, and, gte, lte, desc, inArray, sql } from "drizzle-orm";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
