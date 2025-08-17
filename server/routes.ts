@@ -54,6 +54,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const escrowSummary = await storage.getEscrowSummary(DEMO_ORG_ID);
       const recentUsage = await storage.getRecentUsageRecords(DEMO_ORG_ID, 5);
       
+      // Enrich usage records with endpoint information
+      const enrichedTransactions = await Promise.all(
+        recentUsage.map(async (record) => {
+          const endpoint = await storage.getEndpoint(record.endpointId);
+          return {
+            ...record,
+            endpoint: endpoint ? {
+              path: endpoint.path,
+              method: endpoint.method
+            } : null
+          };
+        })
+      );
+      
       res.json({
         totalRequests: metrics.totalRequests,
         paidRequests: metrics.paidRequests,
@@ -61,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conversionRate: metrics.conversionRate.toFixed(2),
         averageLatency: metrics.averageLatency,
         escrow: escrowSummary,
-        recentTransactions: recentUsage
+        recentTransactions: enrichedTransactions
       });
     } catch (error) {
       console.error("Dashboard summary error:", error);
