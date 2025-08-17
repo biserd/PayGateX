@@ -16,6 +16,80 @@ import {
   LogOut
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+
+// Revenue Chart Component
+function RevenueChart() {
+  const { data: revenueData } = useQuery({
+    queryKey: ["/api/analytics/revenue/30"],
+    refetchInterval: 30000,
+  });
+
+  const chartData = revenueData?.dailyRevenue?.slice(-7).map(day => ({
+    date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    revenue: day.revenue,
+    requests: day.requests
+  })) || [];
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-primary">Revenue Overview</h3>
+        <div className="text-sm text-gray-600">Last 7 days</div>
+      </div>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip formatter={(value) => [`$${Number(value).toFixed(6)}`, 'Revenue']} />
+            <Area type="monotone" dataKey="revenue" stroke="#8884d8" fill="#8884d8" fillOpacity={0.2} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// Request Chart Component
+function RequestChart() {
+  const { data: requestData } = useQuery({
+    queryKey: ["/api/analytics/requests/30"],
+    refetchInterval: 30000,
+  });
+
+  const chartData = requestData?.dailyRequests?.slice(-7).map(day => ({
+    date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    total: day.totalRequests,
+    paid: day.paidRequests,
+    unpaid: day.unpaidRequests
+  })) || [];
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-primary">Request Analytics</h3>
+        <div className="flex space-x-2">
+          <Badge variant="default">Paid</Badge>
+          <Badge variant="outline">Unpaid</Badge>
+        </div>
+      </div>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} name="Paid" />
+            <Line type="monotone" dataKey="unpaid" stroke="#f59e0b" strokeWidth={2} name="Unpaid" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { user, logoutMutation } = useAuth();
@@ -139,39 +213,10 @@ export default function Dashboard() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Revenue Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-primary">Revenue Overview</h3>
-                <select className="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-secondary focus:border-transparent">
-                  <option>Last 30 days</option>
-                  <option>Last 7 days</option>
-                  <option>Last 90 days</option>
-                </select>
-              </div>
-              <div className="h-64 bg-gradient-to-br from-secondary/5 to-success/5 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm">Revenue chart visualization</p>
-                </div>
-              </div>
-            </div>
+            <RevenueChart />
 
             {/* Request Analytics */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-primary">Request Analytics</h3>
-                <div className="flex space-x-2">
-                  <Badge variant="default">Paid</Badge>
-                  <Badge variant="outline">All</Badge>
-                </div>
-              </div>
-              <div className="h-64 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <Activity className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm">Request analytics visualization</p>
-                </div>
-              </div>
-            </div>
+            <RequestChart />
           </div>
 
           {/* x402 Protocol & Escrow Section */}

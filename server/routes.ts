@@ -179,6 +179,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Usage Records route for transaction list (dashboard)
+  app.get("/api/usage-records", isAuthenticated, async (req, res) => {
+    try {
+      const usageRecords = await storage.getRecentUsageRecords(DEMO_ORG_ID, 10);
+
+      // Add endpoint information to usage records
+      const recordsWithEndpoints = await Promise.all(
+        usageRecords.map(async (record) => {
+          const endpoint = await storage.getEndpoint(record.endpointId);
+          return {
+            ...record,
+            endpoint: endpoint ? {
+              path: endpoint.path,
+              method: endpoint.method
+            } : null
+          };
+        })
+      );
+
+      res.json(recordsWithEndpoints);
+    } catch (error) {
+      console.error("Error fetching usage records:", error);
+      res.status(500).json({ error: "Failed to fetch usage records" });
+    }
+  });
+
   // Analytics (using real usage records)
   app.get("/api/analytics/revenue/:days", async (req, res) => {
     try {
