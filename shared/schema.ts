@@ -91,6 +91,7 @@ export const pricebooks = pgTable("pricebooks", {
   price: decimal("price", { precision: 18, scale: 6 }).notNull(),
   currency: text("currency").notNull().default("USDC"),
   network: text("network").notNull().default("base"),
+  testnetNetwork: text("testnet_network").default("base-sepolia"),
   isActive: boolean("is_active").notNull().default(true),
   effectiveFrom: timestamp("effective_from").notNull().defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),

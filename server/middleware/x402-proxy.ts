@@ -3,6 +3,7 @@ import { IStorage } from "../storage";
 import { FacilitatorAdapter } from "../services/facilitator-adapter";
 import { MeteringService, generateRequestId } from "../services/metering";
 import { X402Utils, PaymentRequirements } from "../../client/src/lib/x402";
+import { getNetworkForSandbox, getNetworkConfig, isTestnet } from "../services/network-config";
 import { v4 as uuidv4 } from 'uuid';
 
 export interface X402ProxyOptions {
@@ -96,6 +97,14 @@ export function x402ProxyMiddleware(
         });
       }
 
+      // Get organization to determine sandbox mode and network
+      const organization = await storage.getOrganization(service.orgId);
+      const isInSandboxMode = organization?.sandboxMode ?? true;
+      
+      // Determine the appropriate network based on sandbox mode
+      const targetNetwork = getNetworkForSandbox(isInSandboxMode, pricing.network);
+      const networkConfig = getNetworkConfig(targetNetwork);
+
       // Generate request ID for idempotency
       const payerAddress = req.headers["x-payer-address"] as string || "anonymous";
       requestId = generateRequestId(endpoint.id, payerAddress, requestStart);
@@ -116,7 +125,7 @@ export function x402ProxyMiddleware(
           description: endpoint.description || "API access",
           price: X402Utils.toContractUnits(pricing.price, 6),
           payTo: service.orgId, // Organization wallet
-          network: pricing.network
+          network: targetNetwork // Use sandbox-aware network
         });
 
         // Create signed quote
@@ -132,7 +141,7 @@ export function x402ProxyMiddleware(
           userAgent: req.headers["user-agent"],
           price: pricing.price,
           currency: pricing.currency,
-          network: pricing.network,
+          network: targetNetwork,
           status: "unpaid",
           isFreeRequest: false,
           responseStatus: 402
@@ -156,7 +165,7 @@ export function x402ProxyMiddleware(
           description: endpoint.description || "API access",
           price: X402Utils.toContractUnits(pricing.price, 6),
           payTo: service.orgId,
-          network: pricing.network
+          network: targetNetwork
         });
 
         const verificationResult = await facilitator.verifyPayment(
