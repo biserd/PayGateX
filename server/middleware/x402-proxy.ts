@@ -119,12 +119,27 @@ export function x402ProxyMiddleware(
       const paymentHeader = req.headers["x-payment"] as string;
       
       if (!paymentHeader && !canUseFreeRequest) {
+        // Determine the appropriate wallet address based on network
+        const payToAddress = isInSandboxMode 
+          ? organization?.testnetWalletAddress 
+          : organization?.walletAddress;
+          
+        if (!payToAddress) {
+          return res.status(500).json({ 
+            error: { 
+              code: "WALLET_NOT_CONFIGURED",
+              message: `Organization wallet not configured for ${isInSandboxMode ? 'testnet' : 'mainnet'}`,
+              requestId
+            }
+          });
+        }
+
         // No payment and no free tier available - return 402 Payment Required
         const paymentRequirements = X402Utils.createPaymentRequirements({
           path: apiPath,
           description: endpoint.description || "API access",
           price: X402Utils.toContractUnits(pricing.price, 6),
-          payTo: service.orgId, // Organization wallet
+          payTo: payToAddress, // Actual wallet address
           network: targetNetwork // Use sandbox-aware network
         });
 

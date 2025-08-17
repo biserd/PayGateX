@@ -20,7 +20,8 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   email: text("email").notNull(),
-  walletAddress: text("wallet_address"),
+  walletAddress: text("wallet_address"), // Production wallet (Base mainnet)
+  testnetWalletAddress: text("testnet_wallet_address"), // Base Sepolia wallet
   sandboxMode: boolean("sandbox_mode").notNull().default(true),
   escrowHoldHours: integer("escrow_hold_hours").notNull().default(24),
   freeTierLimit: integer("free_tier_limit").notNull().default(100),

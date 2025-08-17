@@ -45,8 +45,8 @@ This switches the platform to use Base Sepolia testnet instead of Base mainnet.
 
 - **Your Wallet (Payer)**: This is YOUR address that sends USDC
 - **Organization Wallet (Payee)**: This receives the USDC payments
-  - Currently set to: `demo-org-1` (configured in database)
-  - In production, organizations set their own receiving addresses
+  - **Base Sepolia (Testing)**: `0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0`
+  - **Base Mainnet (Production)**: `0x1234567890123456789012345678901234567890`
 
 ## Step 4: Complete Test Flow
 
