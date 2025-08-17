@@ -61,6 +61,10 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
+  async updateOrganizationSandboxMode(id: string, sandboxMode: boolean): Promise<void> {
+    await db.update(organizations).set({ sandboxMode }).where(eq(organizations.id, id));
+  }
+
   // User methods
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));

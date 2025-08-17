@@ -449,6 +449,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Organization sandbox mode endpoints
+  app.get("/api/organization/sandbox", async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(DEMO_ORG_ID);
+      res.json({ sandboxMode: organization?.sandboxMode || false });
+    } catch (error) {
+      console.error("Error fetching sandbox mode:", error);
+      res.status(500).json({ message: "Failed to fetch sandbox mode" });
+    }
+  });
+
+  app.put("/api/organization/sandbox", async (req, res) => {
+    try {
+      const { sandboxMode } = req.body;
+      await storage.updateOrganizationSandboxMode(DEMO_ORG_ID, sandboxMode);
+      res.json({ sandboxMode });
+    } catch (error) {
+      console.error("Error updating sandbox mode:", error);
+      res.status(500).json({ message: "Failed to update sandbox mode" });
+    }
+  });
+
   // Service settings
   app.get("/api/services", async (req, res) => {
     try {

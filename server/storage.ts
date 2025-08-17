@@ -32,6 +32,7 @@ export interface IStorage {
   getOrganization(id: string): Promise<Organization | undefined>;
   createOrganization(org: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined>;
+  updateOrganizationSandboxMode(id: string, sandboxMode: boolean): Promise<void>;
 
   // User methods
   getUser(id: string): Promise<User | undefined>;

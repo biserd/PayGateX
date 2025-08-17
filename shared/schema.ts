@@ -21,6 +21,7 @@ export const organizations = pgTable("organizations", {
   slug: text("slug").notNull().unique(),
   email: text("email").notNull(),
   walletAddress: text("wallet_address"),
+  sandboxMode: boolean("sandbox_mode").notNull().default(true),
   escrowHoldHours: integer("escrow_hold_hours").notNull().default(24),
   freeTierLimit: integer("free_tier_limit").notNull().default(100),
   freeTierPeriodDays: integer("free_tier_period_days").notNull().default(30),

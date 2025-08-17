@@ -58,6 +58,11 @@ export default function Settings() {
     queryKey: ["/api/settings"],
   });
 
+  // Get sandbox mode from organization API
+  const { data: sandboxData, isLoading: sandboxLoading } = useQuery({
+    queryKey: ["/api/organization/sandbox"],
+  });
+
   const updateSettingsMutation = useMutation({
     mutationFn: async (updatedSettings: Partial<UserSettings>) => {
       console.log("Sending settings update:", updatedSettings);
@@ -75,6 +80,28 @@ export default function Settings() {
       toast({
         title: "Update failed",
         description: "Failed to update settings. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Sandbox mode mutation
+  const updateSandboxMutation = useMutation({
+    mutationFn: async (sandboxMode: boolean) => {
+      const response = await apiRequest("PUT", "/api/organization/sandbox", { sandboxMode });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/organization/sandbox"] });
+      toast({
+        title: "Sandbox mode updated",
+        description: `Switched to ${data.sandboxMode ? 'testing' : 'production'} mode successfully.`
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Update failed",
+        description: "Failed to update sandbox mode. Please try again.",
         variant: "destructive"
       });
     }
@@ -298,6 +325,53 @@ export default function Settings() {
               <Button data-testid="button-save-organization">
                 Save Organization Settings
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="organization" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Organization Settings</CardTitle>
+              <CardDescription>
+                Manage your organization's operational settings and environment configuration
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium">Sandbox Mode</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {sandboxData?.sandboxMode 
+                        ? "Currently in testing mode - using simulated payments for development"
+                        : "Currently in production mode - processing real blockchain transactions"
+                      }
+                    </p>
+                  </div>
+                  <Switch
+                    checked={sandboxData?.sandboxMode || false}
+                    onCheckedChange={(checked) => updateSandboxMutation.mutate(checked)}
+                    disabled={updateSandboxMutation.isPending || sandboxLoading}
+                    data-testid="sandbox-toggle"
+                  />
+                </div>
+                
+                <Alert className={sandboxData?.sandboxMode ? "border-orange-200 bg-orange-50" : "border-green-200 bg-green-50"}>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {sandboxData?.sandboxMode ? (
+                      <span>
+                        <strong>Testing Mode:</strong> All payments are simulated. Use the payment simulation endpoint to generate test transactions. Perfect for development and testing.
+                      </span>
+                    ) : (
+                      <span>
+                        <strong>Production Mode:</strong> Real USDC transactions on Base network are required. Users must make actual blockchain payments to access your APIs.
+                      </span>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
