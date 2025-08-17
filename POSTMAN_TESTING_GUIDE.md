@@ -20,18 +20,19 @@
 
 **Expected Response:**
 - **Status**: 402 Payment Required
-- **Body**: JSON with payment quote including:
+- **Body**: x402 protocol compliant JSON:
   ```json
   {
-    "error": "Payment Required",
-    "quote": {
-      "id": "quote_abc123",
-      "price": "0.10",
-      "currency": "USDC",
-      "networks": ["base"],
-      "expires": "2025-01-16T12:00:00Z",
-      "signature": "0x..."
-    }
+    "x402Version": 1,
+    "accepts": [{
+      "scheme": "exact",
+      "network": "base",
+      "maxAmountRequired": "500", 
+      "resource": "/demo-org-1/demo-service-1/api/v1/cats",
+      "description": "API access",
+      "payTo": "demo-org-1",
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    }]
   }
   ```
 

@@ -25,7 +25,26 @@ curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/api/v1/cats"
 
 **IMPORTANT**: The HTTP method must match exactly what you configured when creating the endpoint!
 
-**Important**: The path must exactly match what you configured in the endpoint creation form!
+**Important**: 
+- The path must exactly match what you configured in the endpoint creation form!
+- The HTTP method must match exactly (GET vs POST)
+- If you get a mock response instead of HTTP 402, the free tier is still active
+
+**Expected HTTP 402 Response:**
+```json
+{
+  "x402Version": 1,
+  "accepts": [{
+    "scheme": "exact",
+    "network": "base", 
+    "maxAmountRequired": "500",
+    "resource": "/demo-org-1/demo-service-1/api/v1/cats",
+    "description": "API access",
+    "payTo": "demo-org-1",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  }]
+}
+```
 
 **Expected Result**: HTTP 402 Payment Required with payment quote
 
