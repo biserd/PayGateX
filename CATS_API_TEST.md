@@ -13,15 +13,17 @@
 First, check what endpoints you actually created. Based on the seeded data, try these:
 
 ```bash
-# Test the seeded AI endpoint (if you haven't created your own yet)
-curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/ai/chat" -X POST
+# Test the seeded AI endpoint (GET method - note: was configured as GET, not POST!)
+curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/ai/chat"
 
 # Test the seeded analytics endpoint  
 curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/data/analytics"
 
-# If you created a cats endpoint, use the exact path you configured:
-curl -v "http://localhost:5000/proxy/[your-org-id]/[your-service-id]/[your-exact-endpoint-path]"
+# Test your Cats endpoint (created via the dashboard)
+curl -v "http://localhost:5000/proxy/demo-org-1/demo-service-1/api/v1/cats"
 ```
+
+**IMPORTANT**: The HTTP method must match exactly what you configured when creating the endpoint!
 
 **Important**: The path must exactly match what you configured in the endpoint creation form!
 

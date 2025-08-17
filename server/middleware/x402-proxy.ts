@@ -45,8 +45,24 @@ export function x402ProxyMiddleware(
       // Extract the API path from the proxy path
       const apiPath = req.path.replace(/^\/proxy/, "");
       
+      // Parse the path to extract org and service info  
+      const pathParts = apiPath.split('/').filter(Boolean);
+      if (pathParts.length < 3) {
+        return res.status(400).json({
+          error: {
+            code: "INVALID_PATH",
+            message: "Path must be in format: /orgId/serviceId/endpointPath",
+            requestId: uuidv4()
+          }
+        });
+      }
+      
+      const [orgId, serviceId, ...endpointPathParts] = pathParts;
+      const endpointPath = '/' + endpointPathParts.join('/');
+      
       // Find the endpoint and service configuration
-      const endpoint = await storage.getEndpointByPath(apiPath, req.method);
+      const endpoint = await storage.getEndpointByPath(endpointPath, req.method);
+      
       if (!endpoint || !endpoint.isActive) {
         return res.status(404).json({ 
           error: { 
