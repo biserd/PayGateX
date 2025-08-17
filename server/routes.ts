@@ -365,6 +365,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint Performance analytics (real data)
+  app.get("/api/analytics/endpoints", async (req, res) => {
+    try {
+      const { days = "30" } = req.query;
+      const daysNum = parseInt(days as string) || 30;
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - (daysNum * 24 * 60 * 60 * 1000));
+      
+      // Get all endpoints with their usage statistics
+      const endpointStats = await storage.getEndpointAnalytics(DEMO_ORG_ID, startDate, endDate);
+      
+      // Format the data for the frontend
+      const endpointPerformance = endpointStats.map(stat => {
+        const conversionRate = stat.totalRequests > 0 ? (stat.paidRequests / stat.totalRequests) * 100 : 0;
+        const avgLatency = stat.avgLatency || 0;
+        
+        return {
+          endpoint: `${stat.method} ${stat.path}`,
+          requests: stat.totalRequests,
+          revenue: parseFloat(stat.totalRevenue.toFixed(6)),
+          conversionRate: Math.round(conversionRate * 100) / 100, // Round to 2 decimals
+          avgLatency: Math.round(avgLatency),
+          status: stat.totalRequests > 0 ? 'active' : 'inactive'
+        };
+      });
+      
+      // Sort by total requests descending
+      endpointPerformance.sort((a, b) => b.requests - a.requests);
+      
+      res.json(endpointPerformance);
+    } catch (error) {
+      console.error("Endpoint analytics error:", error);
+      res.status(500).json({ error: "Failed to fetch endpoint analytics" });
+    }
+  });
+
   // User settings endpoints
   app.get("/api/settings", async (req, res) => {
     if (!req.isAuthenticated()) {

@@ -466,4 +466,45 @@ export class DatabaseStorage implements IStorage {
   async deleteApiEndpoint(id: string): Promise<boolean> {
     return this.deleteEndpoint(id);
   }
+
+  async getEndpointAnalytics(orgId: string, startDate: Date, endDate: Date): Promise<{
+    id: string;
+    path: string;
+    method: string;
+    totalRequests: number;
+    paidRequests: number;
+    avgLatency: number;
+    totalRevenue: number;
+  }[]> {
+    const results = await db
+      .select({
+        id: endpoints.id,
+        path: endpoints.path,
+        method: endpoints.method,
+        totalRequests: sql<number>`COUNT(${usageRecords.id})`,
+        paidRequests: sql<number>`COUNT(CASE WHEN ${usageRecords.status} = 'paid' THEN 1 END)`,
+        avgLatency: sql<number>`AVG(${usageRecords.latencyMs})`,
+        totalRevenue: sql<number>`COALESCE(SUM(CASE WHEN ${usageRecords.status} = 'paid' THEN CAST(${usageRecords.price} AS DECIMAL) END), 0)`
+      })
+      .from(endpoints)
+      .leftJoin(services, eq(endpoints.serviceId, services.id))
+      .leftJoin(usageRecords, and(
+        eq(usageRecords.endpointId, endpoints.id),
+        gte(usageRecords.createdAt, startDate),
+        lte(usageRecords.createdAt, endDate)
+      ))
+      .where(eq(services.orgId, orgId))
+      .groupBy(endpoints.id, endpoints.path, endpoints.method)
+      .orderBy(sql`COUNT(${usageRecords.id}) DESC`);
+
+    return results.map(result => ({
+      id: result.id,
+      path: result.path,
+      method: result.method,
+      totalRequests: result.totalRequests || 0,
+      paidRequests: result.paidRequests || 0,
+      avgLatency: result.avgLatency || 0,
+      totalRevenue: result.totalRevenue || 0
+    }));
+  }
 }

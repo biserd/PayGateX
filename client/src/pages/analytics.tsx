@@ -6,6 +6,109 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarChart3, TrendingUp, Users, Clock } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 
+// Real Endpoint Performance Component
+function RealEndpointPerformance() {
+  const { data: endpointData, isLoading } = useQuery({
+    queryKey: ["/api/analytics/endpoints"],
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Real Endpoint Performance</CardTitle>
+          <p className="text-sm text-gray-600">Live performance metrics from actual usage</p>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-12 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Real Endpoint Performance</CardTitle>
+        <p className="text-sm text-gray-600">Live performance metrics from actual usage records</p>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Endpoint
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Total Requests
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Payment Rate
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Avg Latency
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Revenue
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {endpointData && endpointData.length > 0 ? (
+                endpointData.map((endpoint: any, index: number) => (
+                  <tr key={endpoint.endpoint} data-testid={`analytics-row-${index}`}>
+                    <td className="px-4 py-3 text-sm font-medium text-primary">
+                      {endpoint.endpoint}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {endpoint.requests.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className={`${endpoint.conversionRate > 75 ? 'text-green-600' : endpoint.conversionRate > 25 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {endpoint.conversionRate.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {endpoint.avgLatency > 0 ? `${endpoint.avgLatency}ms` : 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium">
+                      ${endpoint.revenue.toFixed(6)}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        endpoint.status === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {endpoint.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    No endpoint data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Analytics() {
   const { data: revenueData, isLoading: revenueLoading } = useQuery({
     queryKey: ["/api/analytics/revenue/30"],
@@ -226,60 +329,8 @@ export default function Analytics() {
             </Card>
           </div>
 
-          {/* Detailed Analytics Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Endpoint Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
-                        Endpoint
-                      </th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
-                        Total Requests
-                      </th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
-                        Success Rate
-                      </th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
-                        Avg Response Time
-                      </th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
-                        Revenue
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    <tr data-testid="analytics-row-weather">
-                      <td className="px-4 py-3 text-sm font-medium text-primary">/api/v1/weather</td>
-                      <td className="px-4 py-3 text-sm">45,234</td>
-                      <td className="px-4 py-3 text-sm text-success">98.7%</td>
-                      <td className="px-4 py-3 text-sm">123ms</td>
-                      <td className="px-4 py-3 text-sm font-medium">$45.23</td>
-                    </tr>
-                    <tr data-testid="analytics-row-ai-chat">
-                      <td className="px-4 py-3 text-sm font-medium text-primary">/api/v1/ai-chat</td>
-                      <td className="px-4 py-3 text-sm">23,567</td>
-                      <td className="px-4 py-3 text-sm text-success">97.2%</td>
-                      <td className="px-4 py-3 text-sm">1,247ms</td>
-                      <td className="px-4 py-3 text-sm font-medium">$235.67</td>
-                    </tr>
-                    <tr data-testid="analytics-row-translate">
-                      <td className="px-4 py-3 text-sm font-medium text-primary">/api/v1/translate</td>
-                      <td className="px-4 py-3 text-sm">12,345</td>
-                      <td className="px-4 py-3 text-sm text-warning">89.3%</td>
-                      <td className="px-4 py-3 text-sm">567ms</td>
-                      <td className="px-4 py-3 text-sm font-medium">$61.73</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Real Endpoint Performance Table */}
+          <RealEndpointPerformance />
         </main>
       </div>
     </div>
