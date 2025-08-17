@@ -48,7 +48,7 @@ The payment system implements the x402 protocol specification with comprehensive
 The comprehensive proxy layer includes:
 - **Request Interception**: ✅ Matches incoming requests to configured endpoints
 - **Payment Verification**: ✅ Checks for valid payment proofs before forwarding  
-- **HTTP 402 Responses**: ✅ Returns signed quotes for unpaid requests
+- **HTTP 402 Responses**: ✅ Returns signed quotes for unpaid requests with network info
 - **Origin URL Forwarding**: ✅ Configurable target URLs per endpoint
 - **Health Checks**: ✅ Built-in endpoint health monitoring
 - **Compliance Enforcement**: ✅ Real-time geo-blocking and IP filtering
@@ -56,8 +56,14 @@ The comprehensive proxy layer includes:
 - **Free Tier Support**: ✅ Automatic free request handling with configurable limits
 - **Method Matching**: ✅ Precise HTTP method and path matching for endpoint resolution
 - **Mock Responses**: ✅ Development-friendly mock API responses for testing
+- **Base Sepolia Integration**: ✅ Sandbox mode uses Base Sepolia testnet (Chain ID: 84532)
+- **Base Mainnet Support**: ✅ Production mode uses Base mainnet (Chain ID: 8453)
+- **Network-Aware Quotes**: ✅ x402 quotes include proper network and chain ID headers
 
-**Recent Fix (Aug 2025)**: Resolved critical Vite routing conflict where proxy requests were intercepted by development server. Fixed path parsing and HTTP method matching for accurate endpoint resolution.
+**Recent Updates (Aug 2025)**: 
+- Added Base Sepolia testnet support for sandbox mode testing
+- Enhanced x402 responses with network configuration and chain ID headers
+- Real-time sandbox/production mode switching affects payment verification immediately
 
 ### Analytics & Monitoring - ENHANCED
 Advanced analytics system with:

@@ -149,10 +149,25 @@ export function x402ProxyMiddleware(
 
         const paymentResponse = X402Utils.createPaymentRequiredResponse([paymentRequirements]);
         
-        // Add signed quote header
+        // Add signed quote header and network information
         res.setHeader("X-402-QUOTE", signedQuote);
+        res.setHeader("X-402-NETWORK", targetNetwork);
+        res.setHeader("X-402-CHAIN-ID", networkConfig.chainId.toString());
         
-        return res.status(402).json(paymentResponse);
+        // Include sandbox mode and network info in response
+        const enhancedResponse = {
+          ...paymentResponse,
+          pricing: {
+            amount: pricing.price,
+            currency: pricing.currency,
+            network: targetNetwork,
+            chainId: networkConfig.chainId
+          },
+          sandbox: isInSandboxMode,
+          quote: signedQuote
+        };
+        
+        return res.status(402).json(enhancedResponse);
       }
 
       let isFreeRequest = false;
