@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { EndpointTable } from "@/components/endpoint-table";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -193,7 +193,7 @@ export default function Endpoints() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Network</FormLabel>
-                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0] || "base"}>
+                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={Array.isArray(field.value) ? field.value[0] : "base"}>
                               <FormControl>
                                 <SelectTrigger data-testid="endpoint-network-select">
                                   <SelectValue placeholder="Select network" />
@@ -306,7 +306,7 @@ export default function Endpoints() {
 
         <main className="p-6">
           <EndpointTable 
-            endpoints={endpoints || []}
+            endpoints={(endpoints as any[]) || []}
             onEdit={(endpoint) => {
               setEditingEndpoint(endpoint);
               setIsEditDialogOpen(true);
