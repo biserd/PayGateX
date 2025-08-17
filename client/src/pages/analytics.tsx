@@ -7,11 +7,13 @@ import { BarChart3, TrendingUp, Users, Clock } from "lucide-react";
 
 export default function Analytics() {
   const { data: revenueData, isLoading: revenueLoading } = useQuery({
-    queryKey: ["/api/analytics/revenue", "30"],
+    queryKey: ["/api/analytics/revenue/30"],
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   const { data: requestData, isLoading: requestLoading } = useQuery({
-    queryKey: ["/api/analytics/requests", "30"],
+    queryKey: ["/api/analytics/requests/30"],
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   const isLoading = revenueLoading || requestLoading;
@@ -72,32 +74,32 @@ export default function Analytics() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricsCard
               title="Total Revenue"
-              value="$2,847.32"
+              value={revenueData ? `$${revenueData.totalRevenue.toFixed(6)}` : "$0.000000"}
               change="+12.3% vs last period"
               changeType="positive"
               icon={TrendingUp}
               iconColor="success"
             />
             <MetricsCard
-              title="Requests/Day"
-              value="4,151"
-              change="+8.7% vs last period"
+              title="Total Requests"
+              value={requestData ? requestData.totalRequests.toString() : "0"}
+              change="Live Data"
               changeType="positive"
               icon={BarChart3}
               iconColor="secondary"
             />
             <MetricsCard
-              title="Unique Clients"
-              value="1,234"
-              change="+15.2% vs last period"
+              title="Daily Average"
+              value={requestData ? Math.round(requestData.averageDailyRequests).toString() : "0"}
+              change="Live Data"
               changeType="positive"
               icon={Users}
               iconColor="primary"
             />
             <MetricsCard
-              title="Avg Response Time"
-              value="145ms"
-              change="-5.3% vs last period"
+              title="Paid Requests"
+              value={requestData ? requestData.dailyRequests?.reduce((sum, day) => sum + day.paidRequests, 0).toString() || "0" : "0"}
+              change="Live Data"
               changeType="positive"
               icon={Clock}
               iconColor="warning"

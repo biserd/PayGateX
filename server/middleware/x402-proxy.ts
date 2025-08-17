@@ -313,6 +313,7 @@ export function x402ProxyMiddleware(
           console.warn("Failed to create escrow holding:", escrowError);
           // Continue without escrow - the payment is still valid
         }
+      }
 
       // Set payment response header
       if (!isFreeRequest && proofId) {

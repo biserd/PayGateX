@@ -45,6 +45,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard analytics (protected)
   app.get("/api/dashboard/summary", isAuthenticated, async (req, res) => {
     try {
+      // Disable caching for real-time data
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
       const metrics = await usageAnalytics.getUsageMetrics(DEMO_ORG_ID);
       const escrowSummary = await storage.getEscrowSummary(DEMO_ORG_ID);
       const recentUsage = await storage.getRecentUsageRecords(DEMO_ORG_ID, 5);
@@ -174,23 +179,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics
-  app.get("/api/analytics/revenue", async (req, res) => {
+  // Analytics (using real usage records)
+  app.get("/api/analytics/revenue/:days", async (req, res) => {
     try {
-      const { days = "30" } = req.query;
-      const revenueData = await analyticsService.getRevenueAnalytics(DEMO_USER_ID, parseInt(days as string));
-      res.json(revenueData);
+      const days = parseInt(req.params.days) || 30;
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - (days * 24 * 60 * 60 * 1000));
+      
+      const records = await storage.getUsageRecords({
+        orgId: DEMO_ORG_ID,
+        startDate,
+        endDate
+      });
+      
+      // Generate daily revenue data from usage records
+      const dailyRevenue = [];
+      const paidRecords = records.filter(r => r.status === 'paid');
+      
+      for (let i = 0; i < days; i++) {
+        const dayStart = new Date(startDate);
+        dayStart.setDate(dayStart.getDate() + i);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        
+        const dayRecords = paidRecords.filter(r => 
+          r.createdAt && r.createdAt >= dayStart && r.createdAt < dayEnd
+        );
+        
+        const revenue = dayRecords.reduce((sum, r) => sum + parseFloat(r.price), 0);
+        
+        dailyRevenue.push({
+          date: dayStart.toISOString().split('T')[0],
+          revenue: Math.round(revenue * 1000000) / 1000000, // Round to 6 decimals
+          requests: dayRecords.length
+        });
+      }
+      
+      const totalRevenue = dailyRevenue.reduce((sum, day) => sum + day.revenue, 0);
+      const averageDailyRevenue = totalRevenue / days;
+      
+      res.json({
+        dailyRevenue,
+        totalRevenue,
+        averageDailyRevenue,
+        growthRate: 0 // Calculate if needed
+      });
     } catch (error) {
+      console.error("Revenue analytics error:", error);
       res.status(500).json({ error: "Failed to fetch revenue analytics" });
     }
   });
 
-  app.get("/api/analytics/requests", async (req, res) => {
+  app.get("/api/analytics/requests/:days", async (req, res) => {
     try {
-      const { days = "30" } = req.query;
-      const requestData = await analyticsService.getRequestAnalytics(DEMO_USER_ID, parseInt(days as string));
-      res.json(requestData);
+      const days = parseInt(req.params.days) || 30;
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - (days * 24 * 60 * 60 * 1000));
+      
+      const records = await storage.getUsageRecords({
+        orgId: DEMO_ORG_ID,
+        startDate,
+        endDate
+      });
+      
+      // Generate daily request data from usage records
+      const dailyRequests = [];
+      
+      for (let i = 0; i < days; i++) {
+        const dayStart = new Date(startDate);
+        dayStart.setDate(dayStart.getDate() + i);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        
+        const dayRecords = records.filter(r => 
+          r.createdAt && r.createdAt >= dayStart && r.createdAt < dayEnd
+        );
+        
+        const paidRequests = dayRecords.filter(r => r.status === 'paid').length;
+        const unpaidRequests = dayRecords.filter(r => r.status === 'unpaid').length;
+        
+        dailyRequests.push({
+          date: dayStart.toISOString().split('T')[0],
+          totalRequests: dayRecords.length,
+          paidRequests,
+          unpaidRequests,
+          freeRequests: dayRecords.filter(r => r.isFreeRequest).length
+        });
+      }
+      
+      const totalRequests = records.length;
+      const averageDailyRequests = totalRequests / days;
+      
+      res.json({
+        dailyRequests,
+        totalRequests,
+        averageDailyRequests,
+        growthRate: 0 // Calculate if needed
+      });
     } catch (error) {
+      console.error("Request analytics error:", error);
       res.status(500).json({ error: "Failed to fetch request analytics" });
     }
   });

@@ -48,15 +48,16 @@ export default function Dashboard() {
   }
 
   const {
-    totalRevenue = "0",
+    totalRevenue = "0.000000",
     totalRequests = 0,
-    totalPaidRequests = 0,
-    activeEndpoints = 0,
-    escrow = { pendingAmount: "0", releasedToday: "0", totalRefunds: "0" },
+    paidRequests = 0,
+    conversionRate = "0.00",
+    averageLatency = 0,
+    escrow = { pendingAmount: "0.000000", releasedToday: "0.000000", totalRefunds: "0.000000" },
     recentTransactions = []
   } = dashboardData || {};
 
-  const paymentRate = totalRequests > 0 ? ((totalPaidRequests / totalRequests) * 100).toFixed(1) : "0";
+  const paymentRate = conversionRate || "0.00";
   const escrowReleaseRate = parseFloat(escrow.releasedToday) > 0 ? 89.3 : 0;
 
   return (
@@ -119,17 +120,17 @@ export default function Dashboard() {
             />
             <MetricsCard
               title="Paid Requests"
-              value={totalPaidRequests.toLocaleString()}
-              change={`${paymentRate}% payment rate`}
+              value={paidRequests.toLocaleString()}
+              change={`${paymentRate}% conversion rate`}
               changeType="positive"
               icon={CreditCard}
               iconColor="primary"
             />
             <MetricsCard
-              title="Active Endpoints"
-              value={activeEndpoints}
-              change="All operational"
-              changeType="neutral"
+              title="Avg Latency"
+              value={`${averageLatency}ms`}
+              change="Real-time data"
+              changeType="positive"
               icon={Server}
               iconColor="warning"
             />
