@@ -67,14 +67,12 @@ export default function Endpoints() {
   const form = useForm<EndpointFormData>({
     resolver: zodResolver(endpointFormSchema),
     defaultValues: {
-      name: "",
-      description: "",
       path: "",
+      method: "GET",
       targetUrl: "",
-      price: "0.001",
-      priceUnit: "USDC",
+      description: "",
       isActive: true,
-      network: "base",
+      supportedNetworks: ["base"],
     },
   });
 
@@ -124,24 +122,6 @@ export default function Endpoints() {
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Weather API" 
-                              {...field} 
-                              data-testid="endpoint-name-input"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
                       name="description"
                       render={({ field }) => (
                         <FormItem>
@@ -149,7 +129,10 @@ export default function Endpoints() {
                           <FormControl>
                             <Textarea 
                               placeholder="Real-time weather data API" 
-                              {...field} 
+                              value={field.value || ""} 
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
                               data-testid="endpoint-description-input"
                             />
                           </FormControl>
@@ -176,6 +159,56 @@ export default function Endpoints() {
                       )}
                     />
                     
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="method"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>HTTP Method</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="endpoint-method-select">
+                                  <SelectValue placeholder="Select method" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="GET">GET</SelectItem>
+                                <SelectItem value="POST">POST</SelectItem>
+                                <SelectItem value="PUT">PUT</SelectItem>
+                                <SelectItem value="DELETE">DELETE</SelectItem>
+                                <SelectItem value="PATCH">PATCH</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="supportedNetworks"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Network</FormLabel>
+                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0] || "base"}>
+                              <FormControl>
+                                <SelectTrigger data-testid="endpoint-network-select">
+                                  <SelectValue placeholder="Select network" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="base">Base</SelectItem>
+                                <SelectItem value="ethereum">Ethereum</SelectItem>
+                                <SelectItem value="polygon">Polygon</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <FormField
                       control={form.control}
                       name="targetUrl"
@@ -194,48 +227,7 @@ export default function Endpoints() {
                       )}
                     />
                     
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Price</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="0.001" 
-                                {...field} 
-                                data-testid="endpoint-price-input"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="network"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Network</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="endpoint-network-select">
-                                  <SelectValue placeholder="Select network" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="base">Base</SelectItem>
-                                <SelectItem value="ethereum">Ethereum</SelectItem>
-                                <SelectItem value="polygon">Polygon</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+
                     
                     <FormField
                       control={form.control}
@@ -291,19 +283,19 @@ export default function Endpoints() {
             onEdit={(endpoint) => {
               toast({
                 title: "Edit Endpoint",
-                description: `Editing ${endpoint.name}`,
+                description: `Editing ${endpoint.path}`,
               });
             }}
             onViewAnalytics={(endpoint) => {
               toast({
                 title: "Analytics",
-                description: `Viewing analytics for ${endpoint.name}`,
+                description: `Viewing analytics for ${endpoint.path}`,
               });
             }}
             onSettings={(endpoint) => {
               toast({
                 title: "Settings",
-                description: `Opening settings for ${endpoint.name}`,
+                description: `Settings for ${endpoint.path}`,
               });
             }}
           />
