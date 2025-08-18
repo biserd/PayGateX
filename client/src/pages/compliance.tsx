@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { ComplianceControls } from "@/components/compliance-controls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -107,20 +108,19 @@ export default function Compliance() {
       <Sidebar />
       
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Compliance</h1>
-              <p className="text-gray-600 mt-1">Manage access controls and regulatory compliance</p>
-            </div>
-            <Dialog open={isAddRuleDialogOpen} onOpenChange={setIsAddRuleDialogOpen}>
-              <DialogTrigger asChild>
-                <Button data-testid="add-compliance-rule">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Rule
-                </Button>
-              </DialogTrigger>
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="Compliance"
+            description="Manage access controls and regulatory compliance"
+            actionButton={{
+              text: "Add Rule",
+              onClick: () => setIsAddRuleDialogOpen(true),
+              icon: <Plus className="w-4 h-4 mr-2" />,
+            }}
+          />
+        </div>
+
+        <Dialog open={isAddRuleDialogOpen} onOpenChange={setIsAddRuleDialogOpen}>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add Compliance Rule</DialogTitle>
@@ -178,8 +178,6 @@ export default function Compliance() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
-        </header>
 
         <main className="p-6 space-y-6">
           {/* Compliance Controls */}

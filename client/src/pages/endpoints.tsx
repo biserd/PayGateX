@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { EndpointTable } from "@/components/endpoint-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -159,20 +160,19 @@ export default function Endpoints() {
       <Sidebar />
       
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">API Endpoints</h1>
-              <p className="text-gray-600 mt-1">Manage your monetized API endpoints</p>
-            </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button data-testid="create-endpoint-button">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Endpoint
-                </Button>
-              </DialogTrigger>
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="API Endpoints"
+            description="Manage and configure your monetized API endpoints"
+            actionButton={{
+              text: "Create Endpoint",
+              onClick: () => setIsCreateDialogOpen(true),
+              icon: <Plus className="w-4 h-4 mr-2" />,
+            }}
+          />
+        </div>
+
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Create API Endpoint</DialogTitle>
@@ -524,8 +524,6 @@ export default function Endpoints() {
                 </Form>
               </DialogContent>
             </Dialog>
-          </div>
-        </header>
 
         <main className="p-6">
           <EndpointTable 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -182,12 +183,10 @@ export default function Settings() {
       <Sidebar />
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Settings</h1>
-            <p className="text-muted-foreground">
-              Manage your PayGate x402 account settings and preferences
-            </p>
-          </div>
+          <DashboardHeader
+            title="Settings"
+            description="Manage your PayGate x402 account settings and preferences"
+          />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid grid-cols-6 w-full">

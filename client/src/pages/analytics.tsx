@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { MetricsCard } from "@/components/metrics-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, Clock } from "lucide-react";
+import { BarChart3, TrendingUp, Users, Clock, Download } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 
 // Real Endpoint Performance Component
@@ -151,27 +152,18 @@ export default function Analytics() {
       <Sidebar />
       
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Analytics</h1>
-              <p className="text-gray-600 mt-1">Detailed insights into your API performance</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Select defaultValue="30">
-                <SelectTrigger className="w-40" data-testid="time-period-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7">Last 7 days</SelectItem>
-                  <SelectItem value="30">Last 30 days</SelectItem>
-                  <SelectItem value="90">Last 90 days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </header>
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="Analytics"
+            description="Detailed insights into your API performance and revenue metrics"
+            actionButton={{
+              text: "Export Data",
+              onClick: () => {}, // TODO: Implement export functionality
+              icon: <Download className="w-4 h-4 mr-2" />,
+              variant: "outline"
+            }}
+          />
+        </div>
 
         <main className="p-6 space-y-6">
           {/* Key Metrics */}

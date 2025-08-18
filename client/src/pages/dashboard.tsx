@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { MetricsCard } from "@/components/metrics-card";
 import { TransactionList } from "@/components/transaction-list";
 import { ComplianceControls } from "@/components/compliance-controls";
@@ -12,8 +13,7 @@ import {
   CreditCard, 
   Server, 
   Plus,
-  Activity,
-  LogOut
+  Activity
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -92,15 +92,11 @@ function RequestChart() {
 }
 
 export default function Dashboard() {
-  const { user, logoutMutation } = useAuth();
+  const { user } = useAuth();
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["/api/dashboard/summary"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
 
   if (isLoading) {
     return (
@@ -137,39 +133,18 @@ export default function Dashboard() {
       <Sidebar />
       
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
-              <p className="text-gray-600 mt-1">Monitor your API monetization performance</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* x402 Protocol Status */}
-              <div className="flex items-center space-x-2 bg-success/10 px-3 py-2 rounded-lg">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
-                <span className="text-sm font-medium text-success">x402 Active</span>
-              </div>
-              <span className="text-sm text-gray-600">
-                Welcome, {user?.username}
-              </span>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleLogout}
-                disabled={logoutMutation.isPending}
-                data-testid="button-logout"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                {logoutMutation.isPending ? "Logging out..." : "Logout"}
-              </Button>
-              <Button data-testid="add-endpoint-button">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Endpoint
-              </Button>
-            </div>
-          </div>
-        </header>
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="Dashboard"
+            description="Monitor your API monetization performance"
+            badge={{ text: "x402 Active", variant: "default" }}
+            actionButton={{
+              text: "Add Endpoint",
+              onClick: () => window.location.href = "/endpoints",
+              icon: <Plus className="w-4 h-4 mr-2" />,
+            }}
+          />
+        </div>
 
         <main className="p-6 space-y-6">
           {/* Metrics Cards */}

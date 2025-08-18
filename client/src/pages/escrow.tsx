@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,25 +91,19 @@ export default function Escrow() {
       <Sidebar />
       
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Escrow System</h1>
-              <p className="text-gray-600 mt-1">Manage payment escrow and automatic releases</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 bg-success/10 px-3 py-2 rounded-lg">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
-                <span className="text-sm font-medium text-success">24h Auto-Release</span>
-              </div>
-              <Button variant="outline" data-testid="force-release-button">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Force Release
-              </Button>
-            </div>
-          </div>
-        </header>
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="Escrow System"
+            description="Manage payment escrow and automatic releases"
+            badge={{ text: "24h Auto-Release", variant: "default" }}
+            actionButton={{
+              text: "Force Release",
+              onClick: () => {}, // TODO: Implement force release functionality
+              icon: <RefreshCw className="w-4 h-4 mr-2" />,
+              variant: "outline"
+            }}
+          />
+        </div>
 
         <main className="p-6 space-y-6">
           {/* Summary Cards */}
