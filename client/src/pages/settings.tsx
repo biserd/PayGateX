@@ -55,10 +55,35 @@ export default function Settings() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("profile");
 
-  // Get real user settings from API
+  // Get real user settings from API with default values
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/settings"],
   });
+
+  // Provide default values to prevent TypeScript errors
+  const safeSettings: UserSettings = {
+    id: settings?.id || "",
+    name: settings?.name || user?.username || "",
+    email: settings?.email || user?.email || "",
+    company: settings?.company || "",
+    timezone: settings?.timezone || "America/New_York",
+    notifications: {
+      email: settings?.notifications?.email ?? true,
+      webhook: settings?.notifications?.webhook ?? false,
+      sms: settings?.notifications?.sms ?? false,
+    },
+    security: {
+      twoFactorEnabled: settings?.security?.twoFactorEnabled ?? false,
+      apiKeyRotationDays: settings?.security?.apiKeyRotationDays ?? 30,
+    },
+    payment: {
+      defaultNetwork: settings?.payment?.defaultNetwork ?? "base",
+      escrowPeriodHours: settings?.payment?.escrowPeriodHours ?? 24,
+      minimumPayment: settings?.payment?.minimumPayment ?? "0.01",
+      payoutWalletMainnet: settings?.payment?.payoutWalletMainnet ?? "",
+      payoutWalletTestnet: settings?.payment?.payoutWalletTestnet ?? "",
+    }
+  };
 
   // Get sandbox mode from organization API
   const { data: sandboxData, isLoading: sandboxLoading } = useQuery({
@@ -124,9 +149,7 @@ export default function Settings() {
   const handleNotificationChange = (type: string, enabled: boolean) => {
     updateSettingsMutation.mutate({
       notifications: {
-        email: settings?.notifications?.email || false,
-        webhook: settings?.notifications?.webhook || false,
-        sms: settings?.notifications?.sms || false,
+        ...safeSettings.notifications,
         [type]: enabled
       }
     });
@@ -135,8 +158,7 @@ export default function Settings() {
   const handleSecurityChange = (setting: string, value: any) => {
     updateSettingsMutation.mutate({
       security: {
-        twoFactorEnabled: settings?.security?.twoFactorEnabled || false,
-        apiKeyRotationDays: settings?.security?.apiKeyRotationDays || 30,
+        ...safeSettings.security,
         [setting]: value
       }
     });
@@ -145,11 +167,7 @@ export default function Settings() {
   const handlePaymentChange = (setting: string, value: any) => {
     updateSettingsMutation.mutate({
       payment: {
-        defaultNetwork: settings?.payment?.defaultNetwork || "base",
-        escrowPeriodHours: settings?.payment?.escrowPeriodHours || 24,
-        minimumPayment: settings?.payment?.minimumPayment || "0.01",
-        payoutWalletMainnet: settings?.payment?.payoutWalletMainnet || "",
-        payoutWalletTestnet: settings?.payment?.payoutWalletTestnet || "",
+        ...safeSettings.payment,
         [setting]: value
       }
     });
@@ -235,14 +253,14 @@ export default function Settings() {
                   <Input
                     id="company"
                     name="company"
-                    defaultValue={settings?.company || ""}
+                    defaultValue={safeSettings.company}
                     placeholder="Company name (optional)"
                     data-testid="input-company"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Timezone</Label>
-                  <Select name="timezone" defaultValue={settings?.timezone}>
+                  <Select name="timezone" defaultValue={safeSettings.timezone}>
                     <SelectTrigger data-testid="select-timezone">
                       <SelectValue />
                     </SelectTrigger>
@@ -352,24 +370,24 @@ export default function Settings() {
                   <div className="space-y-0.5">
                     <Label className="text-base font-medium">Sandbox Mode</Label>
                     <p className="text-sm text-muted-foreground">
-                      {sandboxData?.sandboxMode 
+                      {(sandboxData?.sandboxMode ?? true)
                         ? "Currently in testing mode - using simulated payments for development"
                         : "Currently in production mode - processing real blockchain transactions"
                       }
                     </p>
                   </div>
                   <Switch
-                    checked={sandboxData?.sandboxMode || false}
+                    checked={sandboxData?.sandboxMode ?? true}
                     onCheckedChange={(checked) => updateSandboxMutation.mutate(checked)}
                     disabled={updateSandboxMutation.isPending || sandboxLoading}
                     data-testid="sandbox-toggle"
                   />
                 </div>
                 
-                <Alert className={sandboxData?.sandboxMode ? "border-orange-200 bg-orange-50" : "border-green-200 bg-green-50"}>
+                <Alert className={(sandboxData?.sandboxMode ?? true) ? "border-orange-200 bg-orange-50" : "border-green-200 bg-green-50"}>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    {sandboxData?.sandboxMode ? (
+                    {(sandboxData?.sandboxMode ?? true) ? (
                       <span>
                         <strong>Testing Mode:</strong> All payments are simulated. Use the payment simulation endpoint to generate test transactions. Perfect for development and testing.
                       </span>
@@ -475,7 +493,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <Switch
-                  checked={settings?.notifications.email}
+                  checked={safeSettings.notifications.email}
                   onCheckedChange={(checked) => handleNotificationChange("email", checked)}
                   data-testid="switch-email-notifications"
                 />
@@ -488,7 +506,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <Switch
-                  checked={settings?.notifications.webhook}
+                  checked={safeSettings.notifications.webhook}
                   onCheckedChange={(checked) => handleNotificationChange("webhook", checked)}
                   data-testid="switch-webhook-notifications"
                 />
@@ -501,7 +519,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <Switch
-                  checked={settings?.notifications.sms}
+                  checked={safeSettings.notifications.sms}
                   onCheckedChange={(checked) => handleNotificationChange("sms", checked)}
                   data-testid="switch-sms-notifications"
                 />
@@ -556,7 +574,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <Switch
-                  checked={settings?.security.twoFactorEnabled}
+                  checked={safeSettings.security.twoFactorEnabled}
                   onCheckedChange={(checked) => handleSecurityChange("twoFactorEnabled", checked)}
                   data-testid="switch-2fa"
                 />
@@ -565,7 +583,7 @@ export default function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="api-rotation">API Key Rotation (Days)</Label>
                 <Select 
-                  value={settings?.security.apiKeyRotationDays.toString()} 
+                  value={safeSettings.security.apiKeyRotationDays.toString()} 
                   onValueChange={(value) => handleSecurityChange("apiKeyRotationDays", parseInt(value))}
                 >
                   <SelectTrigger data-testid="select-api-rotation">
@@ -638,7 +656,7 @@ export default function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="default-network">Default Payment Network</Label>
                 <Select 
-                  value={settings?.payment.defaultNetwork} 
+                  value={safeSettings.payment.defaultNetwork} 
                   onValueChange={(value) => handlePaymentChange("defaultNetwork", value)}
                 >
                   <SelectTrigger data-testid="select-payment-network">
@@ -658,7 +676,7 @@ export default function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="escrow-period">Escrow Period (Hours)</Label>
                 <Select 
-                  value={settings?.payment.escrowPeriodHours.toString()} 
+                  value={safeSettings.payment.escrowPeriodHours.toString()} 
                   onValueChange={(value) => handlePaymentChange("escrowPeriodHours", parseInt(value))}
                 >
                   <SelectTrigger data-testid="select-escrow-period">
@@ -681,7 +699,7 @@ export default function Settings() {
                 <Label htmlFor="minimum-payment">Minimum Payment (USDC)</Label>
                 <Input
                   id="minimum-payment"
-                  value={settings?.payment.minimumPayment}
+                  value={safeSettings.payment.minimumPayment}
                   onChange={(e) => handlePaymentChange("minimumPayment", e.target.value)}
                   data-testid="input-minimum-payment"
                 />
@@ -712,7 +730,7 @@ export default function Settings() {
                 <Input
                   id="payout-wallet-mainnet"
                   placeholder="0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0"
-                  value={settings?.payment.payoutWalletMainnet || ""}
+                  value={safeSettings.payment.payoutWalletMainnet || ""}
                   onChange={(e) => handlePaymentChange("payoutWalletMainnet", e.target.value)}
                   data-testid="input-payout-wallet-mainnet"
                 />
@@ -726,7 +744,7 @@ export default function Settings() {
                 <Input
                   id="payout-wallet-testnet"
                   placeholder="0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0"
-                  value={settings?.payment.payoutWalletTestnet || ""}
+                  value={safeSettings.payment.payoutWalletTestnet || ""}
                   onChange={(e) => handlePaymentChange("payoutWalletTestnet", e.target.value)}
                   data-testid="input-payout-wallet-testnet"
                 />
