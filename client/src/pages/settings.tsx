@@ -44,6 +44,8 @@ interface UserSettings {
     defaultNetwork: string;
     escrowPeriodHours: number;
     minimumPayment: string;
+    payoutWalletMainnet?: string;
+    payoutWalletTestnet?: string;
   };
 }
 
@@ -122,7 +124,9 @@ export default function Settings() {
   const handleNotificationChange = (type: string, enabled: boolean) => {
     updateSettingsMutation.mutate({
       notifications: {
-        ...settings?.notifications,
+        email: settings?.notifications?.email || false,
+        webhook: settings?.notifications?.webhook || false,
+        sms: settings?.notifications?.sms || false,
         [type]: enabled
       }
     });
@@ -131,7 +135,8 @@ export default function Settings() {
   const handleSecurityChange = (setting: string, value: any) => {
     updateSettingsMutation.mutate({
       security: {
-        ...settings?.security,
+        twoFactorEnabled: settings?.security?.twoFactorEnabled || false,
+        apiKeyRotationDays: settings?.security?.apiKeyRotationDays || 30,
         [setting]: value
       }
     });
@@ -140,7 +145,11 @@ export default function Settings() {
   const handlePaymentChange = (setting: string, value: any) => {
     updateSettingsMutation.mutate({
       payment: {
-        ...settings?.payment,
+        defaultNetwork: settings?.payment?.defaultNetwork || "base",
+        escrowPeriodHours: settings?.payment?.escrowPeriodHours || 24,
+        minimumPayment: settings?.payment?.minimumPayment || "0.01",
+        payoutWalletMainnet: settings?.payment?.payoutWalletMainnet || "",
+        payoutWalletTestnet: settings?.payment?.payoutWalletTestnet || "",
         [setting]: value
       }
     });
@@ -680,6 +689,64 @@ export default function Settings() {
                   Minimum amount required for API access
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue Payout Wallets</CardTitle>
+              <CardDescription>
+                Configure where you want to receive your API revenue payments
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert>
+                <CreditCard className="w-4 h-4" />
+                <AlertDescription>
+                  PayGate automatically distributes your API revenue (85-95% share) to these wallet addresses after the escrow period.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-2">
+                <Label htmlFor="payout-wallet-mainnet">Production Payout Wallet (Base Mainnet)</Label>
+                <Input
+                  id="payout-wallet-mainnet"
+                  placeholder="0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0"
+                  value={settings?.payment.payoutWalletMainnet || ""}
+                  onChange={(e) => handlePaymentChange("payoutWalletMainnet", e.target.value)}
+                  data-testid="input-payout-wallet-mainnet"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Your USDC will be sent here for production API calls (Base mainnet)
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="payout-wallet-testnet">Sandbox Payout Wallet (Base Sepolia)</Label>
+                <Input
+                  id="payout-wallet-testnet"
+                  placeholder="0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0"
+                  value={settings?.payment.payoutWalletTestnet || ""}
+                  onChange={(e) => handlePaymentChange("payoutWalletTestnet", e.target.value)}
+                  data-testid="input-payout-wallet-testnet"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Test USDC will be sent here for sandbox API calls (Base Sepolia testnet)
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">How Payouts Work:</h4>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• PayGate collects payments from API users</li>
+                  <li>• Revenue is held in escrow for 24 hours (configurable above)</li>
+                  <li>• After escrow period, 85-95% is automatically sent to your wallet</li>
+                  <li>• PayGate keeps 5-15% as platform fee</li>
+                  <li>• All transactions are recorded in the analytics dashboard</li>
+                </ul>
+              </div>
+              
+              <Button data-testid="button-save-payout-wallets">Save Payout Configuration</Button>
             </CardContent>
           </Card>
 
