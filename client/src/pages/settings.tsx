@@ -181,12 +181,15 @@ export default function Settings() {
   return (
     <div className="min-h-screen flex bg-background-light">
       <Sidebar />
-      <div className="flex-1 overflow-auto p-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 overflow-auto">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
           <DashboardHeader
             title="Settings"
             description="Manage your PayGate x402 account settings and preferences"
           />
+        </div>
+        <div className="p-8">
+          <div className="max-w-4xl mx-auto">
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid grid-cols-6 w-full">
@@ -803,6 +806,7 @@ export default function Settings() {
           </Card>
         </TabsContent>
           </Tabs>
+          </div>
         </div>
       </div>
     </div>

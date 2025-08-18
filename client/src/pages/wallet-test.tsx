@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,16 +126,17 @@ export default function WalletTest() {
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <div className="flex-1 overflow-auto p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Base Sepolia Wallet Testing</h1>
-            <p className="text-muted-foreground">
-              Test x402 payments with real USDC on Base Sepolia testnet
-            </p>
-          </div>
-
-          {/* Network Status */}
+      <div className="flex-1 overflow-auto">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <DashboardHeader
+            title="Wallet Testing"
+            description="Test x402 payments with real USDC on Base Sepolia testnet"
+            badge={{ text: "Base Sepolia", variant: "secondary" }}
+          />
+        </div>
+        <div className="p-8">
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Network Status */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -341,6 +343,7 @@ export default function WalletTest() {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </div>
