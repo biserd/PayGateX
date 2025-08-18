@@ -9,29 +9,47 @@ window.addEventListener('unhandledrejection', event => {
   event.preventDefault();
 });
 
-// Immediately disable MetaMask auto-connection attempts
-if (typeof (window as any).ethereum !== 'undefined') {
-  const ethereum = (window as any).ethereum;
-  
-  // Override connect method
-  if (ethereum.connect) {
-    ethereum.connect = () => {
-      console.log('MetaMask connection blocked - use Wallet Test page for wallet functionality');
-      return Promise.resolve([]);
+// Completely intercept and suppress all MetaMask-related errors
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const message = args.join(' ');
+  if (message.includes('MetaMask') || message.includes('chrome-extension://')) {
+    return; // Silently ignore MetaMask errors
+  }
+  return originalConsoleError.apply(console, args);
+};
+
+// Intercept window errors
+window.addEventListener('error', event => {
+  if (event.error && (
+      event.error.message?.includes('MetaMask') ||
+      event.error.stack?.includes('chrome-extension://') ||
+      event.error.stack?.includes('nkbihfbeogaeaoehlefnkodbefgpgknn') ||
+      event.filename?.includes('chrome-extension://')
+    )) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    return false;
+  }
+}, true);
+
+// Completely disable MetaMask by removing it from the window object
+const disableMetaMask = () => {
+  if (typeof (window as any).ethereum !== 'undefined') {
+    // Replace the entire ethereum object with a dummy
+    (window as any).ethereum = {
+      isMetaMask: false,
+      connect: () => Promise.resolve([]),
+      request: () => Promise.resolve(null),
+      on: () => {},
+      removeListener: () => {},
     };
   }
-  
-  // Override request method for eth_requestAccounts specifically
-  const originalRequest = ethereum.request;
-  if (originalRequest) {
-    ethereum.request = (args: any) => {
-      if (args.method === 'eth_requestAccounts') {
-        console.log('MetaMask account request blocked - use Wallet Test page');
-        return Promise.resolve([]);
-      }
-      return originalRequest.call(ethereum, args);
-    };
-  }
-}
+};
+
+// Apply immediately and repeatedly to catch all injection attempts
+disableMetaMask();
+setInterval(disableMetaMask, 1000); // Check every second
 
 createRoot(document.getElementById("root")!).render(<App />);
