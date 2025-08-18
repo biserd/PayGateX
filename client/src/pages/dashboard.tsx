@@ -25,7 +25,7 @@ function RevenueChart() {
     refetchInterval: 30000,
   });
 
-  const chartData = revenueData?.dailyRevenue?.slice(-7).map(day => ({
+  const chartData = revenueData?.dailyRevenue?.slice(-7).map((day: any) => ({
     date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     revenue: day.revenue,
     requests: day.requests
@@ -59,7 +59,7 @@ function RequestChart() {
     refetchInterval: 30000,
   });
 
-  const chartData = requestData?.dailyRequests?.slice(-7).map(day => ({
+  const chartData = requestData?.dailyRequests?.slice(-7).map((day: any) => ({
     date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     total: day.totalRequests,
     paid: day.paidRequests,
@@ -121,15 +121,13 @@ export default function Dashboard() {
     );
   }
 
-  const {
-    totalRevenue = "0.000000",
-    totalRequests = 0,
-    paidRequests = 0,
-    conversionRate = "0.00",
-    averageLatency = 0,
-    escrow = { pendingAmount: "0.000000", releasedToday: "0.000000", totalRefunds: "0.000000" },
-    recentTransactions = []
-  } = dashboardData || {};
+  const totalRevenue = (dashboardData as any)?.totalRevenue || "0.000000";
+  const totalRequests = (dashboardData as any)?.totalRequests || 0;
+  const paidRequests = (dashboardData as any)?.paidRequests || 0;
+  const conversionRate = (dashboardData as any)?.conversionRate || "0.00";
+  const averageLatency = (dashboardData as any)?.averageLatency || 0;
+  const escrow = (dashboardData as any)?.escrow || { pendingAmount: "0.000000", releasedToday: "0.000000", totalRefunds: "0.000000" };
+  const recentTransactions = (dashboardData as any)?.recentTransactions || [];
 
   const paymentRate = conversionRate || "0.00";
   const escrowReleaseRate = parseFloat(escrow.releasedToday) > 0 ? 89.3 : 0;
