@@ -54,7 +54,7 @@ export default function Audit() {
 
   // Get audit records
   const { data: auditData, isLoading } = useQuery({
-    queryKey: ["/api/audit/transactions", dateRange, statusFilter, networkFilter],
+    queryKey: [`/api/audit/transactions?days=${dateRange}&status=${statusFilter}&network=${networkFilter}`],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
