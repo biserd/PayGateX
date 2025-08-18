@@ -15,6 +15,7 @@ import Compliance from "@/pages/compliance";
 import Escrow from "@/pages/escrow";
 import Settings from "@/pages/settings";
 import WalletTest from "@/pages/wallet-test";
+import Audit from "@/pages/audit";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/compliance" component={Compliance} />
       <Route path="/escrow" component={Escrow} />
+      <Route path="/audit" component={Audit} />
       <Route path="/settings" component={Settings} />
       <Route path="/wallet-test" component={WalletTest} />
       <Route path="*" component={NotFound} />

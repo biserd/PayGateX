@@ -10,7 +10,8 @@ import {
   Lock, 
   Settings,
   Coins,
-  Wallet
+  Wallet,
+  FileText
 } from "lucide-react";
 
 const navigation = [
@@ -19,6 +20,7 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Compliance", href: "/compliance", icon: Shield },
   { name: "Escrow", href: "/escrow", icon: Lock },
+  { name: "Transaction Audit", href: "/audit", icon: FileText },
   { name: "Wallet Test", href: "/wallet-test", icon: Wallet },
   { name: "Settings", href: "/settings", icon: Settings },
 ];

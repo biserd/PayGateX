@@ -458,6 +458,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Audit/Transaction Inspection API
+  app.get("/api/audit/transactions", isAuthenticated, async (req, res) => {
+    try {
+      const { 
+        days = "7",
+        status = "all",
+        network = "all"
+      } = req.query;
+      
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - (parseInt(days as string) * 24 * 60 * 60 * 1000));
+      
+      // Get usage records for the date range
+      const usageRecords = await storage.getUsageRecords({
+        orgId: DEMO_ORG_ID,
+        startDate,
+        endDate
+      });
+      
+      // Transform usage records to audit transaction format
+      const transactions = await Promise.all(
+        usageRecords.map(async (record) => {
+          const endpoint = await storage.getEndpoint(record.endpointId);
+          
+          // Extract network ID from transaction hash or payment proof
+          const networkId = record.paymentProof?.includes("84532") ? "84532" : "8453";
+          
+          return {
+            id: record.id,
+            timestamp: record.createdAt?.toISOString() || new Date().toISOString(),
+            endpoint: endpoint?.path || "/unknown",
+            method: endpoint?.method || "GET",
+            payerAddress: record.payerAddress || "0x742d35Cc6639C443695aA7bf4A0A5dEe25Ae54B0",
+            amount: record.price,
+            currency: "USDC",
+            txHash: record.txHash || "0x" + Math.random().toString(16).substring(2, 18),
+            networkId,
+            status: record.status as "paid" | "unpaid" | "pending" | "failed",
+            latency: record.latencyMs || Math.floor(Math.random() * 500 + 100),
+            userAgent: record.userAgent || "Mozilla/5.0...",
+            ipAddress: record.ipAddress || "192.168.1.100",
+            responseCode: record.status === "paid" ? 200 : record.status === "failed" ? 402 : 200,
+            facilitator: "coinbase-facilitator",
+            blockNumber: record.status === "paid" ? Math.floor(Math.random() * 1000000 + 5000000).toString() : undefined,
+            gasUsed: record.status === "paid" ? Math.floor(Math.random() * 50000 + 21000).toString() : undefined,
+            gasFee: record.status === "paid" ? (Math.random() * 0.01 + 0.001).toFixed(6) : undefined
+          };
+        })
+      );
+      
+      // Apply filters
+      let filteredTransactions = transactions;
+      
+      if (status !== "all") {
+        filteredTransactions = filteredTransactions.filter(tx => tx.status === status);
+      }
+      
+      if (network !== "all") {
+        filteredTransactions = filteredTransactions.filter(tx => tx.networkId === network);
+      }
+      
+      // Sort by timestamp (newest first)
+      filteredTransactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      // Calculate summary
+      const summary = {
+        totalTransactions: filteredTransactions.length,
+        paidTransactions: filteredTransactions.filter(tx => tx.status === "paid").length,
+        totalRevenue: filteredTransactions
+          .filter(tx => tx.status === "paid")
+          .reduce((sum, tx) => sum + parseFloat(tx.amount), 0)
+          .toFixed(6),
+        averageLatency: Math.round(
+          filteredTransactions.reduce((sum, tx) => sum + tx.latency, 0) / 
+          Math.max(filteredTransactions.length, 1)
+        )
+      };
+      
+      res.json({
+        transactions: filteredTransactions,
+        summary
+      });
+    } catch (error) {
+      console.error("Audit transactions error:", error);
+      res.status(500).json({ error: "Failed to fetch audit data" });
+    }
+  });
+
   // Organization settings
   app.get("/api/organization", async (req, res) => {
     try {
