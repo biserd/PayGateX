@@ -9,6 +9,11 @@ import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 import { setupAuth } from "./auth";
 
 const facilitatorAdapter = createFacilitatorAdapter("mock"); // Use mock for development
+console.log(`[FACILITATOR] Initialized facilitator adapter:`, {
+  type: "mock",
+  timestamp: new Date().toISOString(),
+  note: "Using mock facilitator for development - no real payments will be processed"
+});
 const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
 
@@ -701,6 +706,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Payment simulation error:", error);
       res.status(500).json({ error: "Payment simulation failed" });
+    }
+  });
+
+  // Test endpoint to demonstrate facilitator logging
+  app.post("/api/test-facilitator", async (req, res) => {
+    try {
+      const { action = "verify" } = req.body;
+      
+      console.log(`[TEST-FACILITATOR] Testing facilitator with action: ${action}`);
+      
+      // Create test requirements
+      const testRequirements = {
+        payTo: "test-org",
+        price: "1000000", // 1 USDC in micro units
+        currency: "USDC",
+        network: "base-sepolia",
+        path: "/api/test",
+        description: "Test API call"
+      };
+      
+      const testPaymentHeader = "test-payment-header-" + Date.now();
+      
+      // Test different facilitator actions
+      let result;
+      switch (action) {
+        case "verify":
+          result = await facilitatorAdapter.verifyPayment(testPaymentHeader, testRequirements);
+          break;
+        case "settle":
+          result = await facilitatorAdapter.settlePayment(testPaymentHeader, testRequirements);
+          break;
+        case "quote":
+          result = await facilitatorAdapter.createSignedQuote(testRequirements);
+          break;
+        default:
+          throw new Error("Invalid action");
+      }
+      
+      res.json({
+        success: true,
+        action,
+        facilitatorType: facilitatorAdapter.constructor.name,
+        result
+      });
+    } catch (error) {
+      console.error("Test facilitator error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

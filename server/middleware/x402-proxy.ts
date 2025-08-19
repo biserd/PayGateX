@@ -198,10 +198,22 @@ export function x402ProxyMiddleware(
           network: targetNetwork
         });
 
+        console.log(`[X402-PROXY] Starting payment verification for request ${requestId}:`, {
+          paymentHeader: paymentHeader.substring(0, 100) + "...",
+          requirements: paymentRequirements,
+          endpoint: apiPath,
+          facilitatorType: facilitator.constructor.name
+        });
+
         const verificationResult = await facilitator.verifyPayment(
           paymentHeader,
           paymentRequirements
         );
+
+        console.log(`[X402-PROXY] Payment verification result for request ${requestId}:`, {
+          isValid: verificationResult.isValid,
+          invalidReason: verificationResult.invalidReason
+        });
 
         if (!verificationResult.isValid) {
           // Payment verification failed
@@ -230,10 +242,22 @@ export function x402ProxyMiddleware(
         }
 
         // Settlement
+        console.log(`[X402-PROXY] Starting payment settlement for request ${requestId}:`, {
+          paymentHeader: paymentHeader.substring(0, 100) + "...",
+          requirements: paymentRequirements
+        });
+
         const settlementResult = await facilitator.settlePayment(
           paymentHeader,
           paymentRequirements
         );
+
+        console.log(`[X402-PROXY] Payment settlement result for request ${requestId}:`, {
+          success: settlementResult.success,
+          txHash: settlementResult.txHash,
+          networkId: settlementResult.networkId,
+          error: settlementResult.error
+        });
 
         if (!settlementResult.success) {
           await meteringService.recordUsage({
