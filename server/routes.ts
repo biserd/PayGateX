@@ -8,11 +8,13 @@ import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 import { setupAuth } from "./auth";
 
-const facilitatorAdapter = createFacilitatorAdapter("mock"); // Use mock for development
+// Switch between different facilitator types for testing
+const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
+const facilitatorAdapter = createFacilitatorAdapter(facilitatorType);
 console.log(`[FACILITATOR] Initialized facilitator adapter:`, {
-  type: "mock",
+  type: facilitatorType,
   timestamp: new Date().toISOString(),
-  note: "Using mock facilitator for development - no real payments will be processed"
+  note: facilitatorType === "mock" ? "Using mock facilitator for development - no real payments will be processed" : `Using ${facilitatorType} facilitator for real payment processing`
 });
 const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
@@ -712,9 +714,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint to demonstrate facilitator logging
   app.post("/api/test-facilitator", async (req, res) => {
     try {
-      const { action = "verify" } = req.body;
+      const { action = "verify", facilitatorType: testType } = req.body;
       
-      console.log(`[TEST-FACILITATOR] Testing facilitator with action: ${action}`);
+      // Allow testing different facilitator types temporarily
+      const testAdapter = testType ? createFacilitatorAdapter(testType) : facilitatorAdapter;
+      
+      console.log(`[TEST-FACILITATOR] Testing facilitator with action: ${action}, type: ${testType || 'default'}`);
       
       // Create test requirements
       const testRequirements = {
@@ -732,13 +737,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let result;
       switch (action) {
         case "verify":
-          result = await facilitatorAdapter.verifyPayment(testPaymentHeader, testRequirements);
+          result = await testAdapter.verifyPayment(testPaymentHeader, testRequirements);
           break;
         case "settle":
-          result = await facilitatorAdapter.settlePayment(testPaymentHeader, testRequirements);
+          result = await testAdapter.settlePayment(testPaymentHeader, testRequirements);
           break;
         case "quote":
-          result = await facilitatorAdapter.createSignedQuote(testRequirements);
+          result = await testAdapter.createSignedQuote(testRequirements);
           break;
         default:
           throw new Error("Invalid action");
@@ -747,7 +752,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         success: true,
         action,
-        facilitatorType: facilitatorAdapter.constructor.name,
+        facilitatorType: testAdapter.constructor.name,
         result
       });
     } catch (error) {
