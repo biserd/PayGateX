@@ -16,6 +16,7 @@ import Escrow from "@/pages/escrow";
 import Settings from "@/pages/settings";
 import WalletTest from "@/pages/wallet-test";
 import Audit from "@/pages/audit";
+import DocsPage from "@/pages/docs";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -33,6 +34,9 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/auth" component={AuthPage} />
+        <Route path="/docs" component={DocsPage} />
+        <Route path="/docs/:section" component={DocsPage} />
+        <Route path="/docs/:section/:page" component={DocsPage} />
         <Route path="*" component={NotFound} />
       </Switch>
     );
@@ -49,6 +53,9 @@ function Router() {
       <Route path="/audit" component={Audit} />
       <Route path="/settings" component={Settings} />
       <Route path="/wallet-test" component={WalletTest} />
+      <Route path="/docs" component={DocsPage} />
+      <Route path="/docs/:section" component={DocsPage} />
+      <Route path="/docs/:section/:page" component={DocsPage} />
       <Route path="*" component={NotFound} />
     </Switch>
   );
