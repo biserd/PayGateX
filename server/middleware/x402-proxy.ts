@@ -105,8 +105,12 @@ export function x402ProxyMiddleware(
       const targetNetwork = getNetworkForSandbox(isInSandboxMode, pricing.network);
       const networkConfig = getNetworkConfig(targetNetwork);
 
-      // Generate request ID for idempotency
+      // Extract headers including AP2 compatibility
       const payerAddress = req.headers["x-payer-address"] as string || "anonymous";
+      const agentId = req.headers["ap2-agent-id"] as string;
+      const mandateHash = req.headers["ap2-mandate-hash"] as string;
+      
+      // Generate request ID for idempotency
       requestId = generateRequestId(endpoint.id, payerAddress, requestStart);
 
       // Check free tier eligibility first
@@ -169,16 +173,34 @@ export function x402ProxyMiddleware(
         res.setHeader("X-402-NETWORK", targetNetwork);
         res.setHeader("X-402-CHAIN-ID", networkConfig.chainId.toString());
         
-        // Include sandbox mode and network info in response
+        // Create agent-friendly enhanced response with AP2 compatibility
         const enhancedResponse = {
           ...paymentResponse,
           pricing: {
             amount: pricing.price,
             currency: pricing.currency,
             network: targetNetwork,
-            chainId: networkConfig.chainId
+            chainId: networkConfig.chainId,
+            contractUnits: X402Utils.toContractUnits(pricing.price, 6)
           },
-          sandbox: isInSandboxMode,
+          endpoint: {
+            path: apiPath,
+            method: req.method,
+            description: endpoint.description || "API access",
+            service: service.name,
+            organization: organization?.name
+          },
+          ap2: {
+            agentSupported: true,
+            mandateRequired: Boolean(mandateHash),
+            agentId: agentId || null
+          },
+          metadata: {
+            requestId,
+            timestamp: new Date().toISOString(),
+            sandbox: isInSandboxMode,
+            version: "1.1.0"
+          },
           quote: signedQuote
         };
         
