@@ -192,7 +192,8 @@ export function x402ProxyMiddleware(
           },
           ap2: {
             agentSupported: true,
-            mandateRequired: Boolean(mandateHash),
+            mandateRequired: false, // Policy-based requirement (configurable per org/endpoint)
+            mandateProvided: Boolean(mandateHash),
             agentId: agentId || null
           },
           metadata: {
@@ -211,12 +212,16 @@ export function x402ProxyMiddleware(
       let proofId = "";
 
       if (paymentHeader) {
-        // Verify payment
+        // Verify payment - use same wallet address as 402 response
+        const payToAddress = isInSandboxMode 
+          ? organization?.testnetWalletAddress 
+          : organization?.walletAddress;
+          
         const paymentRequirements = X402Utils.createPaymentRequirements({
           path: apiPath,
           description: endpoint.description || "API access",
           price: X402Utils.toContractUnits(pricing.price, 6),
-          payTo: service.orgId,
+          payTo: payToAddress, // Use actual wallet address, not orgId
           network: targetNetwork
         });
 
