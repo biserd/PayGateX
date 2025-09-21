@@ -49,6 +49,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Note: Auth routes are now handled in auth.ts
 
+  // Platform Version Information
+  app.get("/api/version", async (req, res) => {
+    const version = {
+      version: "1.1.0",
+      releaseDate: "2025-09-21",
+      features: {
+        ap2Compatible: true,
+        agentSupport: true,
+        blockchainNetworks: ["base", "base-sepolia"],
+        x402Protocol: "1.0",
+        facilitators: ["mock", "coinbase", "x402rs"]
+      },
+      changelog: {
+        "1.1.0": {
+          date: "2025-09-21",
+          features: [
+            "AP2 (Agent Payments Protocol) compatibility",
+            "Agent-friendly API responses with structured metadata",
+            "Cost estimation endpoints for agent planning",
+            "Enhanced x402 responses with pricing information",
+            "Support for AP2-Agent-ID and AP2-Mandate-Hash headers"
+          ],
+          improvements: [
+            "Structured JSON responses for better agent integration",
+            "Real-time cost estimation for batch operations",
+            "Enhanced payment metadata in 402 responses"
+          ]
+        },
+        "1.0.0": {
+          date: "2025-08-15",
+          features: [
+            "x402 payment protocol implementation",
+            "Base and Base Sepolia blockchain support",
+            "Real-time payment verification",
+            "Comprehensive analytics dashboard",
+            "Multi-tenant organization support",
+            "Escrow and compliance framework"
+          ]
+        }
+      },
+      api: {
+        endpoints: {
+          pricing: "/api/v1/pricing/estimate",
+          batchEstimate: "/api/v1/pricing/batch-estimate",
+          proxy: "/proxy/{orgId}/{serviceId}/{endpoint}",
+          version: "/api/version"
+        },
+        documentation: "/docs"
+      }
+    };
+    
+    res.json(version);
+  });
+
   // AP2 Cost Estimation Endpoints (public - for agent planning)
   app.get("/api/v1/pricing/estimate", async (req, res) => {
     try {
