@@ -49,6 +49,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Note: Auth routes are now handled in auth.ts
 
+  // AP2 Cost Estimation Endpoints (public - for agent planning)
+  app.get("/api/v1/pricing/estimate", async (req, res) => {
+    try {
+      const { path, method = "GET", network = "base" } = req.query;
+      
+      if (!path) {
+        return res.status(400).json({
+          error: "Path parameter is required",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const endpoint = await storage.getEndpointByPath(path as string, method as string);
+      if (!endpoint || !endpoint.isActive) {
+        return res.status(404).json({
+          error: "Endpoint not found or inactive",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const pricing = await storage.getCurrentPricing(endpoint.id);
+      const service = await storage.getService(endpoint.serviceId);
+      const organization = await storage.getOrganization(service.orgId);
+      
+      res.json({
+        endpoint: {
+          path: endpoint.path,
+          method: endpoint.method,
+          description: endpoint.description,
+          service: service.name
+        },
+        pricing: {
+          amount: pricing.price,
+          currency: pricing.currency,
+          network: pricing.network,
+          contractUnits: pricing.price // Simplified for demo
+        },
+        ap2: {
+          agentSupported: true,
+          mandateSupported: true,
+          batchSupported: false
+        },
+        metadata: {
+          timestamp: new Date().toISOString(),
+          version: "1.1.0",
+          sandbox: organization?.sandboxMode ?? true
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Internal server error",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  app.post("/api/v1/pricing/batch-estimate", async (req, res) => {
+    try {
+      const { endpoints } = req.body;
+      
+      if (!Array.isArray(endpoints) || endpoints.length === 0) {
+        return res.status(400).json({
+          error: "Endpoints array is required",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const estimates = await Promise.all(
+        endpoints.map(async (endpointReq) => {
+          const { path, method = "GET", quantity = 1 } = endpointReq;
+          
+          try {
+            const endpoint = await storage.getEndpointByPath(path, method);
+            if (!endpoint || !endpoint.isActive) {
+              return {
+                path,
+                method,
+                error: "Endpoint not found or inactive"
+              };
+            }
+            
+            const pricing = await storage.getCurrentPricing(endpoint.id);
+            const totalCost = parseFloat(pricing.price) * quantity;
+            
+            return {
+              path,
+              method,
+              unitPrice: pricing.price,
+              quantity,
+              totalCost: totalCost.toString(),
+              currency: pricing.currency,
+              network: pricing.network
+            };
+          } catch (error) {
+            return {
+              path,
+              method,
+              error: "Failed to calculate estimate"
+            };
+          }
+        })
+      );
+      
+      const totalCost = estimates.reduce((sum, est) => {
+        return sum + (est.totalCost ? parseFloat(est.totalCost) : 0);
+      }, 0);
+      
+      res.json({
+        estimates,
+        summary: {
+          totalEstimatedCost: totalCost.toString(),
+          currency: "USDC",
+          estimateCount: estimates.length
+        },
+        ap2: {
+          agentSupported: true,
+          batchProcessing: true
+        },
+        metadata: {
+          timestamp: new Date().toISOString(),
+          version: "1.1.0"
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Internal server error",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Dashboard analytics (protected)
   app.get("/api/dashboard/summary", isAuthenticated, async (req, res) => {
     try {
