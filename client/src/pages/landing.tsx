@@ -28,6 +28,27 @@ export default function Landing() {
               <p className="text-xs text-gray-400 font-medium">API Monetization Platform</p>
             </div>
           </div>
+          
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/docs"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-docs"
+            >
+              Documentation
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/release-notes"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-release-notes"
+            >
+              Release Notes
+            </Button>
+          </div>
+          
           <Button 
             onClick={() => window.location.href = "/auth"}
             className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"

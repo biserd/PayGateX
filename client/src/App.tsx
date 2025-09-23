@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import AuthPage from "@/pages/auth-page";
+import ReleaseNotes from "@/pages/release-notes";
 
 import Dashboard from "@/pages/dashboard";
 import Endpoints from "@/pages/endpoints";
@@ -34,6 +35,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/auth" component={AuthPage} />
+        <Route path="/release-notes" component={ReleaseNotes} />
         <Route path="/docs" component={DocsPage} />
         <Route path="/docs/:section" component={DocsPage} />
         <Route path="/docs/:section/:page" component={DocsPage} />
