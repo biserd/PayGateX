@@ -293,7 +293,7 @@ export default function ReleaseNotes() {
           </div>
 
           {/* Two Column Layout */}
-          <div className="flex gap-8 max-w-7xl mx-auto h-[calc(100vh-400px)]">
+          <div className="flex gap-8 max-w-7xl mx-auto">
             {/* Left Sidebar - Version Navigation */}
             <div className="w-80 flex-shrink-0">
               <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm sticky top-8 h-fit">
@@ -301,8 +301,7 @@ export default function ReleaseNotes() {
                   <CardTitle className="text-lg text-white">Versions</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <ScrollArea className="max-h-80">
-                    <div className="space-y-1 p-4">
+                  <div className="space-y-1 p-4">
                       {RELEASE_DATA.map((item) => (
                         <button
                           key={item.id}
@@ -342,22 +341,19 @@ export default function ReleaseNotes() {
                           }`} />
                         </button>
                       ))}
-                    </div>
-                  </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Right Content Area */}
-            <div className="flex-1 min-w-0 h-full flex flex-col">
-              <ScrollArea className="flex-1 pr-4">
-                <div className="transition-all duration-300 ease-in-out pb-8">
-                  {renderContent()}
-                </div>
-              </ScrollArea>
+            <div className="flex-1 min-w-0">
+              <div className="transition-all duration-300 ease-in-out">
+                {renderContent()}
+              </div>
               
               {/* Navigation Links */}
-              <div className="flex justify-center space-x-4 pt-6 pb-2">
+              <div className="flex justify-center space-x-4 mt-12">
                 <Button
                   onClick={() => window.location.href = "/docs"}
                   variant="outline"
