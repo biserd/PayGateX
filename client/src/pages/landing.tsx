@@ -85,41 +85,47 @@ export default function Landing() {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 z-50">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 z-[100] pointer-events-auto">
             <div className="container mx-auto px-4 py-4 space-y-2">
-              <Button
-                variant="ghost"
-                onClick={() => {
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Documentation clicked');
                   window.location.href = "/docs";
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3 px-4 bg-transparent border-none cursor-pointer rounded-md transition-colors duration-200 pointer-events-auto"
                 data-testid="mobile-nav-docs"
               >
                 Documentation
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Release Notes clicked');
                   window.location.href = "/release-notes";
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3 px-4 bg-transparent border-none cursor-pointer rounded-md transition-colors duration-200 pointer-events-auto"
                 data-testid="mobile-nav-release-notes"
               >
                 Release Notes
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Contact clicked');
                   window.location.href = "/contact";
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3 px-4 bg-transparent border-none cursor-pointer rounded-md transition-colors duration-200 pointer-events-auto"
                 data-testid="mobile-nav-contact"
               >
                 Contact
-              </Button>
+              </button>
             </div>
           </div>
         )}
