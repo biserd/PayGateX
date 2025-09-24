@@ -20,19 +20,19 @@ export default function Landing() {
       
       {/* Header */}
       <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="relative w-10 h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-              <Sparkles className="w-6 h-6 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
-              <p className="text-xs text-gray-400 font-medium">API Monetization Platform</p>
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
+              <p className="text-xs text-gray-400 font-medium hidden sm:block">API Monetization Platform</p>
             </div>
           </div>
           
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
             <Button
               variant="ghost"
@@ -59,15 +59,70 @@ export default function Landing() {
               Contact
             </Button>
           </div>
-          
-          <Button 
-            onClick={() => window.location.href = "/auth"}
-            className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
-            data-testid="button-login"
-          >
-            Sign In
-          </Button>
+
+          <div className="flex items-center space-x-2">
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-gray-300 hover:text-white hover:bg-white/10 p-2"
+              data-testid="mobile-menu-button"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+            
+            <Button 
+              onClick={() => window.location.href = "/auth"}
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-3 sm:px-6 py-2 sm:py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25 text-sm"
+              data-testid="button-login"
+            >
+              <span className="hidden sm:inline">Sign In</span>
+              <span className="sm:hidden">Login</span>
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 z-50">
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  window.location.href = "/docs";
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                data-testid="mobile-nav-docs"
+              >
+                Documentation
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  window.location.href = "/release-notes";
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                data-testid="mobile-nav-release-notes"
+              >
+                Release Notes
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  window.location.href = "/contact";
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left justify-start text-gray-300 hover:text-white hover:bg-white/10 py-3"
+                data-testid="mobile-nav-contact"
+              >
+                Contact
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
