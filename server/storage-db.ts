@@ -25,6 +25,8 @@ import {
   type InsertAuditLog,
   type WebhookEndpoint,
   type InsertWebhookEndpoint,
+  type ContactSubmission,
+  type InsertContactSubmission,
   users,
   userSettings,
   organizations,
@@ -37,7 +39,8 @@ import {
   escrowHoldings,
   disputes,
   auditLogs,
-  webhookEndpoints
+  webhookEndpoints,
+  contactSubmissions
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, inArray, sql } from "drizzle-orm";
@@ -506,5 +509,19 @@ export class DatabaseStorage implements IStorage {
       avgLatency: result.avgLatency || 0,
       totalRevenue: result.totalRevenue || 0
     }));
+  }
+
+  // Contact submission methods
+  async createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission> {
+    const [created] = await db.insert(contactSubmissions).values(submission).returning();
+    return created;
+  }
+
+  async getContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.submittedAt));
+  }
+
+  async markContactSubmissionAsRead(id: string): Promise<void> {
+    await db.update(contactSubmissions).set({ isRead: true }).where(eq(contactSubmissions.id, id));
   }
 }

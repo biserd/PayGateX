@@ -24,7 +24,9 @@ import {
   type AuditLog,
   type InsertAuditLog,
   type WebhookEndpoint,
-  type InsertWebhookEndpoint
+  type InsertWebhookEndpoint,
+  type ContactSubmission,
+  type InsertContactSubmission
 } from "@shared/schema";
 
 export interface IStorage {
@@ -109,6 +111,11 @@ export interface IStorage {
   getWebhookEndpoints(orgId: string): Promise<WebhookEndpoint[]>;
   createWebhookEndpoint(webhook: InsertWebhookEndpoint): Promise<WebhookEndpoint>;
   updateWebhookEndpoint(id: string, updates: Partial<WebhookEndpoint>): Promise<WebhookEndpoint | undefined>;
+
+  // Contact submission methods
+  createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  getContactSubmissions(): Promise<ContactSubmission[]>;
+  markContactSubmissionAsRead(id: string): Promise<void>;
 
   // Legacy support methods (for backward compatibility)
   getApiEndpoint(id: string): Promise<Endpoint | undefined>;

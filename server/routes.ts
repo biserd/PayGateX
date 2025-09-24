@@ -7,6 +7,7 @@ import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 import { setupAuth } from "./auth";
+import { clientContactSubmissionSchema } from "@shared/schema";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
@@ -945,6 +946,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // Contact form submission endpoint
+  app.post("/api/contact", async (req, res) => {
+    try {
+      // Validate only client-safe fields to prevent tampering with admin fields
+      const clientData = clientContactSubmissionSchema.parse(req.body);
+      
+      // Create submission data with server-side defaults for admin fields
+      const submissionData = {
+        ...clientData,
+        ipAddress: req.ip || req.connection?.remoteAddress || 'unknown',
+        isRead: false, // Always start as unread
+        response: null, // No response yet
+        respondedAt: null // No response yet
+      };
+
+      // Save to database
+      const created = await storage.createContactSubmission(submissionData);
+      
+      console.log(`📧 New contact submission received from ${clientData.email}: ${clientData.subject}`);
+      
+      res.json({ success: true, message: "Message sent successfully", id: created.id });
+    } catch (error) {
+      console.error("Contact form error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          error: "Validation failed", 
+          details: error.errors.map(e => e.message)
+        });
+      } else {
+        res.status(500).json({ 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
     }
   });
 

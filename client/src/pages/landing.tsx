@@ -47,6 +47,14 @@ export default function Landing() {
             >
               Release Notes
             </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/contact"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-contact"
+            >
+              Contact
+            </Button>
           </div>
           
           <Button 

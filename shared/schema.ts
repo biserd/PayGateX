@@ -294,6 +294,34 @@ export const insertEscrowHoldingSchema = createInsertSchema(escrowHoldings).omit
   releasedAt: true,
 });
 
+// Contact form submissions table
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  subject: varchar("subject").notNull(),
+  message: text("message").notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address"),
+  isRead: boolean("is_read").default(false),
+  response: text("response"), // For storing admin response
+  respondedAt: timestamp("responded_at")
+});
+
+// Client-safe contact submission schema (excludes admin-only fields)
+export const clientContactSubmissionSchema = createInsertSchema(contactSubmissions).pick({
+  name: true,
+  email: true,
+  subject: true,
+  message: true
+});
+
+// Full schema for internal use (includes all fields except auto-generated ones)
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions).omit({
+  id: true,
+  submittedAt: true,
+});
+
 // Types
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -336,6 +364,10 @@ export type InsertComplianceRule = z.infer<typeof insertComplianceRuleSchema>;
 
 export type EscrowHolding = typeof escrowHoldings.$inferSelect;
 export type InsertEscrowHolding = z.infer<typeof insertEscrowHoldingSchema>;
+
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
+export type ClientContactSubmission = z.infer<typeof clientContactSubmissionSchema>;
 
 // Legacy support - keeping old schema for backward compatibility
 export const apiEndpoints = endpoints;

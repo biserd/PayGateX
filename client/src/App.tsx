@@ -18,6 +18,7 @@ import Settings from "@/pages/settings";
 import WalletTest from "@/pages/wallet-test";
 import Audit from "@/pages/audit";
 import DocsPage from "@/pages/docs";
+import ContactPage from "@/pages/contact";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/docs" component={DocsPage} />
         <Route path="/docs/:section" component={DocsPage} />
         <Route path="/docs/:section/:page" component={DocsPage} />
+        <Route path="/contact" component={ContactPage} />
         <Route path="*" component={NotFound} />
       </Switch>
     );
@@ -58,6 +60,7 @@ function Router() {
       <Route path="/docs" component={DocsPage} />
       <Route path="/docs/:section" component={DocsPage} />
       <Route path="/docs/:section/:page" component={DocsPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route path="*" component={NotFound} />
     </Switch>
   );
