@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Sparkles, Coins, TrendingUp, Lock } from "lucide-react";
+import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Sparkles, Coins, TrendingUp, Lock, Menu, X } from "lucide-react";
 
 export default function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
       {/* Animated Background */}
