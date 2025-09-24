@@ -123,37 +123,37 @@ export default function ContactPage() {
       </header>
 
       {/* Main Content */}
-      <div className="relative container mx-auto px-6 py-16">
+      <div className="relative container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
         <div className="max-w-2xl mx-auto">
           {/* Page Header */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center space-x-3 mb-6">
-              <div className="relative w-16 h-16 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-                <Mail className="w-8 h-8 text-white" />
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="flex items-center justify-center space-x-3 mb-4 sm:mb-6">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
+                <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl blur opacity-50 animate-pulse" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3 sm:mb-4">
               Contact Us
             </h1>
-            <p className="text-xl text-gray-300">
+            <p className="text-lg sm:text-xl text-gray-300 px-4 sm:px-0">
               Have questions about PayGate x402? We'd love to hear from you.
             </p>
           </div>
 
           {/* Contact Form Card */}
-          <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl">Send us a message</CardTitle>
-              <CardDescription className="text-gray-400">
+          <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm mx-2 sm:mx-0">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+              <CardTitle className="text-white text-xl sm:text-2xl">Send us a message</CardTitle>
+              <CardDescription className="text-gray-400 text-sm sm:text-base">
                 Fill out the form below and we'll get back to you as soon as possible.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="px-4 sm:px-6 pb-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <Label htmlFor="name" className="text-white mb-2 block">
+                    <Label htmlFor="name" className="text-white mb-2 block text-sm font-medium">
                       Name *
                     </Label>
                     <Input
@@ -162,13 +162,13 @@ export default function ContactPage() {
                       placeholder="Your name"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400"
+                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
                       data-testid="input-name"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="text-white mb-2 block">
+                    <Label htmlFor="email" className="text-white mb-2 block text-sm font-medium">
                       Email *
                     </Label>
                     <Input
@@ -177,7 +177,7 @@ export default function ContactPage() {
                       placeholder="your@email.com"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400"
+                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
                       data-testid="input-email"
                       required
                     />
@@ -185,7 +185,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="subject" className="text-white mb-2 block">
+                  <Label htmlFor="subject" className="text-white mb-2 block text-sm font-medium">
                     Subject *
                   </Label>
                   <Input
@@ -194,14 +194,14 @@ export default function ContactPage() {
                     placeholder="What's this about?"
                     value={formData.subject}
                     onChange={(e) => handleChange("subject", e.target.value)}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400"
+                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
                     data-testid="input-subject"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="message" className="text-white mb-2 block">
+                  <Label htmlFor="message" className="text-white mb-2 block text-sm font-medium">
                     Message *
                   </Label>
                   <Textarea
@@ -209,8 +209,8 @@ export default function ContactPage() {
                     placeholder="Tell us more about your question or how we can help..."
                     value={formData.message}
                     onChange={(e) => handleChange("message", e.target.value)}
-                    rows={6}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 resize-none"
+                    rows={5}
+                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 resize-none text-base min-h-[120px]"
                     data-testid="input-message"
                     required
                   />
@@ -219,16 +219,16 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   disabled={contactMutation.isPending}
-                  className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-3 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
+                  className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-4 sm:py-3 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25 text-base h-12 sm:h-auto"
                   data-testid="button-send-message"
                 >
                   {contactMutation.isPending ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Sending...</span>
                     </div>
                   ) : (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-center space-x-2">
                       <Send className="w-4 h-4" />
                       <span>Send Message</span>
                     </div>
@@ -239,10 +239,10 @@ export default function ContactPage() {
           </Card>
 
           {/* Contact Info */}
-          <div className="mt-12 text-center">
-            <p className="text-gray-400">
+          <div className="mt-8 sm:mt-12 text-center px-4 sm:px-0">
+            <p className="text-gray-400 text-sm sm:text-base">
               You can also reach us directly at{" "}
-              <a href="mailto:hello@bigappledigital.nyc" className="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50">
+              <a href="mailto:hello@bigappledigital.nyc" className="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50 break-all">
                 hello@bigappledigital.nyc
               </a>
             </p>
