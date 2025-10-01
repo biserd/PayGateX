@@ -18,7 +18,7 @@ The client is built with React 18 and TypeScript, using Vite as the build tool. 
 ### Backend Architecture
 The server uses Express.js with TypeScript in ESM format, implementing a RESTful API design. The application follows a service-oriented architecture with dedicated services for payment processing, analytics computation, and x402 protocol handling. A custom storage interface abstracts database operations, allowing for flexible data layer implementations. The x402 proxy middleware intercepts API calls and enforces payment requirements before forwarding requests to target endpoints.
 
-### Database Design - UPDATED (Aug 2025)
+### Database Design - UPDATED (Oct 2025)
 The schema has been completely redesigned to support a comprehensive multi-tenant SaaS platform. Core entities now include:
 - **Organizations**: Multi-tenant structure with configurable escrow periods and free tier limits
 - **Services**: Grouping of related API endpoints under an organization
@@ -30,7 +30,8 @@ The schema has been completely redesigned to support a comprehensive multi-tenan
 - **EscrowHoldings**: Time-based payment escrow with automatic release mechanisms
 - **Disputes**: Dispute resolution system for payment conflicts
 - **AuditLogs**: Complete audit trail of system actions
-- **WebhookEndpoints**: Payment confirmation webhooks
+- **WebhookEndpoints**: Payment confirmation webhooks with HMAC-SHA256 signing
+- **ApiKeys**: Secure API key management with SHA-256 hashing for authentication
 
 ### Authentication & Authorization
 The current implementation uses a demo organization pattern for development, with infrastructure in place for proper user authentication. API endpoints are scoped to organizations, ensuring data isolation. The system tracks organization ownership of endpoints and transactions, with middleware handling user context propagation throughout the request lifecycle.
@@ -84,6 +85,28 @@ Comprehensive compliance system supporting:
 - **Regulatory Compliance**: Configurable rules for different jurisdictions
 - **Real-time Enforcement**: Middleware-level compliance checking
 - **Audit Trail**: Complete logging of compliance actions and decisions
+
+### Enterprise Provider Tools - NEW (Oct 2025)
+Production-ready tools for API providers to manage and monetize their endpoints:
+
+**Webhook System**:
+- ✅ **HMAC-SHA256 Signing**: Cryptographically signed payloads for secure webhook verification
+- ✅ **Exponential Backoff Retry**: Automatic retry with 5 attempts (1s, 2s, 4s, 8s, 16s intervals)
+- ✅ **Event Broadcasting**: Triggers on payment.confirmed, payment.failed, escrow.created events
+- ✅ **Delivery Tracking**: Complete logging of delivery attempts, failures, and success rates
+- ✅ **Test Webhooks**: One-click test delivery for webhook validation
+- ✅ **Organization-Scoped**: Multi-tenant webhook management with proper isolation
+
+**API Key Management**:
+- ✅ **Secure Key Generation**: High-entropy keys (pk_live_*) with 256-bit randomness
+- ✅ **SHA-256 Hashing**: Keys hashed server-side, plaintext never stored
+- ✅ **One-Time Display**: Full key shown only once at creation for maximum security
+- ✅ **Prefix Display**: Shows first 12 characters for key identification
+- ✅ **Revocation System**: Instant key revocation with timestamp tracking
+- ✅ **Organization Ownership**: Cross-tenant protection prevents unauthorized key access
+- ✅ **Usage Tracking**: Last used timestamp for audit and monitoring
+
+These tools position PayGate x402 as enterprise-grade infrastructure complementary to Google AP2 and Stripe ACP, enabling API providers to monetize endpoints that power AI agents through blockchain-based micropayments.
 
 ### Development Infrastructure
 The application uses modern development tooling including TypeScript for type safety, ESLint for code quality, and Vite for fast development builds. The build process supports both development and production deployments with automatic asset optimization. Environment-specific configurations handle database connections, API keys, and feature flags. The storage layer is fully abstracted with comprehensive in-memory implementation for development and database implementation ready for production.
