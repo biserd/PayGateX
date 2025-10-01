@@ -25,6 +25,8 @@ import {
   type InsertAuditLog,
   type WebhookEndpoint,
   type InsertWebhookEndpoint,
+  type ApiKey,
+  type InsertApiKey,
   type ContactSubmission,
   type InsertContactSubmission
 } from "@shared/schema";
@@ -111,6 +113,14 @@ export interface IStorage {
   getWebhookEndpoints(orgId: string): Promise<WebhookEndpoint[]>;
   createWebhookEndpoint(webhook: InsertWebhookEndpoint): Promise<WebhookEndpoint>;
   updateWebhookEndpoint(id: string, updates: Partial<WebhookEndpoint>): Promise<WebhookEndpoint | undefined>;
+
+  // API Key methods
+  getApiKeys(orgId: string): Promise<ApiKey[]>;
+  getApiKeyById(id: string): Promise<ApiKey | undefined>;
+  getApiKeyByHash(keyHash: string): Promise<ApiKey | undefined>;
+  createApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
+  updateApiKey(id: string, updates: Partial<ApiKey>): Promise<ApiKey | undefined>;
+  revokeApiKey(id: string): Promise<void>;
 
   // Contact submission methods
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;

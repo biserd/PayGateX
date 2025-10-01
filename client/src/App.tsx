@@ -18,6 +18,7 @@ import Settings from "@/pages/settings";
 import WalletTest from "@/pages/wallet-test";
 import Audit from "@/pages/audit";
 import Webhooks from "@/pages/webhooks";
+import ApiKeys from "@/pages/api-keys";
 import DocsPage from "@/pages/docs";
 import ContactPage from "@/pages/contact";
 
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/escrow" component={Escrow} />
       <Route path="/audit" component={Audit} />
       <Route path="/webhooks" component={Webhooks} />
+      <Route path="/api-keys" component={ApiKeys} />
       <Route path="/settings" component={Settings} />
       <Route path="/wallet-test" component={WalletTest} />
       <Route path="/docs" component={DocsPage} />

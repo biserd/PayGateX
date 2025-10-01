@@ -12,13 +12,15 @@ import {
   Coins,
   Wallet,
   FileText,
-  Webhook
+  Webhook,
+  Key
 } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: ChartLine },
   { name: "API Endpoints", href: "/endpoints", icon: Plug },
   { name: "Webhooks", href: "/webhooks", icon: Webhook },
+  { name: "API Keys", href: "/api-keys", icon: Key },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Compliance", href: "/compliance", icon: Shield },
   { name: "Escrow", href: "/escrow", icon: Lock },

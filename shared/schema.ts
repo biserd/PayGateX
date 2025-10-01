@@ -193,6 +193,19 @@ export const webhookEndpoints = pgTable("webhook_endpoints", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// API Keys for authentication
+export const apiKeys = pgTable("api_keys", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").notNull().references(() => organizations.id),
+  name: text("name").notNull(),
+  keyHash: text("key_hash").notNull(),
+  prefix: text("prefix").notNull(), // First 8 chars for display (e.g., "pk_live_")
+  lastUsed: timestamp("last_used"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+});
+
 export const complianceRules = pgTable("compliance_rules", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   orgId: varchar("org_id").notNull().references(() => organizations.id),
@@ -283,6 +296,13 @@ export const insertWebhookEndpointSchema = createInsertSchema(webhookEndpoints).
   createdAt: true,
 });
 
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({
+  id: true,
+  createdAt: true,
+  lastUsed: true,
+  revokedAt: true,
+});
+
 export const insertComplianceRuleSchema = createInsertSchema(complianceRules).omit({
   id: true,
   createdAt: true,
@@ -358,6 +378,9 @@ export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 
 export type WebhookEndpoint = typeof webhookEndpoints.$inferSelect;
 export type InsertWebhookEndpoint = z.infer<typeof insertWebhookEndpointSchema>;
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
 
 export type ComplianceRule = typeof complianceRules.$inferSelect;
 export type InsertComplianceRule = z.infer<typeof insertComplianceRuleSchema>;

@@ -7,8 +7,9 @@ import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 import { setupAuth } from "./auth";
-import { clientContactSubmissionSchema, insertWebhookEndpointSchema } from "@shared/schema";
+import { clientContactSubmissionSchema, insertWebhookEndpointSchema, insertApiKeySchema } from "@shared/schema";
 import { WebhookService } from "./services/webhook-service";
+import { apiKeyService } from "./services/api-key-service";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
@@ -1034,6 +1035,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error("Test webhook error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // API Key Management Routes
+  
+  // Get all API keys for an organization
+  app.get("/api/keys", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const keys = await storage.getApiKeys(user.orgId || DEMO_ORG_ID);
+      res.json(keys);
+    } catch (error) {
+      console.error("Get API keys error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Create a new API key
+  app.post("/api/keys", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { name } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ error: "API key name is required" });
+      }
+      
+      const { key, hash, prefix } = apiKeyService.generateKey();
+      
+      const keyData = insertApiKeySchema.parse({
+        orgId: user.orgId || DEMO_ORG_ID,
+        name,
+        keyHash: hash,
+        prefix,
+        isActive: true
+      });
+      
+      const apiKey = await storage.createApiKey(keyData);
+      
+      res.json({
+        ...apiKey,
+        key
+      });
+    } catch (error) {
+      console.error("Create API key error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Validation failed", details: error.errors });
+      } else {
+        res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+      }
+    }
+  });
+
+  // Revoke an API key
+  app.delete("/api/keys/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = req.user as any;
+      
+      const key = await storage.getApiKeyById(id);
+      if (!key) {
+        return res.status(404).json({ error: "API key not found" });
+      }
+      
+      if (key.orgId !== (user.orgId || DEMO_ORG_ID)) {
+        return res.status(403).json({ error: "Unauthorized to revoke this API key" });
+      }
+      
+      await storage.revokeApiKey(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Revoke API key error:", error);
       res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });

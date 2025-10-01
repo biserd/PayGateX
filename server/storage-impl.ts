@@ -25,7 +25,9 @@ import {
   type AuditLog,
   type InsertAuditLog,
   type WebhookEndpoint,
-  type InsertWebhookEndpoint
+  type InsertWebhookEndpoint,
+  type ApiKey,
+  type InsertApiKey
 } from "@shared/schema";
 
 export class MemStorage implements IStorage {
@@ -41,6 +43,7 @@ export class MemStorage implements IStorage {
   private disputes: Map<string, Dispute> = new Map();
   private auditLogs: Map<string, AuditLog> = new Map();
   private webhookEndpoints: Map<string, WebhookEndpoint> = new Map();
+  private apiKeys: Map<string, ApiKey> = new Map();
 
   constructor() {
     this.initializeDemo();
@@ -627,6 +630,51 @@ export class MemStorage implements IStorage {
     const updatedWebhook = { ...webhook, ...updates };
     this.webhookEndpoints.set(id, updatedWebhook);
     return updatedWebhook;
+  }
+
+  // API Key methods
+  async getApiKeys(orgId: string): Promise<ApiKey[]> {
+    return Array.from(this.apiKeys.values())
+      .filter(k => k.orgId === orgId && k.isActive);
+  }
+
+  async getApiKeyById(id: string): Promise<ApiKey | undefined> {
+    return this.apiKeys.get(id);
+  }
+
+  async getApiKeyByHash(keyHash: string): Promise<ApiKey | undefined> {
+    return Array.from(this.apiKeys.values())
+      .find(k => k.keyHash === keyHash);
+  }
+
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const newKey: ApiKey = {
+      id: randomUUID(),
+      ...apiKey,
+      lastUsed: null,
+      revokedAt: null,
+      createdAt: new Date()
+    };
+    this.apiKeys.set(newKey.id, newKey);
+    return newKey;
+  }
+
+  async updateApiKey(id: string, updates: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    const key = this.apiKeys.get(id);
+    if (!key) return undefined;
+    
+    const updatedKey = { ...key, ...updates };
+    this.apiKeys.set(id, updatedKey);
+    return updatedKey;
+  }
+
+  async revokeApiKey(id: string): Promise<void> {
+    const key = this.apiKeys.get(id);
+    if (key) {
+      key.isActive = false;
+      key.revokedAt = new Date();
+      this.apiKeys.set(id, key);
+    }
   }
 
   // Legacy support methods
