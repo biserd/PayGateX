@@ -5,12 +5,14 @@ import { MeteringService, generateRequestId } from "../services/metering";
 import { X402Utils, PaymentRequirements } from "../../client/src/lib/x402";
 import { getNetworkForSandbox, getNetworkConfig, isTestnet } from "../services/network-config";
 import { v4 as uuidv4 } from 'uuid';
+import type { WebhookService } from "../services/webhook-service";
 
 export interface X402ProxyOptions {
   timeout?: number;
   retries?: number;
   facilitatorType?: "coinbase" | "x402rs" | "mock";
   enableHealthCheck?: boolean;
+  webhookService?: WebhookService;
 }
 
 export function x402ProxyMiddleware(
@@ -22,7 +24,8 @@ export function x402ProxyMiddleware(
   const {
     timeout = 30000,
     retries = 3,
-    enableHealthCheck = true
+    enableHealthCheck = true,
+    webhookService
   } = options;
 
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -399,6 +402,20 @@ export function x402ProxyMiddleware(
             status: "pending",
             proofId
           });
+
+          // Broadcast payment.confirmed webhook event
+          if (webhookService) {
+            await webhookService.broadcastEvent(service.orgId, 'payment.confirmed', {
+              requestId,
+              endpointId: endpoint.id,
+              payerAddress,
+              amount: pricing.price,
+              currency: pricing.currency,
+              network: pricing.network,
+              proofId,
+              escrowReleaseAt: escrowReleaseAt.toISOString()
+            }).catch(err => console.warn('Webhook broadcast failed:', err));
+          }
         } catch (escrowError) {
           console.warn("Failed to create escrow holding:", escrowError);
           // Continue without escrow - the payment is still valid

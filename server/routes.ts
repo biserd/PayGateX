@@ -7,7 +7,8 @@ import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
 import { setupAuth } from "./auth";
-import { clientContactSubmissionSchema } from "@shared/schema";
+import { clientContactSubmissionSchema, insertWebhookEndpointSchema } from "@shared/schema";
+import { WebhookService } from "./services/webhook-service";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
@@ -19,6 +20,7 @@ console.log(`[FACILITATOR] Initialized facilitator adapter:`, {
 });
 const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
+const webhookService = new WebhookService(storage);
 
 // Simple authentication middleware
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -44,7 +46,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add x402 proxy middleware for API endpoints
   app.all("/proxy/*", async (req, res, next) => {
     // Call the x402 proxy middleware directly
-    const middleware = x402ProxyMiddleware(storage, facilitatorAdapter, meteringService);
+    const middleware = x402ProxyMiddleware(storage, facilitatorAdapter, meteringService, {
+      webhookService
+    });
     return middleware(req, res, next);
   });
 
@@ -946,6 +950,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // Webhook Management Routes
+  
+  // Get all webhooks for an organization
+  app.get("/api/webhooks", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const webhooks = await storage.getWebhookEndpoints(user.orgId || DEMO_ORG_ID);
+      res.json(webhooks);
+    } catch (error) {
+      console.error("Get webhooks error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Create a new webhook
+  app.post("/api/webhooks", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const webhookData = insertWebhookEndpointSchema.parse({
+        ...req.body,
+        orgId: user.orgId || DEMO_ORG_ID,
+        secret: webhookService.generateSecret()
+      });
+      
+      const webhook = await storage.createWebhookEndpoint(webhookData);
+      res.json(webhook);
+    } catch (error) {
+      console.error("Create webhook error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Validation failed", details: error.errors });
+      } else {
+        res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+      }
+    }
+  });
+
+  // Update a webhook
+  app.patch("/api/webhooks/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const webhook = await storage.updateWebhookEndpoint(id, updates);
+      if (!webhook) {
+        return res.status(404).json({ error: "Webhook not found" });
+      }
+      
+      res.json(webhook);
+    } catch (error) {
+      console.error("Update webhook error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Test a webhook (send test event)
+  app.post("/api/webhooks/:id/test", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = req.user as any;
+      
+      const webhooks = await storage.getWebhookEndpoints(user.orgId || DEMO_ORG_ID);
+      const webhook = webhooks.find(w => w.id === id);
+      
+      if (!webhook) {
+        return res.status(404).json({ error: "Webhook not found" });
+      }
+
+      const testEvent = {
+        id: 'test-' + Date.now(),
+        type: 'webhook.test',
+        createdAt: new Date().toISOString(),
+        data: {
+          message: 'This is a test webhook delivery',
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      const result = await webhookService.deliverWebhook(webhook, testEvent);
+      res.json(result);
+    } catch (error) {
+      console.error("Test webhook error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
