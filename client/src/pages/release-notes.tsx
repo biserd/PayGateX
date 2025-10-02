@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Sparkles, Zap, Shield, Users, ChevronRight } from "lucide-react";
+import { ArrowLeft, Sparkles, Zap, Shield, Users, ChevronRight, Webhook, Key } from "lucide-react";
 
 interface ReleaseData {
   id: string;
@@ -27,14 +27,67 @@ interface ReleaseData {
 
 const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
   {
+    id: "v1.2.0",
+    version: "1.2.0",
+    date: "October 1, 2025",
+    title: "Enterprise Provider Tools",
+    badge: {
+      text: "Latest",
+      variant: "secondary",
+      className: "bg-green-500/20 text-green-300 border-green-500/30"
+    },
+    description: "🔧 Production-ready tools for API providers to manage and monetize their endpoints",
+    sections: [
+      {
+        title: "Webhook System",
+        icon: Webhook,
+        iconColor: "text-purple-400",
+        items: [
+          "HMAC-SHA256 cryptographic signing for secure webhook verification",
+          "Exponential backoff retry with 5 attempts (1s, 2s, 4s, 8s, 16s intervals)",
+          "Event broadcasting on payment.confirmed, payment.failed, escrow.created",
+          "Complete delivery tracking with success/failure logs",
+          "One-click test webhook delivery for validation",
+          "Multi-tenant organization-scoped webhook management"
+        ]
+      },
+      {
+        title: "API Key Management",
+        icon: Key,
+        iconColor: "text-amber-400",
+        items: [
+          "High-entropy key generation (pk_live_*) with 256-bit randomness",
+          "SHA-256 hashing - keys stored securely, plaintext never persisted",
+          "One-time display - full key shown only once at creation",
+          "Prefix display showing first 12 characters for identification",
+          "Instant revocation with timestamp tracking",
+          "Cross-tenant protection with organization ownership validation",
+          "Usage tracking with last used timestamps for audit"
+        ]
+      },
+      {
+        title: "Security Enhancements",
+        icon: Shield,
+        iconColor: "text-green-400",
+        items: [
+          "Organization ownership validation before webhook/key operations",
+          "HMAC-SHA256 payload signing for webhooks",
+          "SHA-256 hashing for API keys (no plaintext storage)",
+          "Cross-tenant protection across all provider tools"
+        ]
+      }
+    ],
+    highlight: "Positions PayGate x402 as enterprise-grade infrastructure complementary to Google AP2 and Stripe ACP, enabling API providers to monetize endpoints that power AI agents through blockchain-based micropayments."
+  },
+  {
     id: "v1.1.0",
     version: "1.1.0",
     date: "September 21, 2025",
     title: "AP2 Agent Payments Protocol Compatibility",
     badge: {
-      text: "Latest",
-      variant: "secondary",
-      className: "bg-green-500/20 text-green-300 border-green-500/30"
+      text: "Stable",
+      variant: "outline",
+      className: "border-white/20 text-gray-300"
     },
     description: "🤖 PayGate x402 now supports AI agent integrations through Google Cloud's Agent Payments Protocol",
     sections: [
@@ -114,14 +167,16 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
 ];
 
 const ROADMAP_ITEMS = [
+  "Sandbox Mode Enhancements - Mock payment simulator and test dashboard",
+  "OpenAPI Import - Bulk endpoint creation from OpenAPI/Swagger specs",
   "Enhanced AI Agent Discovery Protocol integration",
-  "Multi-chain payment support expansion", 
-  "Advanced analytics and reporting dashboard",
-  "White-label deployment options"
+  "Multi-chain payment support expansion (Ethereum, Polygon, Arbitrum)", 
+  "Advanced analytics and reporting dashboard with custom metrics",
+  "White-label deployment options for enterprise customers"
 ];
 
 export default function ReleaseNotes() {
-  const [selectedVersion, setSelectedVersion] = useState("v1.1.0");
+  const [selectedVersion, setSelectedVersion] = useState("v1.2.0");
 
   // URL synchronization
   useEffect(() => {
