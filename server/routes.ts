@@ -10,6 +10,7 @@ import { setupAuth } from "./auth";
 import { clientContactSubmissionSchema, insertWebhookEndpointSchema, insertApiKeySchema } from "@shared/schema";
 import { WebhookService } from "./services/webhook-service";
 import { apiKeyService } from "./services/api-key-service";
+import { directoryScheduler } from "./services/directory-scheduler";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
@@ -37,6 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup authentication
   setupAuth(app);
+  
+  // Start x402 Directory scheduler (runs hourly scraper)
+  directoryScheduler.start();
   
   const httpServer = createServer(app);
 
