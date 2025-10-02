@@ -56,8 +56,8 @@ export default function Directory() {
     return matchesSearch && matchesCategory && matchesNetwork && service.isActive;
   });
 
-  // Get unique networks
-  const networks = Array.from(new Set(services.map(s => s.network).filter(Boolean)));
+  // Get unique networks (filter out nulls and ensure type safety)
+  const networks = Array.from(new Set(services.map(s => s.network).filter((n): n is string => Boolean(n))));
 
   const formatPrice = (price: string | null) => {
     if (!price) return "Free";

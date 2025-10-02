@@ -1117,6 +1117,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ==================== PUBLIC DIRECTORY ENDPOINTS ====================
+  // IMPORTANT: More specific routes must come BEFORE parameterized routes
+  
+  // Get all categories (PUBLIC - no auth required)
+  app.get("/api/public/directory/categories", async (req, res) => {
+    try {
+      const categories = await storage.getX402Categories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Directory categories error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // List all x402 services with optional filters (PUBLIC - no auth required)
   app.get("/api/public/directory", async (req, res) => {
     try {
@@ -1149,17 +1162,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(service);
     } catch (error) {
       console.error("Directory service error:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  // Get all categories (PUBLIC - no auth required)
-  app.get("/api/public/directory/categories", async (req, res) => {
-    try {
-      const categories = await storage.getX402Categories();
-      res.json(categories);
-    } catch (error) {
-      console.error("Directory categories error:", error);
       res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
