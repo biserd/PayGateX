@@ -1112,6 +1112,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== PUBLIC DIRECTORY ENDPOINTS ====================
+  // List all x402 services with optional filters (PUBLIC - no auth required)
+  app.get("/api/public/directory", async (req, res) => {
+    try {
+      const { category, network, search, isActive } = req.query;
+      
+      const filters: any = {};
+      if (category) filters.category = category as string;
+      if (network) filters.network = network as string;
+      if (search) filters.search = search as string;
+      if (isActive !== undefined) filters.isActive = isActive === 'true';
+      
+      const services = await storage.getX402Services(filters);
+      res.json(services);
+    } catch (error) {
+      console.error("Directory list error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Get single x402 service by ID (PUBLIC - no auth required)
+  app.get("/api/public/directory/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const service = await storage.getX402ServiceById(id);
+      
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+      
+      res.json(service);
+    } catch (error) {
+      console.error("Directory service error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Get all categories (PUBLIC - no auth required)
+  app.get("/api/public/directory/categories", async (req, res) => {
+    try {
+      const categories = await storage.getX402Categories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Directory categories error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Trigger manual scrape (ADMIN - requires auth)
+  app.post("/api/admin/directory/scrape", isAuthenticated, async (req, res) => {
+    try {
+      // Import scraper service
+      const { x402Scraper } = await import("./services/x402-scraper-service");
+      
+      // Run scraper
+      const result = await x402Scraper.run();
+      
+      res.json({
+        success: true,
+        message: "Directory scraper completed",
+        results: result
+      });
+    } catch (error) {
+      console.error("Directory scrape error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // Contact form submission endpoint
   app.post("/api/contact", async (req, res) => {
     try {
