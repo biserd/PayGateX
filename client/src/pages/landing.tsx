@@ -36,6 +36,14 @@ export default function Landing() {
           <div className="hidden md:flex items-center space-x-8">
             <Button
               variant="ghost"
+              onClick={() => window.location.href = "/directory"}
+              className="text-cyan-400 hover:text-cyan-300 hover:bg-white/10 font-semibold"
+              data-testid="nav-directory"
+            >
+              🌐 Directory
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => window.location.href = "/docs"}
               className="text-gray-300 hover:text-white hover:bg-white/10"
               data-testid="nav-docs"
@@ -87,6 +95,19 @@ export default function Landing() {
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 z-[100] pointer-events-auto">
             <div className="container mx-auto px-4 py-4 space-y-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Directory clicked');
+                  window.location.href = "/directory";
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left justify-start text-cyan-400 hover:text-cyan-300 hover:bg-white/10 py-3 px-4 bg-transparent border-none cursor-pointer rounded-md transition-colors duration-200 pointer-events-auto font-semibold"
+                data-testid="mobile-nav-directory"
+              >
+                🌐 Directory
+              </button>
               <button
                 onClick={(e) => {
                   e.preventDefault();

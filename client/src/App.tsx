@@ -21,6 +21,7 @@ import Webhooks from "@/pages/webhooks";
 import ApiKeys from "@/pages/api-keys";
 import DocsPage from "@/pages/docs";
 import ContactPage from "@/pages/contact";
+import Directory from "@/pages/directory";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -38,6 +39,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/auth" component={AuthPage} />
+        <Route path="/directory" component={Directory} />
         <Route path="/release-notes" component={ReleaseNotes} />
         <Route path="/docs" component={DocsPage} />
         <Route path="/docs/:section" component={DocsPage} />
@@ -52,6 +54,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/directory" component={Directory} />
       <Route path="/endpoints" component={Endpoints} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/compliance" component={Compliance} />
