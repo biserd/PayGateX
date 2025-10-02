@@ -27,6 +27,8 @@ import {
   type InsertWebhookEndpoint,
   type ContactSubmission,
   type InsertContactSubmission,
+  type X402Service,
+  type InsertX402Service,
   users,
   userSettings,
   organizations,
@@ -40,10 +42,11 @@ import {
   disputes,
   auditLogs,
   webhookEndpoints,
-  contactSubmissions
+  contactSubmissions,
+  x402Services
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc, inArray, sql } from "drizzle-orm";
+import { eq, and, gte, lte, desc, inArray, sql, or, ilike } from "drizzle-orm";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
@@ -523,5 +526,90 @@ export class DatabaseStorage implements IStorage {
 
   async markContactSubmissionAsRead(id: string): Promise<void> {
     await db.update(contactSubmissions).set({ isRead: true }).where(eq(contactSubmissions.id, id));
+  }
+
+  // x402 Directory methods
+  async getX402Services(filters?: { 
+    isActive?: boolean; 
+    category?: string; 
+    network?: string;
+    search?: string;
+  }): Promise<X402Service[]> {
+    const conditions = [];
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(x402Services.isActive, filters.isActive));
+    }
+    
+    if (filters?.category) {
+      conditions.push(eq(x402Services.category, filters.category));
+    }
+    
+    if (filters?.network) {
+      conditions.push(eq(x402Services.network, filters.network));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        or(
+          ilike(x402Services.name, `%${filters.search}%`),
+          ilike(x402Services.description, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    if (conditions.length > 0) {
+      return await db.select().from(x402Services)
+        .where(and(...conditions))
+        .orderBy(desc(x402Services.createdAt));
+    }
+    
+    return await db.select().from(x402Services)
+      .orderBy(desc(x402Services.createdAt));
+  }
+
+  async getX402ServiceById(id: string): Promise<X402Service | undefined> {
+    const [service] = await db.select().from(x402Services).where(eq(x402Services.id, id));
+    return service || undefined;
+  }
+
+  async getX402ServiceByUrl(url: string): Promise<X402Service | undefined> {
+    const [service] = await db.select().from(x402Services).where(eq(x402Services.url, url));
+    return service || undefined;
+  }
+
+  async createX402Service(service: InsertX402Service): Promise<X402Service> {
+    const [created] = await db.insert(x402Services).values(service).returning();
+    return created;
+  }
+
+  async updateX402Service(id: string, updates: Partial<X402Service>): Promise<X402Service | undefined> {
+    const [updated] = await db.update(x402Services).set(updates).where(eq(x402Services.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async upsertX402Service(service: InsertX402Service): Promise<X402Service> {
+    const [upserted] = await db
+      .insert(x402Services)
+      .values(service)
+      .onConflictDoUpdate({
+        target: x402Services.url,
+        set: {
+          ...service,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return upserted;
+  }
+
+  async getX402Categories(): Promise<string[]> {
+    const results = await db
+      .selectDistinct({ category: x402Services.category })
+      .from(x402Services)
+      .where(sql`${x402Services.category} IS NOT NULL`)
+      .orderBy(x402Services.category);
+    
+    return results.map(r => r.category).filter((c): c is string => c !== null);
   }
 }

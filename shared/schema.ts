@@ -328,6 +328,27 @@ export const contactSubmissions = pgTable("contact_submissions", {
   respondedAt: timestamp("responded_at")
 });
 
+// x402 Directory - External services discovered from Bazaar and x402 Index
+export const x402Services = pgTable("x402_services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  url: text("url").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 18, scale: 6 }), // Price in USDC
+  currency: text("currency").default("USDC"),
+  network: text("network").default("base"), // base, ethereum, etc.
+  category: text("category"), // AI, Finance, Weather, etc.
+  payTo: text("pay_to"), // Payment recipient address
+  source: text("source").notNull().default("bazaar"), // bazaar, x402index, manual
+  isActive: boolean("is_active").notNull().default(true),
+  lastScraped: timestamp("last_scraped").defaultNow(),
+  lastAvailable: timestamp("last_available"),
+  responseTimeMs: integer("response_time_ms"),
+  metadata: jsonb("metadata"), // Additional info from 402 response
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Client-safe contact submission schema (excludes admin-only fields)
 export const clientContactSubmissionSchema = createInsertSchema(contactSubmissions).pick({
   name: true,
@@ -391,6 +412,16 @@ export type InsertEscrowHolding = z.infer<typeof insertEscrowHoldingSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ClientContactSubmission = z.infer<typeof clientContactSubmissionSchema>;
+
+export const insertX402ServiceSchema = createInsertSchema(x402Services).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastScraped: true,
+});
+
+export type X402Service = typeof x402Services.$inferSelect;
+export type InsertX402Service = z.infer<typeof insertX402ServiceSchema>;
 
 // Legacy support - keeping old schema for backward compatibility
 export const apiEndpoints = endpoints;

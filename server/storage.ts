@@ -28,7 +28,9 @@ import {
   type ApiKey,
   type InsertApiKey,
   type ContactSubmission,
-  type InsertContactSubmission
+  type InsertContactSubmission,
+  type X402Service,
+  type InsertX402Service
 } from "@shared/schema";
 
 export interface IStorage {
@@ -126,6 +128,20 @@ export interface IStorage {
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
   markContactSubmissionAsRead(id: string): Promise<void>;
+
+  // x402 Directory methods
+  getX402Services(filters?: { 
+    isActive?: boolean; 
+    category?: string; 
+    network?: string;
+    search?: string;
+  }): Promise<X402Service[]>;
+  getX402ServiceById(id: string): Promise<X402Service | undefined>;
+  getX402ServiceByUrl(url: string): Promise<X402Service | undefined>;
+  createX402Service(service: InsertX402Service): Promise<X402Service>;
+  updateX402Service(id: string, updates: Partial<X402Service>): Promise<X402Service | undefined>;
+  upsertX402Service(service: InsertX402Service): Promise<X402Service>;
+  getX402Categories(): Promise<string[]>;
 
   // Legacy support methods (for backward compatibility)
   getApiEndpoint(id: string): Promise<Endpoint | undefined>;
