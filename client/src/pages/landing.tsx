@@ -9,7 +9,7 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'Blockchain API Monetization Platform',
+    title: 'Enterprise SaaS for x402 & AP2 Payment Protocol',
     description: 'Monetize your APIs with automated blockchain micropayments on Base. PayGate x402 implements the HTTP 402 protocol for trustless API payments with enterprise SaaS tools and public x402 directory.',
     path: '/'
   });

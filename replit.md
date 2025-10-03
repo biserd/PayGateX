@@ -11,6 +11,17 @@ The platform serves two main purposes:
 
 The application is a full-stack TypeScript project, featuring a React frontend, an Express.js backend, and PostgreSQL for data persistence, with support for the Base blockchain.
 
+## Recent Changes
+
+### SEO Implementation (October 2025)
+Comprehensive SEO implementation added across all pages:
+- **Custom useSEO Hook**: Created reusable hook (`client/src/hooks/use-seo.ts`) for dynamic page titles, meta descriptions, and Open Graph tags
+- **Unique Page Titles**: All pages have descriptive, keyword-optimized titles with "| PayGate x402" suffix
+- **Meta Tags**: Complete meta description, Open Graph (title, description, url, image), and Twitter Card tags
+- **Structured Data**: JSON-LD markup in index.html for Organization, WebSite, and SoftwareApplication
+- **Favicon**: SVG favicon with PayGate branding
+- **robots.txt**: Created with sitemap reference for search engine crawling
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
