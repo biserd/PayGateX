@@ -124,11 +124,27 @@ export default function Directory() {
               className="text-gray-300 hover:text-white hover:bg-white/10"
               data-testid="nav-docs"
             >
-              Docs
+              Documentation
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/release-notes"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-release-notes"
+            >
+              Release Notes
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/contact"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-contact"
+            >
+              Contact
             </Button>
             <Button
               onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-6 py-2.5 font-semibold"
               data-testid="button-login"
             >
               Sign In
@@ -136,7 +152,14 @@ export default function Directory() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="flex items-center space-x-2 md:hidden">
+            <Button
+              onClick={() => window.location.href = "/auth"}
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
+              data-testid="mobile-button-login-top"
+            >
+              Sign In
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -165,15 +188,22 @@ export default function Directory() {
                 className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
                 data-testid="mobile-nav-docs"
               >
-                Docs
+                Documentation
               </button>
-              <Button
-                onClick={() => window.location.href = "/auth"}
-                className="w-full bg-gradient-to-r from-violet-600 to-cyan-600"
-                data-testid="mobile-button-login"
+              <button
+                onClick={() => { window.location.href = "/release-notes"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-release-notes"
               >
-                Sign In
-              </Button>
+                Release Notes
+              </button>
+              <button
+                onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-contact"
+              >
+                Contact
+              </button>
             </div>
           </div>
         )}
