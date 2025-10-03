@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function PrivacyPolicy() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'Privacy Policy',
+    description: 'PayGate x402 privacy policy. Learn how we collect, use, and protect your data when using our blockchain API monetization platform.',
+    path: '/privacy'
+  });
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X, ChevronDown } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +11,12 @@ import {
 
 export default function FAQ() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'FAQ - Frequently Asked Questions',
+    description: 'Get answers to common questions about PayGate x402, API monetization, blockchain payments, x402 protocol, pricing, AI agent compatibility, and more.',
+    path: '/faq'
+  });
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">

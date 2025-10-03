@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Sparkles, Mail, Send, Menu, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useSEO } from "@/hooks/use-seo";
 
 interface ContactFormData {
   name: string;
@@ -24,6 +25,12 @@ export default function ContactPage() {
     email: "",
     subject: "",
     message: ""
+  });
+  
+  useSEO({
+    title: 'Contact Us - Get Support',
+    description: 'Get in touch with the PayGate x402 team. Ask questions about API monetization, blockchain payments, or x402 protocol integration. Enterprise support available.',
+    path: '/contact'
   });
 
   const contactMutation = useMutation({

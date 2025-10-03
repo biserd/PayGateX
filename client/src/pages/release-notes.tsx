@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/hooks/use-seo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -229,6 +230,12 @@ const ROADMAP_ITEMS = [
 export default function ReleaseNotes() {
   const [selectedVersion, setSelectedVersion] = useState("v1.3.0");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'Release Notes - Latest Updates & Features',
+    description: 'View the latest PayGate x402 releases, features, and improvements. Track version history including x402 Directory, Provider Tools, AP2 compatibility, and more.',
+    path: '/release-notes'
+  });
 
   // URL synchronization
   useEffect(() => {

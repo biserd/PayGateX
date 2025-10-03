@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSEO } from "@/hooks/use-seo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,12 @@ export default function Directory() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedNetwork, setSelectedNetwork] = useState<string>("all");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'x402 Public Directory - Discover Payment-Enabled APIs',
+    description: 'Browse the definitive x402 directory - discover payment-enabled APIs with real-time pricing, categories, and blockchain verification. The Etherscan for x402 protocol.',
+    path: '/directory'
+  });
 
   // Fetch all services
   const { data: services = [], isLoading: servicesLoading } = useQuery<X402Service[]>({

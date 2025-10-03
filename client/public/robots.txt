@@ -1,0 +1,13 @@
+# robots.txt for PayGate x402
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://paygate-x402.replit.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow specific paths (if any)
+# Disallow: /admin/
+# Disallow: /api/

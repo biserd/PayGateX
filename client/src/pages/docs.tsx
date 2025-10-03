@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Sparkles, Menu, X } from "lucide-react";
 import { docsData } from "@/docs/docsData";
 import { DocsSidebar } from "@/components/DocsSidebar";
+import { useSEO } from "@/hooks/use-seo";
 
 // Helper function to find a specific documentation page
 function findDocPage(sectionSlug: string, pageSlug?: string) {
@@ -174,27 +175,23 @@ export default function DocsPage() {
   const sectionSlug = params.section;
   const pageSlug = params.page;
 
-  // Set page title and meta description
-  useEffect(() => {
-    const result = findDocPage(sectionSlug || 'introduction', pageSlug);
-    if (result) {
-      document.title = `${result.page.title} | PayGate x402 Docs`;
-      
-      // Update meta description
-      let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement;
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.name = 'description';
-        document.head.appendChild(metaDesc);
-      }
-      metaDesc.content = result.page.seoDescription || result.page.summary;
-    } else {
-      document.title = 'PayGate x402 Documentation';
-    }
-  }, [sectionSlug, pageSlug]);
-
   // Find the current page
   const result = findDocPage(sectionSlug || 'introduction', pageSlug);
+  
+  // Set page-specific SEO
+  const seoTitle = result ? result.page.title : 'Documentation';
+  const seoDescription = result 
+    ? (result.page.seoDescription || result.page.summary)
+    : 'Complete documentation for PayGate x402 API monetization platform. Learn how to implement blockchain payments with the x402 protocol.';
+  const seoPath = result 
+    ? `/docs/${result.section.slug}/${result.page.slug}`
+    : '/docs';
+  
+  useSEO({
+    title: seoTitle,
+    description: seoDescription,
+    path: seoPath
+  });
   
   // Common layout wrapper
   const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {

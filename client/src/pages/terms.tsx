@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function TermsOfService() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'Terms of Service',
+    description: 'PayGate x402 terms of service. Review user responsibilities, payment terms, intellectual property rights, and platform usage policies.',
+    path: '/terms'
+  });
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">

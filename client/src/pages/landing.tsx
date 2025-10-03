@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/hooks/use-seo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Sparkles, Coins, TrendingUp, Lock, Menu, X } from "lucide-react";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'Blockchain API Monetization Platform',
+    description: 'Monetize your APIs with automated blockchain micropayments on Base. PayGate x402 implements the HTTP 402 protocol for trustless API payments with enterprise SaaS tools and public x402 directory.',
+    path: '/'
+  });
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">

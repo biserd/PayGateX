@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X, Zap, Shield, Globe, Users } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function About() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useSEO({
+    title: 'About Us - Our Mission',
+    description: 'Learn about PayGate x402 mission to revolutionize API monetization with blockchain payments. Discover our technology, vision, and the team behind the x402 protocol.',
+    path: '/about'
+  });
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
