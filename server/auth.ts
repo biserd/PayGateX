@@ -103,7 +103,7 @@ export function setupAuth(app: Express) {
         email,
         password: hashedPassword,
         orgId: "demo-org-1", // In production, create organization for new user
-        role: "admin"
+        role: "member"
       });
 
       req.login(user, (err) => {
