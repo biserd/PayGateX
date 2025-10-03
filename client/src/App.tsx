@@ -22,6 +22,10 @@ import ApiKeys from "@/pages/api-keys";
 import DocsPage from "@/pages/docs";
 import ContactPage from "@/pages/contact";
 import Directory from "@/pages/directory";
+import PrivacyPolicy from "@/pages/privacy";
+import About from "@/pages/about";
+import FAQ from "@/pages/faq";
+import TermsOfService from "@/pages/terms";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -45,6 +49,10 @@ function Router() {
         <Route path="/docs/:section" component={DocsPage} />
         <Route path="/docs/:section/:page" component={DocsPage} />
         <Route path="/contact" component={ContactPage} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/about" component={About} />
+        <Route path="/faq" component={FAQ} />
+        <Route path="/terms" component={TermsOfService} />
         <Route path="*" component={NotFound} />
       </Switch>
     );

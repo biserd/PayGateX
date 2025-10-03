@@ -678,11 +678,25 @@ export default function Landing() {
                 PayGate x402
               </span>
             </div>
-            <div className="text-center md:text-right">
+            <div className="text-center md:text-right space-y-2">
+              <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+                <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                  Privacy Policy
+                </a>
+                <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
+                  About
+                </a>
+                <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
+                  FAQ
+                </a>
+                <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                  Terms of Service
+                </a>
+              </div>
               <p className="text-gray-400">
                 © 2025 PayGate x402. Built with HTTP 402 protocol.
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500">
                 Version 1.3.0
               </p>
             </div>
