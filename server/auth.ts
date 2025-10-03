@@ -96,13 +96,25 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ error: "Email already exists" });
       }
 
-      // Create user
+      // Create organization for the new user
+      const orgSlug = `${username}-org`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const organization = await storage.createOrganization({
+        name: `${username} Organization`,
+        slug: orgSlug,
+        email: email,
+        sandboxMode: true,
+        escrowHoldHours: 24,
+        freeTierLimit: 100,
+        freeTierPeriodDays: 30
+      });
+
+      // Create user with their own organization
       const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({
         username,
         email,
         password: hashedPassword,
-        orgId: "demo-org-1", // In production, create organization for new user
+        orgId: organization.id,
         role: "member"
       });
 
