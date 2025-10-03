@@ -678,9 +678,14 @@ export default function Landing() {
                 PayGate x402
               </span>
             </div>
-            <p className="text-gray-400">
-              © 2025 PayGate x402. Built with HTTP 402 protocol.
-            </p>
+            <div className="text-center md:text-right">
+              <p className="text-gray-400">
+                © 2025 PayGate x402. Built with HTTP 402 protocol.
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Version 1.3.0
+              </p>
+            </div>
           </div>
         </div>
       </footer>

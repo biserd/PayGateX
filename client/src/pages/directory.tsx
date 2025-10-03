@@ -377,14 +377,26 @@ export default function Directory() {
       </div>
 
       {/* Footer */}
-      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl py-8">
-        <div className="container mx-auto px-4 sm:px-6 text-center">
-          <p className="text-gray-400">
-            Part of the <span className="text-violet-400 font-semibold">PayGate x402</span> ecosystem
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Data refreshed hourly from Bazaar and x402 Index
-          </p>
+      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-4 mb-6 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                PayGate x402
+              </span>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-gray-400">
+                © 2025 PayGate x402. Built with HTTP 402 protocol.
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Version 1.3.0 • Data refreshed hourly
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
