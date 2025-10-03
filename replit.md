@@ -13,6 +13,14 @@ The application is a full-stack TypeScript project, featuring a React frontend, 
 
 ## Recent Changes
 
+### User Roles & Multi-Tenant Organizations (October 2025)
+Fixed user registration and organization structure:
+- **Role Management**: ajaxus (biserd@gmail.com) is the only admin; all other users are "member" role
+- **Auto-Organization Creation**: Each new user registration automatically creates a dedicated organization
+- **Organization Structure**: Format is `{username} Organization` with slug `{username}-org`
+- **Default Settings**: New orgs have sandbox mode enabled, 24h escrow hold, 100 free tier requests per 30 days
+- **Data Isolation**: Each user operates within their own organization for proper multi-tenant separation
+
 ### SEO Implementation (October 2025)
 Comprehensive SEO implementation added across all pages:
 - **Custom useSEO Hook**: Created reusable hook (`client/src/hooks/use-seo.ts`) for dynamic page titles, meta descriptions, and Open Graph tags
