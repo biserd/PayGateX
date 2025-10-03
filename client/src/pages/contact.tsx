@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Sparkles, Mail, Send } from "lucide-react";
+import { ArrowLeft, Sparkles, Mail, Send, Menu, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -18,6 +18,7 @@ interface ContactFormData {
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -89,37 +90,116 @@ export default function ContactPage() {
       {/* Header */}
       <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-            <Button
-              onClick={() => window.location.href = "/"}
-              variant="ghost"
-              size="sm"
-              className="text-gray-400 hover:text-white shrink-0"
-              data-testid="button-back-home"
-            >
-              <ArrowLeft className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Back to Home</span>
-            </Button>
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25 shrink-0">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent truncate">PayGate x402</h1>
-                <p className="text-xs text-gray-400 font-medium hidden sm:block">Contact Us</p>
-              </div>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
+              <p className="text-xs text-gray-400 font-medium hidden sm:block">Contact Us</p>
             </div>
           </div>
-          <Button 
-            onClick={() => window.location.href = "/auth"}
-            className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-3 sm:px-6 py-2 sm:py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25 text-sm shrink-0"
-            data-testid="button-login"
-          >
-            <span className="hidden sm:inline">Sign In</span>
-            <span className="sm:hidden">Login</span>
-          </Button>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-home"
+            >
+              Home
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/directory"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-directory"
+            >
+              🌐 Directory
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/docs"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-docs"
+            >
+              Documentation
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = "/contact"}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              data-testid="nav-contact"
+            >
+              Contact
+            </Button>
+            <Button 
+              onClick={() => window.location.href = "/auth"}
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
+              data-testid="button-login"
+            >
+              Sign In
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="flex items-center space-x-2 md:hidden">
+            <Button
+              onClick={() => window.location.href = "/auth"}
+              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
+              data-testid="mobile-button-login-top"
+            >
+              Sign In
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-300 hover:text-white hover:bg-white/10 p-2"
+              data-testid="mobile-menu-button"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10">
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              <button
+                onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-home"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => { window.location.href = "/directory"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-directory"
+              >
+                🌐 Directory
+              </button>
+              <button
+                onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-docs"
+              >
+                Documentation
+              </button>
+              <button
+                onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                data-testid="mobile-nav-contact"
+              >
+                Contact
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -249,6 +329,44 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-4 mb-6 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                PayGate x402
+              </span>
+            </div>
+            <div className="text-center md:text-right space-y-2">
+              <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+                <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                  Privacy Policy
+                </a>
+                <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
+                  About
+                </a>
+                <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
+                  FAQ
+                </a>
+                <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                  Terms of Service
+                </a>
+              </div>
+              <p className="text-gray-400">
+                © 2025 PayGate x402. Built with HTTP 402 protocol.
+              </p>
+              <p className="text-sm text-gray-500">
+                Version 1.3.0
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
