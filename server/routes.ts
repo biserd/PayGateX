@@ -59,6 +59,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Note: Auth routes are now handled in auth.ts
 
+  // x402 Manifest - Discovery endpoint for x402scan and other explorers
+  app.get("/x402-manifest", async (req, res) => {
+    try {
+      // Get all active services with their endpoints and pricing
+      const services = await storage.getAllServices();
+      
+      const manifest = {
+        platform: "PayGate x402",
+        version: "1.1.0",
+        description: "Enterprise SaaS platform for API monetization using x402/AP2 protocol",
+        networks: ["base", "base-sepolia"],
+        facilitators: ["coinbase", "mock", "x402rs"],
+        timestamp: new Date().toISOString(),
+        services: await Promise.all(services.filter(s => s.isActive).map(async (service) => {
+          const endpoints = await storage.getEndpointsByServiceId(service.id);
+          
+          return {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            slug: service.slug,
+            baseUrl: service.baseUrl,
+            endpoints: await Promise.all(endpoints.filter(e => e.isActive).map(async (endpoint) => {
+              const pricing = await storage.getCurrentPricing(endpoint.id);
+              const org = await storage.getOrganizationById(service.orgId);
+              
+              if (!pricing || !org) return null;
+              
+              // Convert price to base units (USDC has 6 decimals)
+              const priceInUSDC = parseFloat(pricing.price);
+              const amountInBaseUnits = Math.floor(priceInUSDC * 1_000_000);
+              
+              // Construct the proxy URL
+              const proxyUrl = `${req.protocol}://${req.get('host')}/proxy/${service.orgId}/${service.id}${endpoint.path}`;
+              
+              return {
+                path: endpoint.path,
+                method: endpoint.method,
+                description: endpoint.description,
+                targetUrl: endpoint.targetUrl,
+                proxyUrl: proxyUrl,
+                supportedNetworks: endpoint.supportedNetworks,
+                x402Schema: {
+                  scheme: "exact",
+                  network: org.sandboxMode ? "base-sepolia" : "base",
+                  maxAmountRequired: amountInBaseUnits.toString(),
+                  resource: proxyUrl,
+                  description: endpoint.description || `${service.name} - ${endpoint.method} ${endpoint.path}`,
+                  payTo: org.walletAddress || "0x0000000000000000000000000000000000000000",
+                  asset: org.sandboxMode 
+                    ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e" // USDC on Base Sepolia
+                    : "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet
+                  maxTimeoutSeconds: 60,
+                  mimeType: "application/json",
+                  pricing: {
+                    amount: priceInUSDC,
+                    currency: pricing.currency,
+                    network: pricing.network,
+                    testnetNetwork: pricing.testnetNetwork
+                  }
+                }
+              };
+            })).then(eps => eps.filter(e => e !== null))
+          };
+        })),
+        links: {
+          dashboard: `${req.protocol}://${req.get('host')}/dashboard`,
+          directory: `${req.protocol}://${req.get('host')}/directory`,
+          docs: `${req.protocol}://${req.get('host')}/docs`,
+          api: `${req.protocol}://${req.get('host')}/api/version`
+        }
+      };
+      
+      res.json(manifest);
+    } catch (error) {
+      console.error("Error generating x402 manifest:", error);
+      res.status(500).json({ 
+        error: "Failed to generate manifest",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Platform Version Information
   app.get("/api/version", async (req, res) => {
     const version = {
@@ -104,7 +187,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pricing: "/api/v1/pricing/estimate",
           batchEstimate: "/api/v1/pricing/batch-estimate",
           proxy: "/proxy/{orgId}/{serviceId}/{endpoint}",
-          version: "/api/version"
+          version: "/api/version",
+          x402Manifest: "/x402-manifest"
         },
         documentation: "/docs"
       }
