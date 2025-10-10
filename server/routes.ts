@@ -60,10 +60,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Auth routes are now handled in auth.ts
 
   // x402 Manifest - Discovery endpoint for x402scan and other explorers
-  app.get("/x402-manifest", async (req, res) => {
+  app.get("/api/x402-manifest", async (req, res) => {
     try {
-      // Get all active services with their endpoints and pricing
-      const services = await storage.getAllServices();
+      // Get demo org services (in production, this would aggregate from all orgs)
+      const orgId = req.user?.orgId || DEMO_ORG_ID;
+      const services = await storage.getServicesByOrgId(orgId);
+      const org = await storage.getOrganization(orgId);
+      
+      if (!org) {
+        return res.status(500).json({ 
+          error: "Organization not found",
+          timestamp: new Date().toISOString()
+        });
+      }
       
       const manifest = {
         platform: "PayGate x402",
@@ -83,9 +92,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             baseUrl: service.baseUrl,
             endpoints: await Promise.all(endpoints.filter(e => e.isActive).map(async (endpoint) => {
               const pricing = await storage.getCurrentPricing(endpoint.id);
-              const org = await storage.getOrganizationById(service.orgId);
               
-              if (!pricing || !org) return null;
+              if (!pricing) return null;
               
               // Convert price to base units (USDC has 6 decimals)
               const priceInUSDC = parseFloat(pricing.price);
@@ -188,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           batchEstimate: "/api/v1/pricing/batch-estimate",
           proxy: "/proxy/{orgId}/{serviceId}/{endpoint}",
           version: "/api/version",
-          x402Manifest: "/x402-manifest"
+          x402Manifest: "/api/x402-manifest"
         },
         documentation: "/docs"
       }
