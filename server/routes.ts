@@ -150,6 +150,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // x402 Discovery - Returns HTTP 402 with all services for x402scan submission
+  app.get("/api/x402-discovery", async (req, res) => {
+    try {
+      // Get demo org services (in production, this would aggregate from all orgs)
+      const orgId = req.user?.orgId || DEMO_ORG_ID;
+      const services = await storage.getServicesByOrgId(orgId);
+      const org = await storage.getOrganization(orgId);
+      
+      if (!org) {
+        return res.status(500).json({ 
+          error: "Organization not found",
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Build accepts array with all endpoints
+      const accepts = [];
+      
+      for (const service of services.filter(s => s.isActive)) {
+        const endpoints = await storage.getEndpointsByServiceId(service.id);
+        
+        for (const endpoint of endpoints.filter(e => e.isActive)) {
+          const pricing = await storage.getCurrentPricing(endpoint.id);
+          
+          if (!pricing) continue;
+          
+          // Convert price to base units (USDC has 6 decimals)
+          const priceInUSDC = parseFloat(pricing.price);
+          const amountInBaseUnits = Math.floor(priceInUSDC * 1_000_000);
+          
+          // Construct the proxy URL
+          const proxyUrl = `${req.protocol}://${req.get('host')}/proxy/${service.orgId}/${service.id}${endpoint.path}`;
+          
+          accepts.push({
+            scheme: "exact",
+            network: org.sandboxMode ? "base-sepolia" : "base",
+            maxAmountRequired: amountInBaseUnits.toString(),
+            resource: proxyUrl,
+            description: endpoint.description || `${service.name} - ${endpoint.method} ${endpoint.path}`,
+            mimeType: "application/json",
+            outputSchema: null,
+            payTo: org.walletAddress || "0x0000000000000000000000000000000000000000",
+            maxTimeoutSeconds: 60,
+            asset: org.sandboxMode 
+              ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e" // USDC on Base Sepolia
+              : "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet
+            extra: {
+              name: "USD Coin",
+              version: "1",
+              serviceName: service.name,
+              serviceSlug: service.slug,
+              method: endpoint.method,
+              path: endpoint.path,
+              platform: "PayGate x402"
+            }
+          });
+        }
+      }
+      
+      // Return HTTP 402 Payment Required response per x402 protocol
+      const discoveryResponse = {
+        x402Version: 1,
+        accepts,
+        error: ""
+      };
+      
+      res.status(402).json(discoveryResponse);
+    } catch (error) {
+      console.error("Error generating x402 discovery:", error);
+      res.status(500).json({ 
+        error: "Failed to generate discovery response",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Platform Version Information
   app.get("/api/version", async (req, res) => {
     const version = {

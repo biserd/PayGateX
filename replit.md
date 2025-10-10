@@ -13,6 +13,15 @@ The application is a full-stack TypeScript project, featuring a React frontend, 
 
 ## Recent Changes
 
+### x402 Discovery Endpoint (October 2025)
+Implemented x402 protocol-compliant discovery endpoint for platform-wide service discovery:
+- **HTTP 402 Response**: `/api/x402-discovery` returns proper HTTP 402 Payment Required status
+- **x402 Protocol Format**: Response follows x402 specification with `x402Version: 1` and `accepts` array
+- **Platform Discovery**: Aggregates all active services/endpoints in a single discoverable response
+- **x402scan Compatibility**: Enables submission to x402scan.com directory for ecosystem-wide discovery
+- **Complete Metadata**: Each endpoint includes scheme, network, pricing, wallet address, asset contract, and extra platform info
+- **Sandbox Support**: Automatically uses Base Sepolia addresses and test networks when in sandbox mode
+
 ### User Roles & Multi-Tenant Organizations (October 2025)
 Fixed user registration and organization structure:
 - **Role Management**: ajaxus (biserd@gmail.com) is the only admin; all other users are "member" role
