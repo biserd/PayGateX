@@ -191,7 +191,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: endpoint.description || `${service.name} - ${endpoint.method} ${endpoint.path}`,
             mimeType: "application/json",
             outputSchema: null,
-            payTo: org.walletAddress || "0x0000000000000000000000000000000000000000",
+            payTo: org.sandboxMode 
+              ? (org.testnetWalletAddress || org.walletAddress || "0x0000000000000000000000000000000000000000")
+              : (org.walletAddress || "0x0000000000000000000000000000000000000000"),
             maxTimeoutSeconds: 60,
             asset: org.sandboxMode 
               ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e" // USDC on Base Sepolia
