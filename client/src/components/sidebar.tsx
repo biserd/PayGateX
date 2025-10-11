@@ -13,10 +13,11 @@ import {
   Wallet,
   FileText,
   Webhook,
-  Key
+  Key,
+  ShieldAlert
 } from "lucide-react";
 
-const navigation = [
+const baseNavigation = [
   { name: "Dashboard", href: "/", icon: ChartLine },
   { name: "API Endpoints", href: "/endpoints", icon: Plug },
   { name: "Webhooks", href: "/webhooks", icon: Webhook },
@@ -32,6 +33,11 @@ const navigation = [
 export function Sidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
+
+  // Add admin link if user is admin
+  const navigation = user?.email === "admin@paygate402.com" 
+    ? [{ name: "Admin Dashboard", href: "/admin", icon: ShieldAlert }, ...baseNavigation]
+    : baseNavigation;
 
   // Generate initials from username
   const getInitials = (username: string) => {
