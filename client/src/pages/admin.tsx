@@ -67,19 +67,19 @@ export default function AdminDashboard() {
               <MetricsCard
                 title="Total Users"
                 value={metrics?.users.total.toString() || "0"}
-                icon={<Users className="w-5 h-5" />}
+                icon={Users}
                 data-testid="card-total-users"
               />
               <MetricsCard
                 title="New Users (7 days)"
                 value={metrics?.users.newLast7Days.toString() || "0"}
-                icon={<Users className="w-5 h-5" />}
+                icon={Users}
                 data-testid="card-new-users-7d"
               />
               <MetricsCard
                 title="New Users (30 days)"
                 value={metrics?.users.newLast30Days.toString() || "0"}
-                icon={<Users className="w-5 h-5" />}
+                icon={Users}
                 data-testid="card-new-users-30d"
               />
             </div>
@@ -92,27 +92,25 @@ export default function AdminDashboard() {
               <MetricsCard
                 title="Total Services"
                 value={`${metrics?.services.active || 0} / ${metrics?.services.total || 0}`}
-                subtitle="Active / Total"
-                icon={<Server className="w-5 h-5" />}
+                icon={Server}
                 data-testid="card-total-services"
               />
               <MetricsCard
                 title="Total Endpoints"
                 value={`${metrics?.endpoints.active || 0} / ${metrics?.endpoints.total || 0}`}
-                subtitle="Active / Total"
-                icon={<Globe className="w-5 h-5" />}
+                icon={Globe}
                 data-testid="card-total-endpoints"
               />
               <MetricsCard
                 title="New Services (7d)"
                 value={metrics?.services.newLast7Days.toString() || "0"}
-                icon={<Server className="w-5 h-5" />}
+                icon={Server}
                 data-testid="card-new-services-7d"
               />
               <MetricsCard
                 title="New Endpoints (7d)"
                 value={metrics?.endpoints.newLast7Days.toString() || "0"}
-                icon={<Globe className="w-5 h-5" />}
+                icon={Globe}
                 data-testid="card-new-endpoints-7d"
               />
             </div>
@@ -125,26 +123,26 @@ export default function AdminDashboard() {
               <MetricsCard
                 title="Total Requests"
                 value={metrics?.usage.totalRequests.toLocaleString() || "0"}
-                icon={<DollarSign className="w-5 h-5" />}
+                icon={ShieldAlert}
                 data-testid="card-total-requests"
               />
               <MetricsCard
                 title="Paid Requests"
                 value={metrics?.usage.paidRequests.toLocaleString() || "0"}
-                icon={<CheckCircle className="w-5 h-5" />}
+                icon={CheckCircle}
                 changeType="positive"
                 data-testid="card-paid-requests"
               />
               <MetricsCard
                 title="Free Requests"
                 value={metrics?.usage.freeRequests.toLocaleString() || "0"}
-                icon={<CheckCircle className="w-5 h-5" />}
+                icon={XCircle}
                 data-testid="card-free-requests"
               />
               <MetricsCard
                 title="Total Revenue"
                 value={`$${metrics?.usage.totalRevenue.toFixed(6) || "0.000000"}`}
-                icon={<DollarSign className="w-5 h-5" />}
+                icon={DollarSign}
                 changeType="positive"
                 data-testid="card-total-revenue"
               />
