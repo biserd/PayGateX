@@ -249,7 +249,7 @@ export default function ContactPage() {
                       placeholder="Your name"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
+                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-300 h-12 text-base"
                       data-testid="input-name"
                       required
                     />
@@ -264,7 +264,7 @@ export default function ContactPage() {
                       placeholder="your@email.com"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
+                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-300 h-12 text-base"
                       data-testid="input-email"
                       required
                     />
@@ -281,7 +281,7 @@ export default function ContactPage() {
                     placeholder="What's this about?"
                     value={formData.subject}
                     onChange={(e) => handleChange("subject", e.target.value)}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 h-12 text-base"
+                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-300 h-12 text-base"
                     data-testid="input-subject"
                     required
                   />
@@ -297,7 +297,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={(e) => handleChange("message", e.target.value)}
                     rows={5}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-400 resize-none text-base min-h-[120px]"
+                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white placeholder-gray-300 resize-none text-base min-h-[120px]"
                     data-testid="input-message"
                     required
                   />
