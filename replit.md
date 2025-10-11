@@ -39,6 +39,19 @@ Comprehensive SEO implementation added across all pages:
 - **Favicon**: SVG favicon with PayGate branding
 - **robots.txt**: Created with sitemap reference for search engine crawling
 
+### Admin Dashboard (October 2025)
+Implemented comprehensive administrative dashboard for platform monitoring:
+- **Access Control**: Restricted to admin@paygate402.com email only (username: ajaxus)
+- **Backend Endpoint**: `/api/admin/metrics` returns platform-wide statistics with authentication check
+- **Route Protection**: Frontend `/admin` route redirects non-admin users to dashboard
+- **Conditional Navigation**: Admin link only visible in sidebar for admin users
+- **Key Metrics Displayed**:
+  - User metrics: total users, new registrations (7d/30d)
+  - Service & endpoint metrics: total/active counts, new additions (7d)
+  - API usage: total requests, paid/free requests, total revenue
+  - User activity table: all registered users with engagement stats (services, endpoints, API calls, last activity)
+- **Real-time Updates**: Auto-refreshes every 30 seconds for live monitoring
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
