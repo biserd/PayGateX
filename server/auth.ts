@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import connectPg from "connect-pg-simple";
+import { sendNewUserNotification } from "./email-service";
 
 declare global {
   namespace Express {
@@ -117,6 +118,19 @@ export function setupAuth(app: Express) {
         orgId: organization.id,
         role: "member"
       });
+
+      // Send email notification to admin (don't block user registration if email fails)
+      sendNewUserNotification(user.username, user.email)
+        .then((success) => {
+          if (success) {
+            console.log(`Admin notification sent for new user: ${user.username}`);
+          } else {
+            console.warn(`Failed to send admin notification for new user: ${user.username}`);
+          }
+        })
+        .catch((error) => {
+          console.error('Email notification error:', error);
+        });
 
       req.login(user, (err) => {
         if (err) return next(err);
