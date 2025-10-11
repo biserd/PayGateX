@@ -44,6 +44,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   updateUserSettings(id: string, settings: any): Promise<User | undefined>;
 
@@ -77,6 +78,7 @@ export interface IStorage {
     startDate?: Date;
     endDate?: Date;
   }): Promise<UsageRecord[]>;
+  getAllUsageRecords(): Promise<UsageRecord[]>;
   createUsageRecord(record: InsertUsageRecord): Promise<UsageRecord>;
   getRecentUsageRecords(orgId: string, limit?: number): Promise<UsageRecord[]>;
 

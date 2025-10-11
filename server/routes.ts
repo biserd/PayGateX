@@ -283,6 +283,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(version);
   });
 
+  // Admin Metrics Endpoint (protected - admin only)
+  app.get("/api/admin/metrics", isAuthenticated, async (req, res) => {
+    try {
+      // Check if user is admin
+      const user = req.user as any;
+      if (!user || user.email !== "admin@paygate402.com") {
+        return res.status(403).json({ 
+          error: "Forbidden - Admin access only",
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Get all users with their organization and activity data
+      const users = await storage.getAllUsers();
+      
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // Calculate user metrics
+      const userMetrics = {
+        total: users.length,
+        newLast7Days: users.filter(u => u.createdAt && new Date(u.createdAt) >= sevenDaysAgo).length,
+        newLast30Days: users.filter(u => u.createdAt && new Date(u.createdAt) >= thirtyDaysAgo).length,
+      };
+
+      // Get all services and endpoints
+      const allServices = [];
+      const allEndpoints = [];
+      for (const user of users) {
+        const org = await storage.getOrganization(user.orgId);
+        if (org) {
+          const services = await storage.getServicesByOrgId(org.id);
+          allServices.push(...services);
+          for (const service of services) {
+            const endpoints = await storage.getEndpointsByServiceId(service.id);
+            allEndpoints.push(...endpoints);
+          }
+        }
+      }
+
+      // Service and endpoint metrics
+      const serviceMetrics = {
+        total: allServices.length,
+        active: allServices.filter(s => s.isActive).length,
+        newLast7Days: allServices.filter(s => s.createdAt && new Date(s.createdAt) >= sevenDaysAgo).length,
+        newLast30Days: allServices.filter(s => s.createdAt && new Date(s.createdAt) >= thirtyDaysAgo).length,
+      };
+
+      const endpointMetrics = {
+        total: allEndpoints.length,
+        active: allEndpoints.filter(e => e.isActive).length,
+        newLast7Days: allEndpoints.filter(e => e.createdAt && new Date(e.createdAt) >= sevenDaysAgo).length,
+        newLast30Days: allEndpoints.filter(e => e.createdAt && new Date(e.createdAt) >= thirtyDaysAgo).length,
+      };
+
+      // Get usage statistics
+      const allUsageRecords = await storage.getAllUsageRecords();
+      const usageMetrics = {
+        totalRequests: allUsageRecords.length,
+        paidRequests: allUsageRecords.filter(r => r.status === 'paid').length,
+        freeRequests: allUsageRecords.filter(r => r.isFreeRequest).length,
+        failedRequests: allUsageRecords.filter(r => r.status === 'failed').length,
+        totalRevenue: allUsageRecords
+          .filter(r => r.status === 'paid')
+          .reduce((sum, r) => sum + parseFloat(r.price), 0),
+        requestsLast7Days: allUsageRecords.filter(r => r.createdAt && new Date(r.createdAt) >= sevenDaysAgo).length,
+        requestsLast30Days: allUsageRecords.filter(r => r.createdAt && new Date(r.createdAt) >= thirtyDaysAgo).length,
+      };
+
+      // Get detailed user activity
+      const userActivity = await Promise.all(users.map(async (user) => {
+        const org = await storage.getOrganization(user.orgId);
+        const services = org ? await storage.getServicesByOrgId(org.id) : [];
+        const endpoints = [];
+        for (const service of services) {
+          const eps = await storage.getEndpointsByServiceId(service.id);
+          endpoints.push(...eps);
+        }
+        
+        const usageRecords = allUsageRecords.filter(r => r.orgId === user.orgId);
+        const lastActivity = usageRecords.length > 0 
+          ? new Date(Math.max(...usageRecords.map(r => r.createdAt ? new Date(r.createdAt).getTime() : 0)))
+          : null;
+
+        return {
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          orgName: org?.name || 'N/A',
+          registeredAt: user.createdAt,
+          servicesCreated: services.length,
+          endpointsCreated: endpoints.length,
+          totalApiCalls: usageRecords.length,
+          paidRequests: usageRecords.filter(r => r.status === 'paid').length,
+          lastActivity: lastActivity,
+          isActive: usageRecords.length > 0
+        };
+      }));
+
+      res.json({
+        timestamp: new Date().toISOString(),
+        users: userMetrics,
+        services: serviceMetrics,
+        endpoints: endpointMetrics,
+        usage: usageMetrics,
+        userActivity: userActivity.sort((a, b) => {
+          const aTime = a.registeredAt ? new Date(a.registeredAt).getTime() : 0;
+          const bTime = b.registeredAt ? new Date(b.registeredAt).getTime() : 0;
+          return bTime - aTime;
+        })
+      });
+    } catch (error) {
+      console.error("Error fetching admin metrics:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch admin metrics",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // AP2 Cost Estimation Endpoints (public - for agent planning)
   app.get("/api/v1/pricing/estimate", async (req, res) => {
     try {

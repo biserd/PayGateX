@@ -87,9 +87,8 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || undefined;
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
   async createUser(user: InsertUser): Promise<User> {
@@ -286,6 +285,10 @@ export class DatabaseStorage implements IStorage {
     }
     
     return await query.orderBy(desc(usageRecords.createdAt));
+  }
+
+  async getAllUsageRecords(): Promise<UsageRecord[]> {
+    return await db.select().from(usageRecords).orderBy(desc(usageRecords.createdAt));
   }
 
   async createUsageRecord(record: InsertUsageRecord): Promise<UsageRecord> {
