@@ -3,15 +3,24 @@ import { Sidebar } from "@/components/sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { MetricsCard } from "@/components/metrics-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Server, Globe, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import { Users, Server, Globe, DollarSign, CheckCircle, XCircle, ShieldAlert } from "lucide-react";
 import { useSEO } from "@/hooks/use-seo";
 import { format } from "date-fns";
+import { useAuth } from "@/hooks/use-auth";
+import { Redirect } from "wouter";
 
 export default function AdminDashboard() {
   useSEO({
     title: "Admin Dashboard | PayGate x402",
     description: "Administrative dashboard for PayGate x402 platform monitoring and user management"
   });
+
+  const { user } = useAuth();
+
+  // Check if user is admin
+  if (user && user.email !== "admin@paygate402.com") {
+    return <Redirect to="/dashboard" />;
+  }
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["/api/admin/metrics"],
