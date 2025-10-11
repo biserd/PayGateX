@@ -329,8 +329,8 @@ export default function ContactPage() {
           <div className="mt-8 sm:mt-12 text-center px-4 sm:px-0">
             <p className="text-gray-400 text-sm sm:text-base">
               You can also reach us directly at{" "}
-              <a href="mailto:hello@bigappledigital.nyc" className="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50 break-all">
-                hello@bigappledigital.nyc
+              <a href="mailto:hello@paygate402.com" className="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50 break-all">
+                hello@paygate402.com
               </a>
             </p>
           </div>

@@ -13,6 +13,16 @@ The application is a full-stack TypeScript project, featuring a React frontend, 
 
 ## Recent Changes
 
+### Contact Form Email Integration (October 2025)
+Implemented email notifications for contact form submissions:
+- **Email Service**: Gmail SMTP using nodemailer with hello@bigappledigital.nyc credentials
+- **Contact Notifications**: All contact form submissions now send emails to hello@paygate402.com
+- **Email Template**: Professional HTML email with sender details, subject, message, and reply-to link
+- **Non-blocking Delivery**: Email sending runs asynchronously without blocking form submission
+- **User Registration Alerts**: Automatic email notifications sent to hello@paygate402.com for new user registrations
+- **UI Improvements**: Fixed label text contrast on contact form for better readability
+- **Contact Information**: Updated displayed contact email to hello@paygate402.com (production domain)
+
 ### x402 Discovery Endpoint (October 2025)
 Implemented x402 protocol-compliant discovery endpoint for platform-wide service discovery:
 - **HTTP 402 Response**: `/api/x402-discovery` returns proper HTTP 402 Payment Required status

@@ -1497,6 +1497,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`📧 New contact submission received from ${clientData.email}: ${clientData.subject}`);
       
+      // Send email notification to admin (don't block if email fails)
+      const { sendContactFormNotification } = await import("./email-service");
+      sendContactFormNotification(clientData.name, clientData.email, clientData.subject, clientData.message)
+        .then((success) => {
+          if (success) {
+            console.log(`Email notification sent for contact form: ${clientData.subject}`);
+          } else {
+            console.error(`Failed to send email notification for contact form: ${clientData.subject}`);
+          }
+        })
+        .catch((error) => {
+          console.error("Error sending contact form email:", error);
+        });
+      
       res.json({ success: true, message: "Message sent successfully", id: created.id });
     } catch (error) {
       console.error("Contact form error:", error);

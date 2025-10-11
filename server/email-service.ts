@@ -100,3 +100,85 @@ PayGate x402 - x402 Payment Required Proxy Platform
     html: htmlContent,
   });
 }
+
+export async function sendContactFormNotification(
+  name: string, 
+  email: string, 
+  subject: string, 
+  message: string
+): Promise<boolean> {
+  const adminEmail = 'hello@paygate402.com';
+  
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+        .info-box { background: white; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+        .message-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="margin: 0;">📧 New Contact Form Submission</h1>
+        </div>
+        <div class="content">
+          <p>Hello,</p>
+          <p>You've received a new message from the PayGate x402 contact form.</p>
+          
+          <div class="info-box">
+            <p style="margin: 5px 0;"><strong>Name:</strong> ${name}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+            <p style="margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
+            <p style="margin: 5px 0;"><strong>Received:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div class="message-box">
+            <h3 style="margin-top: 0;">Message:</h3>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          
+          <p style="margin-top: 20px;">
+            <strong>Reply to:</strong> 
+            <a href="mailto:${email}" style="color: #667eea; text-decoration: none;">${email}</a>
+          </p>
+          
+          <div class="footer">
+            <p>PayGate x402 - x402 Payment Required Proxy Platform</p>
+            <p>This is an automated notification from your contact form</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const textContent = `
+New Contact Form Submission - PayGate x402
+
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+Received: ${new Date().toLocaleString()}
+
+Message:
+${message}
+
+---
+Reply to: ${email}
+PayGate x402 - x402 Payment Required Proxy Platform
+  `;
+
+  return sendEmail({
+    to: adminEmail,
+    subject: `Contact Form: ${subject}`,
+    text: textContent,
+    html: htmlContent,
+  });
+}
