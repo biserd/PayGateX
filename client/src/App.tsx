@@ -26,6 +26,7 @@ import PrivacyPolicy from "@/pages/privacy";
 import About from "@/pages/about";
 import FAQ from "@/pages/faq";
 import TermsOfService from "@/pages/terms";
+import AdminDashboard from "@/pages/admin";
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -62,6 +63,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/directory" component={Directory} />
       <Route path="/endpoints" component={Endpoints} />
       <Route path="/analytics" component={Analytics} />
