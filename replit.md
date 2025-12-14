@@ -13,6 +13,12 @@ The application is a full-stack TypeScript project, featuring a React frontend, 
 
 ## Recent Changes
 
+### Google Analytics Integration (December 2025)
+Added Google Analytics 4 tracking to monitor site traffic and user behavior:
+- **Measurement ID**: G-37XNGFDSN4
+- **Implementation**: Direct gtag.js script in index.html head
+- **Tracking**: Automatic page views across all pages
+
 ### Contact Form Email Integration (October 2025)
 Implemented email notifications for contact form submissions:
 - **Email Service**: Gmail SMTP using nodemailer with hello@bigappledigital.nyc credentials
