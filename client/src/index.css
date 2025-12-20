@@ -140,15 +140,15 @@
   }
 
   .sidebar-nav-item {
-    @apply flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-white;
+    @apply flex items-center space-x-3 px-3 py-2 rounded-lg transition-all text-gray-700 font-medium;
   }
 
   .sidebar-nav-item.active {
-    @apply bg-blue-600 text-white;
+    @apply bg-blue-50 text-blue-600 font-semibold;
   }
 
   .sidebar-nav-item:not(.active) {
-    @apply text-gray-300 hover:bg-blue-600/20 hover:text-white;
+    @apply text-gray-700 hover:bg-gray-100 hover:text-blue-600;
   }
 
   .status-badge {
