@@ -7,9 +7,10 @@ export default function About() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'About Us - Our Mission',
-    description: 'Learn about PayGate x402 mission to revolutionize API monetization with blockchain payments. Discover our technology, vision, and the team behind the x402 protocol.',
-    path: '/about'
+    title: 'About PayGate x402 - Revolutionizing API Monetization',
+    description: 'PayGate x402 is building the infrastructure for the API economy and agent economy. Learn about our mission, vision, technology stack, and why we chose the x402 protocol for seamless API monetization.',
+    path: '/about',
+    keywords: 'PayGate x402, API economy, blockchain payments, x402 protocol, payment infrastructure, API monetization platform'
   });
 
   return (

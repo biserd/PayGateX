@@ -190,7 +190,8 @@ export default function DocsPage() {
   useSEO({
     title: seoTitle,
     description: seoDescription,
-    path: seoPath
+    path: seoPath,
+    keywords: 'x402 documentation, API monetization guide, blockchain payments, integration guide, PayGate tutorial, x402 protocol implementation'
   });
   
   // Common layout wrapper

@@ -9,9 +9,10 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'API Monetization Platform - Turn APIs Into Revenue',
-    description: 'PayGate x402 helps developers monetize APIs with automated blockchain micropayments. Enterprise dashboard, escrow protection, compliance tools, and the public x402 Directory.',
-    path: '/'
+    title: 'API Monetization Platform - Blockchain Payments with x402 Protocol',
+    description: 'PayGate x402: Monetize APIs with automated blockchain micropayments. Enterprise dashboard, real-time analytics, escrow protection, compliance enforcement, webhooks, and public x402 Directory for discovering payment-enabled APIs.',
+    path: '/',
+    keywords: 'API monetization, x402 protocol, blockchain payments, USDC, Base network, payment proxy, API commerce, AI agents, AP2, HTTP 402'
   });
 
   return (

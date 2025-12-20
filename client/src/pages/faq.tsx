@@ -13,9 +13,40 @@ export default function FAQ() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'FAQ - Frequently Asked Questions',
-    description: 'Get answers to common questions about PayGate x402, API monetization, blockchain payments, x402 protocol, pricing, AI agent compatibility, and more.',
-    path: '/faq'
+    title: 'PayGate x402 FAQ - API Monetization & x402 Protocol Questions',
+    description: 'Comprehensive FAQ covering PayGate x402 features, x402 protocol implementation, blockchain payments, USDC pricing, sandbox testing, AI agent compatibility, security features, and getting started guides.',
+    path: '/faq',
+    keywords: 'x402 FAQ, API monetization questions, blockchain payment FAQ, USDC pricing, sandbox mode, AI agents, x402 protocol',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is PayGate x402?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'PayGate x402 is a payment proxy platform implementing the x402 protocol, enabling API providers to monetize endpoints through blockchain micropayments on Base network.'
+          }
+        },
+        {
+          '@type': 'Question',
+          name: 'How does the x402 protocol work?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'When a request hits a payment-protected endpoint, PayGate returns HTTP 402 with payment details. Client submits USDC payment on Base, PayGate verifies and forwards request.'
+          }
+        },
+        {
+          '@type': 'Question',
+          name: 'What cryptocurrencies are supported?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Currently USDC (USD Coin) on Base blockchain. Plans to expand to Ethereum, Polygon, and Arbitrum.'
+          }
+        }
+      ]
+    }
   });
 
   return (

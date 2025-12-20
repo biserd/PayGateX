@@ -36,9 +36,10 @@ export default function Directory() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'x402 Public Directory - Discover Payment-Enabled APIs',
-    description: 'Browse the definitive x402 directory - discover payment-enabled APIs with real-time pricing, categories, and blockchain verification. The Etherscan for x402 protocol.',
-    path: '/directory'
+    title: 'x402 Public Directory - Discover Payment-Enabled APIs (The Etherscan for x402)',
+    description: 'Browse the definitive x402 directory - discover payment-enabled APIs with real-time pricing, blockchain verification, categories, networks, and metadata. Perfect for developers and AI agents seeking monetized API endpoints.',
+    path: '/directory',
+    keywords: 'x402 directory, payment-enabled APIs, API discovery, blockchain APIs, USDC pricing, Base network, AI agent APIs, Etherscan for x402'
   });
 
   // Fetch all services

@@ -5,16 +5,18 @@ interface SEOProps {
   description: string;
   path?: string;
   ogImage?: string;
+  keywords?: string;
+  structuredData?: Record<string, unknown>;
 }
 
-export function useSEO({ title, description, path = '', ogImage }: SEOProps) {
+export function useSEO({ title, description, path = '', ogImage, keywords, structuredData }: SEOProps) {
   useEffect(() => {
     const baseUrl = 'https://paygate-x402.replit.app';
     const fullTitle = `${title} | PayGate x402`;
     
     document.title = fullTitle;
     
-    const metaTags = {
+    const metaTags: Record<string, string> = {
       'description': description,
       'og:title': fullTitle,
       'og:description': description,
@@ -22,6 +24,10 @@ export function useSEO({ title, description, path = '', ogImage }: SEOProps) {
       'twitter:title': fullTitle,
       'twitter:description': description,
     };
+    
+    if (keywords) {
+      metaTags['keywords'] = keywords;
+    }
     
     if (ogImage) {
       metaTags['og:image'] = ogImage;
@@ -53,5 +59,19 @@ export function useSEO({ title, description, path = '', ogImage }: SEOProps) {
     if (canonical) {
       canonical.setAttribute('href', `${baseUrl}${path}`);
     }
-  }, [title, description, path, ogImage]);
+    
+    // Handle structured data (JSON-LD)
+    if (structuredData) {
+      let structuredScript = document.querySelector('script[data-structure="page-schema"]');
+      if (structuredScript) {
+        structuredScript.innerHTML = JSON.stringify(structuredData);
+      } else {
+        structuredScript = document.createElement('script');
+        structuredScript.type = 'application/ld+json';
+        structuredScript.setAttribute('data-structure', 'page-schema');
+        structuredScript.innerHTML = JSON.stringify(structuredData);
+        document.head.appendChild(structuredScript);
+      }
+    }
+  }, [title, description, path, ogImage, keywords, structuredData]);
 }

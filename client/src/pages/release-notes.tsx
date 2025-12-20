@@ -234,7 +234,8 @@ export default function ReleaseNotes() {
   useSEO({
     title: 'Release Notes - Latest Updates & Features',
     description: 'View the latest PayGate x402 releases, features, and improvements. Track version history including x402 Directory, Provider Tools, AP2 compatibility, and more.',
-    path: '/release-notes'
+    path: '/release-notes',
+    keywords: 'release notes, changelog, updates, new features, PayGate roadmap, x402 protocol updates'
   });
 
   // URL synchronization

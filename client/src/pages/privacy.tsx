@@ -7,9 +7,10 @@ export default function PrivacyPolicy() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'Privacy Policy',
-    description: 'PayGate x402 privacy policy. Learn how we collect, use, and protect your data when using our blockchain API monetization platform.',
-    path: '/privacy'
+    title: 'Privacy Policy - PayGate x402',
+    description: 'PayGate x402 privacy policy. Learn how we collect, use, store, and protect your personal data and blockchain wallet information. GDPR compliant and transparent data practices.',
+    path: '/privacy',
+    keywords: 'privacy policy, data protection, blockchain privacy, GDPR, data security'
   });
 
   return (

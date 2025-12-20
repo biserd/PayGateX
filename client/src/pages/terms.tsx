@@ -7,9 +7,10 @@ export default function TermsOfService() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'Terms of Service',
-    description: 'PayGate x402 terms of service. Review user responsibilities, payment terms, intellectual property rights, and platform usage policies.',
-    path: '/terms'
+    title: 'Terms of Service - PayGate x402',
+    description: 'PayGate x402 terms of service covering user responsibilities, payment terms, intellectual property rights, platform usage policies, liability limitations, and blockchain transaction terms.',
+    path: '/terms',
+    keywords: 'terms of service, user agreement, payment terms, platform policies, liability'
   });
 
   return (

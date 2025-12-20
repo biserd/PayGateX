@@ -28,9 +28,10 @@ export default function ContactPage() {
   });
   
   useSEO({
-    title: 'Contact Us - Get Support',
-    description: 'Get in touch with the PayGate x402 team. Ask questions about API monetization, blockchain payments, or x402 protocol integration. Enterprise support available.',
-    path: '/contact'
+    title: 'Contact PayGate x402 - Get API Monetization Support',
+    description: 'Contact the PayGate x402 team for API monetization questions, x402 protocol integration, enterprise support, partnerships, and technical guidance. We respond to all inquiries within 24 hours.',
+    path: '/contact',
+    keywords: 'PayGate support, API monetization help, x402 integration, enterprise support, technical support, payment integration'
   });
 
   const contactMutation = useMutation({
