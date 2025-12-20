@@ -175,16 +175,6 @@ export default function Landing() {
               Start Monetizing
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => window.location.href = "/directory"}
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 text-lg font-medium"
-              data-testid="button-explore-directory"
-            >
-              <Search className="mr-2 w-5 h-5" />
-              Explore Directory
-            </Button>
           </div>
         </div>
       </section>
@@ -209,103 +199,67 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Two Pillars Section */}
+      {/* How It Works Section */}
       <section className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Two ways to grow your business
+              How it works
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Whether you're monetizing APIs or discovering payment-enabled services, PayGate has you covered.
+              Three simple steps to start monetizing your APIs with blockchain payments.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Enterprise Dashboard */}
-            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow p-2">
-              <CardHeader className="p-6">
-                <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
-                  <BarChart3 className="w-7 h-7 text-blue-600" />
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="relative">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                  <div className="text-2xl font-bold text-blue-600">1</div>
                 </div>
-                <CardTitle className="text-gray-900 text-2xl mb-3">
-                  Enterprise Dashboard
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base">
-                  Your command center for API monetization. Manage endpoints, track revenue, configure escrow, and enforce compliance—all from one place.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                    Real-time revenue & analytics dashboard
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                    Configurable escrow with dispute resolution
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                    Geo-blocking & wallet compliance controls
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                    Webhook notifications for every payment
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => window.location.href = "/auth"}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  data-testid="button-dashboard-cta"
-                >
-                  Open Dashboard
-                </Button>
-              </CardContent>
-            </Card>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  Create Your Endpoints
+                </h3>
+                <p className="text-gray-600">
+                  Sign up and configure your API endpoints. Set pricing in USDC, choose your network, and create your proxy URL.
+                </p>
+              </div>
+              {/* Connector line */}
+              <div className="hidden md:block absolute top-20 left-[60%] w-full h-1 bg-gradient-to-r from-blue-300 to-transparent"></div>
+            </div>
 
-            {/* x402 Directory */}
-            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow p-2">
-              <CardHeader className="p-6">
-                <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-4">
-                  <Search className="w-7 h-7 text-orange-600" />
+            {/* Step 2 */}
+            <div className="relative">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                  <div className="text-2xl font-bold text-blue-600">2</div>
                 </div>
-                <CardTitle className="text-gray-900 text-2xl mb-3">
-                  x402 Public Directory
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base">
-                  The discovery platform for payment-enabled APIs. Find services, compare pricing, and integrate with confidence. Think "Etherscan for x402."
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0" />
-                    Browse payment-enabled APIs across categories
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0" />
-                    Real-time pricing from x402 endpoints
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0" />
-                    Filter by network, category, and price
-                  </li>
-                  <li className="flex items-center text-gray-600">
-                    <CheckCircle className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0" />
-                    No login required to explore
-                  </li>
-                </ul>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.location.href = "/directory"}
-                  className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
-                  data-testid="button-directory-cta"
-                >
-                  Browse Directory
-                </Button>
-              </CardContent>
-            </Card>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  Route Traffic Through PayGate
+                </h3>
+                <p className="text-gray-600">
+                  Update your API clients to use the PayGate proxy URL. No code changes needed—it's a simple redirect.
+                </p>
+              </div>
+              {/* Connector line */}
+              <div className="hidden md:block absolute top-20 left-[60%] w-full h-1 bg-gradient-to-r from-blue-300 to-transparent"></div>
+            </div>
+
+            {/* Step 3 */}
+            <div>
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                  <div className="text-2xl font-bold text-blue-600">3</div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  Collect Revenue
+                </h3>
+                <p className="text-gray-600">
+                  USDC flows to your wallet. Track it all in your dashboard. Withdraw anytime after escrow clears.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
