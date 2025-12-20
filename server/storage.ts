@@ -36,6 +36,7 @@ import {
 export interface IStorage {
   // Organization methods
   getOrganization(id: string): Promise<Organization | undefined>;
+  getAllOrganizations(): Promise<Organization[]>;
   createOrganization(org: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined>;
   updateOrganizationSandboxMode(id: string, sandboxMode: boolean): Promise<void>;
@@ -51,6 +52,7 @@ export interface IStorage {
   // Service methods
   getService(id: string): Promise<Service | undefined>;
   getServicesByOrgId(orgId: string): Promise<Service[]>;
+  getAllServices(): Promise<Service[]>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: string, updates: Partial<Service>): Promise<Service | undefined>;
 
@@ -59,6 +61,7 @@ export interface IStorage {
   getEndpointByPath(path: string, method: string): Promise<Endpoint | undefined>;
   getEndpointsByServiceId(serviceId: string): Promise<Endpoint[]>;
   getEndpointsByOrgId(orgId: string): Promise<Endpoint[]>;
+  getAllEndpoints(): Promise<Endpoint[]>;
   createEndpoint(endpoint: InsertEndpoint): Promise<Endpoint>;
   updateEndpoint(id: string, updates: Partial<Endpoint>): Promise<Endpoint | undefined>;
   deleteEndpoint(id: string): Promise<boolean>;

@@ -71,6 +71,10 @@ export class DatabaseStorage implements IStorage {
     await db.update(organizations).set({ sandboxMode }).where(eq(organizations.id, id));
   }
 
+  async getAllOrganizations(): Promise<Organization[]> {
+    return await db.select().from(organizations);
+  }
+
   // User methods
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -176,6 +180,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(services).where(eq(services.orgId, orgId));
   }
 
+  async getAllServices(): Promise<Service[]> {
+    return await db.select().from(services);
+  }
+
   async createService(service: InsertService): Promise<Service> {
     const [created] = await db.insert(services).values(service).returning();
     return created;
@@ -201,6 +209,10 @@ export class DatabaseStorage implements IStorage {
 
   async getEndpointsByServiceId(serviceId: string): Promise<Endpoint[]> {
     return await db.select().from(endpoints).where(eq(endpoints.serviceId, serviceId));
+  }
+
+  async getAllEndpoints(): Promise<Endpoint[]> {
+    return await db.select().from(endpoints);
   }
 
   async getEndpointsByOrgId(orgId: string): Promise<Endpoint[]> {

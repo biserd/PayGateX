@@ -295,12 +295,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get all users with their organization and activity data
-      const users = await storage.getAllUsers();
+      // Batch fetch all data in parallel (eliminates N+1 queries)
+      const [users, allOrganizations, allServices, allEndpoints, allUsageRecords] = await Promise.all([
+        storage.getAllUsers(),
+        storage.getAllOrganizations(),
+        storage.getAllServices(),
+        storage.getAllEndpoints(),
+        storage.getAllUsageRecords()
+      ]);
       
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // Create lookup maps for O(1) access
+      const orgMap = new Map(allOrganizations.map(o => [o.id, o]));
+      const servicesByOrgId = new Map<string, typeof allServices>();
+      allServices.forEach(s => {
+        if (!servicesByOrgId.has(s.orgId)) servicesByOrgId.set(s.orgId, []);
+        servicesByOrgId.get(s.orgId)!.push(s);
+      });
+      const endpointsByServiceId = new Map<string, typeof allEndpoints>();
+      allEndpoints.forEach(e => {
+        if (!endpointsByServiceId.has(e.serviceId)) endpointsByServiceId.set(e.serviceId, []);
+        endpointsByServiceId.get(e.serviceId)!.push(e);
+      });
+      const usageByOrgId = new Map<string, typeof allUsageRecords>();
+      allUsageRecords.forEach(r => {
+        if (!usageByOrgId.has(r.orgId)) usageByOrgId.set(r.orgId, []);
+        usageByOrgId.get(r.orgId)!.push(r);
+      });
 
       // Calculate user metrics
       const userMetrics = {
@@ -309,22 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         newLast30Days: users.filter(u => u.createdAt && new Date(u.createdAt) >= thirtyDaysAgo).length,
       };
 
-      // Get all services and endpoints
-      const allServices = [];
-      const allEndpoints = [];
-      for (const user of users) {
-        const org = await storage.getOrganization(user.orgId);
-        if (org) {
-          const services = await storage.getServicesByOrgId(org.id);
-          allServices.push(...services);
-          for (const service of services) {
-            const endpoints = await storage.getEndpointsByServiceId(service.id);
-            allEndpoints.push(...endpoints);
-          }
-        }
-      }
-
-      // Service and endpoint metrics
+      // Service and endpoint metrics (already have all data)
       const serviceMetrics = {
         total: allServices.length,
         active: allServices.filter(s => s.isActive).length,
@@ -339,8 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         newLast30Days: allEndpoints.filter(e => e.createdAt && new Date(e.createdAt) >= thirtyDaysAgo).length,
       };
 
-      // Get usage statistics
-      const allUsageRecords = await storage.getAllUsageRecords();
+      // Usage metrics
       const usageMetrics = {
         totalRequests: allUsageRecords.length,
         paidRequests: allUsageRecords.filter(r => r.status === 'paid').length,
@@ -353,17 +361,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestsLast30Days: allUsageRecords.filter(r => r.createdAt && new Date(r.createdAt) >= thirtyDaysAgo).length,
       };
 
-      // Get detailed user activity
-      const userActivity = await Promise.all(users.map(async (user) => {
-        const org = await storage.getOrganization(user.orgId);
-        const services = org ? await storage.getServicesByOrgId(org.id) : [];
-        const endpoints = [];
-        for (const service of services) {
-          const eps = await storage.getEndpointsByServiceId(service.id);
-          endpoints.push(...eps);
-        }
+      // Build user activity using lookup maps (no additional queries)
+      const userActivity = users.map((user) => {
+        const org = orgMap.get(user.orgId);
+        const services = servicesByOrgId.get(user.orgId) || [];
+        const endpointsCount = services.reduce((sum, s) => {
+          const eps = endpointsByServiceId.get(s.id) || [];
+          return sum + eps.length;
+        }, 0);
         
-        const usageRecords = allUsageRecords.filter(r => r.orgId === user.orgId);
+        const usageRecords = usageByOrgId.get(user.orgId) || [];
         const lastActivity = usageRecords.length > 0 
           ? new Date(Math.max(...usageRecords.map(r => r.createdAt ? new Date(r.createdAt).getTime() : 0)))
           : null;
@@ -375,13 +382,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           orgName: org?.name || 'N/A',
           registeredAt: user.createdAt,
           servicesCreated: services.length,
-          endpointsCreated: endpoints.length,
+          endpointsCreated: endpointsCount,
           totalApiCalls: usageRecords.length,
           paidRequests: usageRecords.filter(r => r.status === 'paid').length,
           lastActivity: lastActivity,
           isActive: usageRecords.length > 0
         };
-      }));
+      });
 
       res.json({
         timestamp: new Date().toISOString(),
