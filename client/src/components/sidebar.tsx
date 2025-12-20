@@ -45,13 +45,13 @@ export function Sidebar() {
   };
 
   return (
-    <div className="w-64 bg-slate-900 text-white flex-shrink-0">
+    <div className="w-64 bg-white text-gray-900 flex-shrink-0 border-r border-gray-200">
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Coins className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold text-white">PayGate x402</span>
+          <span className="text-xl font-bold text-gray-900">PayGate x402</span>
         </div>
         
         <nav className="space-y-2">
@@ -75,16 +75,16 @@ export function Sidebar() {
         </nav>
       </div>
       
-      <div className="px-6 py-4 border-t border-slate-700 mt-auto">
+      <div className="px-6 py-4 border-t border-gray-200 mt-auto">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-medium text-white">
             <span>{user ? getInitials(user.username) : "U"}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-white">
+            <p className="text-sm font-medium truncate text-gray-900">
               {user?.username || "User"}
             </p>
-            <p className="text-xs text-gray-400 truncate">
+            <p className="text-xs text-gray-500 truncate">
               {user?.email || "No email provided"}
             </p>
           </div>
