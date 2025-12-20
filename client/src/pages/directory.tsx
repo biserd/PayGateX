@@ -14,7 +14,7 @@ import {
   CheckCircle,
   XCircle,
   ExternalLink,
-  Sparkles,
+  Coins,
   TrendingUp,
   Zap,
   Menu,
@@ -89,29 +89,19 @@ export default function Directory() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
-                           radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), 
-                           radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.15) 0%, transparent 50%)`
-        }} />
-      </div>
-
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
-      <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
                 x402 Directory
               </h1>
-              <p className="text-xs text-gray-400 font-medium hidden sm:block">Discover Payment-Enabled APIs</p>
+              <p className="text-xs text-gray-500 font-medium hidden sm:block">Discover Payment-Enabled APIs</p>
             </div>
           </div>
 
@@ -120,7 +110,7 @@ export default function Directory() {
             <Button
               variant="ghost"
               onClick={() => window.location.href = "/"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
               data-testid="nav-home"
             >
               Home
@@ -128,7 +118,7 @@ export default function Directory() {
             <Button
               variant="ghost"
               onClick={() => window.location.href = "/docs"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
               data-testid="nav-docs"
             >
               Documentation
@@ -136,7 +126,7 @@ export default function Directory() {
             <Button
               variant="ghost"
               onClick={() => window.location.href = "/release-notes"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
               data-testid="nav-release-notes"
             >
               Release Notes
@@ -144,14 +134,14 @@ export default function Directory() {
             <Button
               variant="ghost"
               onClick={() => window.location.href = "/contact"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
               data-testid="nav-contact"
             >
               Contact
             </Button>
             <Button
               onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-6 py-2.5 font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
               data-testid="button-login"
             >
               Sign In
@@ -162,7 +152,7 @@ export default function Directory() {
           <div className="flex items-center space-x-2 md:hidden">
             <Button
               onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm font-medium"
               data-testid="mobile-button-login-top"
             >
               Sign In
@@ -171,7 +161,7 @@ export default function Directory() {
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-300 hover:text-white hover:bg-white/10 p-2"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2"
               data-testid="mobile-menu-button"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -181,32 +171,32 @@ export default function Directory() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10">
+          <div className="md:hidden bg-white border-t border-gray-200">
             <div className="container mx-auto px-4 py-4 space-y-2">
               <button
                 onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
                 data-testid="mobile-nav-home"
               >
                 Home
               </button>
               <button
                 onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
                 data-testid="mobile-nav-docs"
               >
                 Documentation
               </button>
               <button
                 onClick={() => { window.location.href = "/release-notes"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
                 data-testid="mobile-nav-release-notes"
               >
                 Release Notes
               </button>
               <button
                 onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
                 data-testid="mobile-nav-contact"
               >
                 Contact
@@ -217,41 +207,41 @@ export default function Directory() {
       </header>
 
       {/* Hero Section */}
-      <div className="relative pt-12 pb-8 sm:pt-20 sm:pb-12">
+      <div className="pt-12 pb-8 sm:pt-20 sm:pb-12 bg-gradient-to-b from-white to-gray-50">
         <div className="container mx-auto px-4 sm:px-6 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Globe className="w-8 h-8 text-cyan-400" />
-            <Zap className="w-6 h-6 text-yellow-400" />
+            <Globe className="w-8 h-8 text-blue-600" />
+            <Zap className="w-6 h-6 text-yellow-500" />
           </div>
-          <h2 className="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-violet-200 via-cyan-200 to-blue-200 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-5xl font-bold mb-4 text-gray-900">
             Discover x402 APIs
           </h2>
-          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
             The first public directory of payment-enabled APIs. Find, explore, and integrate blockchain-powered services.
           </p>
 
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-8">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white">{services.length}</div>
-              <div className="text-sm text-gray-400">APIs Listed</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{services.length}</div>
+              <div className="text-sm text-gray-500">APIs Listed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white">{categories.length}</div>
-              <div className="text-sm text-gray-400">Categories</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{categories.length}</div>
+              <div className="text-sm text-gray-500">Categories</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white">{networks.length}</div>
-              <div className="text-sm text-gray-400">Networks</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{networks.length}</div>
+              <div className="text-sm text-gray-500">Networks</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="relative pb-8">
+      <div className="pb-8">
         <div className="container mx-auto px-4 sm:px-6">
-          <Card className="bg-slate-900/50 border-white/10 backdrop-blur-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm">
             <CardContent className="p-4 sm:p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Search */}
@@ -261,14 +251,14 @@ export default function Directory() {
                     placeholder="Search APIs..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-800/50 border-white/10 text-white"
+                    className="pl-10 bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900"
                     data-testid="input-search"
                   />
                 </div>
 
                 {/* Category Filter */}
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="bg-slate-800/50 border-white/10 text-white" data-testid="select-category">
+                  <SelectTrigger className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900" data-testid="select-category">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
@@ -281,7 +271,7 @@ export default function Directory() {
 
                 {/* Network Filter */}
                 <Select value={selectedNetwork} onValueChange={setSelectedNetwork}>
-                  <SelectTrigger className="bg-slate-800/50 border-white/10 text-white" data-testid="select-network">
+                  <SelectTrigger className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900" data-testid="select-network">
                     <SelectValue placeholder="All Networks" />
                   </SelectTrigger>
                   <SelectContent>
@@ -298,31 +288,31 @@ export default function Directory() {
       </div>
 
       {/* Services Grid */}
-      <div className="relative pb-20">
+      <div className="pb-20">
         <div className="container mx-auto px-4 sm:px-6">
           {servicesLoading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto"></div>
-              <p className="mt-4 text-gray-400">Loading services...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-500">Loading services...</p>
             </div>
           ) : filteredServices.length === 0 ? (
-            <Card className="bg-slate-900/50 border-white/10 backdrop-blur-xl p-12 text-center">
-              <XCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">No services found matching your criteria.</p>
+            <Card className="bg-white border border-gray-200 shadow-sm p-12 text-center">
+              <XCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 text-lg">No services found matching your criteria.</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredServices.map(service => (
                 <Card 
                   key={service.id} 
-                  className="bg-slate-900/50 border-white/10 backdrop-blur-xl hover:border-violet-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/10"
+                  className="bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300"
                   data-testid={`card-service-${service.id}`}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
-                      <CardTitle className="text-xl text-white">{service.name}</CardTitle>
+                      <CardTitle className="text-xl text-gray-900">{service.name}</CardTitle>
                       {service.isActive ? (
-                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                       ) : (
                         <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                       )}
@@ -333,41 +323,41 @@ export default function Directory() {
                           {service.category}
                         </Badge>
                       )}
-                      <Badge variant="outline" className="text-gray-300 border-gray-600">
+                      <Badge variant="outline" className="text-gray-600 border-gray-300">
                         {service.network || "base"}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-gray-400 mb-4 line-clamp-3">
+                    <CardDescription className="text-gray-600 mb-4 line-clamp-3">
                       {service.description || "No description available"}
                     </CardDescription>
                     
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-400 flex items-center gap-2">
+                        <span className="text-gray-600 flex items-center gap-2">
                           <DollarSign className="w-4 h-4" />
                           Price per call:
                         </span>
-                        <span className="text-white font-semibold">
+                        <span className="text-gray-900 font-semibold">
                           {formatPrice(service.price)}
                         </span>
                       </div>
                       
                       {service.responseTimeMs && (
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400 flex items-center gap-2">
+                          <span className="text-gray-600 flex items-center gap-2">
                             <Clock className="w-4 h-4" />
                             Response time:
                           </span>
-                          <span className="text-white">{service.responseTimeMs}ms</span>
+                          <span className="text-gray-900">{service.responseTimeMs}ms</span>
                         </div>
                       )}
 
-                      <div className="pt-3 border-t border-white/10">
+                      <div className="pt-3 border-t border-gray-200">
                         <Button
                           onClick={() => window.open(service.url, '_blank')}
-                          className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
                           data-testid={`button-visit-${service.id}`}
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
@@ -384,33 +374,33 @@ export default function Directory() {
       </div>
 
       {/* Footer */}
-      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+      <footer className="border-t border-gray-200 bg-white">
         <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-4 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Coins className="w-5 h-5 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold text-gray-900">
                 PayGate x402
               </span>
             </div>
             <div className="text-center md:text-right space-y-2">
               <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-                <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
                   Privacy Policy
                 </a>
-                <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
+                <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-about">
                   About
                 </a>
-                <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
+                <a href="/faq" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-faq">
                   FAQ
                 </a>
-                <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
                   Terms of Service
                 </a>
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-500">
                 © 2025 PayGate x402. Built with HTTP 402 protocol.
               </p>
               <p className="text-sm text-gray-500">
