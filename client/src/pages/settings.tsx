@@ -59,6 +59,7 @@ export default function Settings() {
   // Get real user settings from API with default values
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/settings"],
+    staleTime: Infinity,
   });
 
   // Provide default values to prevent TypeScript errors
@@ -89,6 +90,7 @@ export default function Settings() {
   // Get sandbox mode from organization API
   const { data: sandboxData, isLoading: sandboxLoading } = useQuery({
     queryKey: ["/api/organization/sandbox"],
+    staleTime: Infinity,
   });
 
   const updateSettingsMutation = useMutation({
@@ -173,10 +175,6 @@ export default function Settings() {
       }
     });
   };
-
-  if (isLoading) {
-    return <div className="p-8">Loading settings...</div>;
-  }
 
   return (
     <div className="min-h-screen flex bg-background-light">
