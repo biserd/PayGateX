@@ -48,7 +48,7 @@ export function Sidebar() {
     <div className="w-64 bg-slate-900 text-white flex-shrink-0">
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Coins className="w-4 h-4 text-white" />
           </div>
           <span className="text-xl font-bold text-white">PayGate x402</span>
@@ -77,7 +77,7 @@ export function Sidebar() {
       
       <div className="px-6 py-4 border-t border-slate-700 mt-auto">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-sm font-medium text-white">
+          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-medium text-white">
             <span>{user ? getInitials(user.username) : "U"}</span>
           </div>
           <div className="flex-1 min-w-0">
