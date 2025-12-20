@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSEO } from "@/hooks/use-seo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Footer } from "@/components/Footer";
 import { CheckCircle, Shield, Zap, DollarSign, Globe, Users, ArrowRight, Coins, TrendingUp, Lock, Menu, X, Search, BarChart3, Webhook } from "lucide-react";
 
 export default function Landing() {
@@ -644,42 +645,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-12 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Coins className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">PayGate x402</span>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
-              <a href="/privacy" className="hover:text-blue-600 transition-colors" data-testid="link-privacy">
-                Privacy
-              </a>
-              <a href="/terms" className="hover:text-blue-600 transition-colors" data-testid="link-terms">
-                Terms
-              </a>
-              <a href="/faq" className="hover:text-blue-600 transition-colors" data-testid="link-faq-footer">
-                FAQ
-              </a>
-              <a href="/contact" className="hover:text-blue-600 transition-colors" data-testid="link-contact-footer">
-                Contact
-              </a>
-              <a href="/docs" className="hover:text-blue-600 transition-colors" data-testid="link-docs-footer">
-                Documentation
-              </a>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-            <p>&copy; {new Date().getFullYear()} PayGate x402. API monetization made simple.</p>
-            <p className="mt-2">hello@paygate402.com</p>
-          </div>
-        </div>
-      </footer>
+      <Footer email="hello@paygate402.com" />
     </div>
   );
 }

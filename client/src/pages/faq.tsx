@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 import { Coins, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/use-seo";
 import {
@@ -280,43 +281,7 @@ export default function FAQ() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="container mx-auto px-6 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-4 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Coins className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-gray-900">
-                PayGate x402
-              </span>
-            </div>
-            <div className="text-center md:text-right space-y-2">
-              <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-                <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
-                  Privacy Policy
-                </a>
-                <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-about">
-                  About
-                </a>
-                <a href="/faq" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-faq">
-                  FAQ
-                </a>
-                <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
-                  Terms of Service
-                </a>
-              </div>
-              <p className="text-gray-500">
-                © 2025 PayGate x402. Built with HTTP 402 protocol.
-              </p>
-              <p className="text-sm text-gray-500">
-                Version 1.3.0
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer showAbout={true} footerText="Built with HTTP 402 protocol." version="1.3.0" showVersion={true} />
     </div>
   );
 }
