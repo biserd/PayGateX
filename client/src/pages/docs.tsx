@@ -216,9 +216,6 @@ export default function DocsPage() {
               <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-home">
                 Home
               </a>
-              <a href="/directory" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-directory">
-                Directory
-              </a>
               <a href="/release-notes" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-release-notes">
                 Release Notes
               </a>
@@ -253,7 +250,6 @@ export default function DocsPage() {
             <div className="md:hidden border-t border-gray-200 bg-white">
               <nav className="container mx-auto px-4 py-4 space-y-2">
                 <a href="/" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-home">Home</a>
-                <a href="/directory" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-directory">Directory</a>
                 <a href="/release-notes" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-release-notes">Release Notes</a>
                 <a href="/contact" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-contact">Contact</a>
               </nav>

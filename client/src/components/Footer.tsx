@@ -22,6 +22,7 @@ export function Footer({
   showAbout = false
 }: FooterProps) {
   const defaultLinks: FooterLink[] = [
+    { href: "/directory", label: "Directory", testId: "link-directory-footer" },
     { href: "/privacy", label: "Privacy Policy", testId: "link-privacy" },
     ...(showAbout ? [{ href: "/about", label: "About", testId: "link-about" }] : []),
     { href: "/faq", label: "FAQ", testId: "link-faq-footer" },

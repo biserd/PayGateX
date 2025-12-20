@@ -41,14 +41,6 @@ export default function About() {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => window.location.href = "/directory"}
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              data-testid="nav-directory"
-            >
-              🌐 Directory
-            </Button>
-            <Button
-              variant="ghost"
               onClick={() => window.location.href = "/docs"}
               className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
               data-testid="nav-docs"
@@ -103,13 +95,6 @@ export default function About() {
                 data-testid="mobile-nav-home"
               >
                 Home
-              </button>
-              <button
-                onClick={() => { window.location.href = "/directory"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
-                data-testid="mobile-nav-directory"
-              >
-                🌐 Directory
               </button>
               <button
                 onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}

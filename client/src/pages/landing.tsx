@@ -30,9 +30,6 @@ export default function Landing() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="/directory" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-directory">
-              Directory
-            </a>
             <a href="/docs" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-docs">
               Docs
             </a>
@@ -69,7 +66,6 @@ export default function Landing() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white">
             <nav className="container mx-auto px-4 py-4 space-y-2">
-              <a href="/directory" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-directory">Directory</a>
               <a href="/docs" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-docs">Docs</a>
               <a href="/release-notes" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-release-notes">Release Notes</a>
               <a href="/contact" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-contact">Contact</a>
@@ -631,15 +627,6 @@ export default function Landing() {
             >
               Start Monetizing
               <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => window.location.href = "/directory"}
-              className="border-white text-white hover:bg-blue-700 px-8 py-3 text-lg font-medium"
-              data-testid="button-cta-directory"
-            >
-              Explore the Directory
             </Button>
           </div>
         </div>
