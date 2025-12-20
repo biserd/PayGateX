@@ -354,12 +354,12 @@ export default function ReleaseNotes() {
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer" data-testid="logo-home">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Coins className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">PayGate x402</span>
-          </div>
+          </a>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
