@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Sparkles, Menu, X } from "lucide-react";
+import { Coins, Menu, X } from "lucide-react";
 import { docsData } from "@/docs/docsData";
 import { DocsSidebar } from "@/components/DocsSidebar";
 import { useSEO } from "@/hooks/use-seo";
@@ -38,7 +38,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.startsWith('### ')) {
         const headerText = trimmed.slice(4);
         return (
-          <h3 key={index} className="text-xl font-semibold text-white mt-8 mb-4 first:mt-0">
+          <h3 key={index} className="text-xl font-semibold text-gray-900 mt-8 mb-4 first:mt-0">
             {headerText}
           </h3>
         );
@@ -47,7 +47,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.startsWith('## ')) {
         const headerText = trimmed.slice(3);
         return (
-          <h2 key={index} className="text-2xl font-bold text-white mt-10 mb-6 first:mt-0">
+          <h2 key={index} className="text-2xl font-bold text-gray-900 mt-10 mb-6 first:mt-0">
             {headerText}
           </h2>
         );
@@ -56,7 +56,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.startsWith('# ')) {
         const headerText = trimmed.slice(2);
         return (
-          <h1 key={index} className="text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mt-12 mb-8 first:mt-0">
+          <h1 key={index} className="text-3xl font-bold text-gray-900 mt-12 mb-8 first:mt-0">
             {headerText}
           </h1>
         );
@@ -68,7 +68,7 @@ function MarkdownContent({ content }: { content: string }) {
         const language = trimmed.slice(3) || 'text';
         return (
           <div key={index} className="my-6">
-            <pre className="bg-slate-900/80 border border-white/10 rounded-lg p-4 overflow-x-auto backdrop-blur-sm">
+            <pre className="bg-gray-900 border border-gray-200 rounded-lg p-4 overflow-x-auto">
               <code className={`language-${language} text-sm text-green-400`}>
                 {codeContent}
               </code>
@@ -86,7 +86,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.startsWith('> ')) {
         const quoteText = trimmed.slice(2);
         return (
-          <blockquote key={index} className="border-l-4 border-violet-500/50 pl-6 py-3 my-6 bg-violet-500/5 backdrop-blur-sm rounded-r-lg italic text-gray-300">
+          <blockquote key={index} className="border-l-4 border-blue-500 pl-6 py-3 my-6 bg-blue-50 rounded-r-lg italic text-gray-700">
             {quoteText}
           </blockquote>
         );
@@ -96,7 +96,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.match(/^[\d]+\.\s/)) {
         const listText = trimmed.replace(/^[\d]+\.\s/, '');
         return (
-          <li key={index} className="mb-2 text-gray-300 ml-6">
+          <li key={index} className="mb-2 text-gray-600 ml-6">
             {listText}
           </li>
         );
@@ -105,7 +105,7 @@ function MarkdownContent({ content }: { content: string }) {
       if (trimmed.startsWith('- ')) {
         const listText = trimmed.slice(2);
         return (
-          <li key={index} className="mb-2 text-gray-300 ml-6 list-disc">
+          <li key={index} className="mb-2 text-gray-600 ml-6 list-disc">
             {listText}
           </li>
         );
@@ -113,14 +113,14 @@ function MarkdownContent({ content }: { content: string }) {
       
       // Bold text, code inline, and links
       let processedText = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      processedText = processedText.replace(/`([^`]+)`/g, '<code class="bg-slate-800 px-2 py-1 rounded text-sm font-mono text-cyan-300 border border-white/10">$1</code>');
-      processedText = processedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50">$1</a>');
+      processedText = processedText.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-900 border border-gray-200">$1</code>');
+      processedText = processedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 transition-colors underline">$1</a>');
 
       // Regular paragraph
       return (
         <p 
           key={index} 
-          className="mb-4 text-gray-300 leading-relaxed"
+          className="mb-4 text-gray-600 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: processedText }}
         />
       );
@@ -134,25 +134,25 @@ function MarkdownContent({ content }: { content: string }) {
 function DocsHomepage() {
   return (
     <div className="py-12">
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6">
+      <h1 className="text-4xl font-bold text-gray-900 mb-6">
         PayGate x402 Documentation
       </h1>
-      <p className="text-xl text-gray-300 mb-12">
+      <p className="text-xl text-gray-600 mb-12">
         Complete guide to implementing API monetization with the x402 payment protocol
       </p>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {docsData.map((section) => (
-          <div key={section.slug} className="bg-slate-900/50 border border-white/10 backdrop-blur-sm rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-3">{section.title}</h3>
-            <p className="text-gray-300 text-sm mb-4">{section.description}</p>
+          <div key={section.slug} className="bg-white border border-gray-200 shadow-sm rounded-lg p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">{section.title}</h3>
+            <p className="text-gray-600 text-sm mb-4">{section.description}</p>
             <div className="space-y-2">
               {section.pages.slice(0, 3).map((page) => (
                 <Button
                   key={page.slug}
                   asChild
                   variant="ghost"
-                  className="w-full justify-start p-2 text-left text-sm text-gray-300 hover:bg-slate-800/50 hover:text-white"
+                  className="w-full justify-start p-2 text-left text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 >
                   <Link href={`/docs/${section.slug}/${page.slug}`}>
                     {page.title}
@@ -198,127 +198,63 @@ export default function DocsPage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     
     return (
-      <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
-                             radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), 
-                             radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.15) 0%, transparent 50%)`
-          }} />
-        </div>
-        
+      <div className="min-h-screen bg-white text-gray-900">
         {/* Header */}
-        <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-          <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
+        <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+          <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Coins className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
-                <p className="text-xs text-gray-400 font-medium hidden sm:block">Developer Documentation</p>
-              </div>
+              <span className="text-xl font-bold text-gray-900">PayGate x402</span>
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                onClick={() => window.location.href = "/"}
-                className="text-gray-300 hover:text-white hover:bg-white/10"
-                data-testid="nav-home"
-              >
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-home">
                 Home
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => window.location.href = "/directory"}
-                className="text-gray-300 hover:text-white hover:bg-white/10"
-                data-testid="nav-directory"
-              >
-                🌐 Directory
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => window.location.href = "/release-notes"}
-                className="text-gray-300 hover:text-white hover:bg-white/10"
-                data-testid="nav-release-notes"
-              >
+              </a>
+              <a href="/directory" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-directory">
+                Directory
+              </a>
+              <a href="/release-notes" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-release-notes">
                 Release Notes
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => window.location.href = "/contact"}
-                className="text-gray-300 hover:text-white hover:bg-white/10"
-                data-testid="nav-contact"
-              >
+              </a>
+              <a href="/contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-contact">
                 Contact
-              </Button>
-              <Button 
-                onClick={() => window.location.href = "/auth"}
-                className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
-                data-testid="button-login"
-              >
-                Sign In
-              </Button>
-            </div>
+              </a>
+            </nav>
 
-            {/* Mobile Menu Button */}
-            <div className="flex items-center space-x-2 md:hidden">
-              <Button
-                onClick={() => window.location.href = "/auth"}
-                className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
-                data-testid="mobile-button-login-top"
-              >
-                Sign In
-              </Button>
+            <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-300 hover:text-white hover:bg-white/10 p-2"
+                className="md:hidden text-gray-600"
                 data-testid="mobile-menu-button"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+              
+              <Button 
+                onClick={() => window.location.href = "/auth"}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
+                data-testid="button-login"
+              >
+                Sign In
               </Button>
             </div>
           </div>
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10">
-              <div className="container mx-auto px-4 py-4 space-y-2">
-                <button
-                  onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                  data-testid="mobile-nav-home"
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => { window.location.href = "/directory"; setMobileMenuOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                  data-testid="mobile-nav-directory"
-                >
-                  🌐 Directory
-                </button>
-                <button
-                  onClick={() => { window.location.href = "/release-notes"; setMobileMenuOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                  data-testid="mobile-nav-release-notes"
-                >
-                  Release Notes
-                </button>
-                <button
-                  onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                  data-testid="mobile-nav-contact"
-                >
-                  Contact
-                </button>
-              </div>
+            <div className="md:hidden border-t border-gray-200 bg-white">
+              <nav className="container mx-auto px-4 py-4 space-y-2">
+                <a href="/" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-home">Home</a>
+                <a href="/directory" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-directory">Directory</a>
+                <a href="/release-notes" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-release-notes">Release Notes</a>
+                <a href="/contact" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-contact">Contact</a>
+              </nav>
             </div>
           )}
         </header>
@@ -333,37 +269,26 @@ export default function DocsPage() {
         </div>
 
         {/* Footer */}
-        <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+        <footer className="border-t border-gray-200 bg-white">
           <div className="container mx-auto px-6 py-12">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center space-x-4 mb-6 md:mb-0">
-                <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                  <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex items-center space-x-3 mb-6 md:mb-0">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Coins className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  PayGate x402
-                </span>
+                <span className="text-xl font-bold text-gray-900">PayGate x402</span>
               </div>
               <div className="text-center md:text-right space-y-2">
                 <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-                  <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                  <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
                     Privacy Policy
                   </a>
-                  <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
-                    About
-                  </a>
-                  <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
-                    FAQ
-                  </a>
-                  <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                  <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
                     Terms of Service
                   </a>
                 </div>
-                <p className="text-gray-400">
-                  © 2025 PayGate x402. Built with HTTP 402 protocol.
-                </p>
-                <p className="text-sm text-gray-500">
-                  Version 1.3.0
+                <p className="text-gray-500">
+                  © 2025 PayGate x402. API monetization made simple.
                 </p>
               </div>
             </div>
@@ -378,13 +303,13 @@ export default function DocsPage() {
     return (
       <LayoutWrapper>
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Page Not Found
           </h1>
-          <p className="text-gray-300 mb-6">
+          <p className="text-gray-600 mb-6">
             The documentation page you're looking for doesn't exist.
           </p>
-          <Button asChild data-testid="back-to-docs" className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500">
+          <Button asChild data-testid="back-to-docs" className="bg-blue-600 hover:bg-blue-700">
             <Link href="/docs">
               Back to Documentation
             </Link>
@@ -410,35 +335,35 @@ export default function DocsPage() {
     <LayoutWrapper>
       <div data-testid="docs-page">
         {/* Breadcrumb */}
-        <div className="flex items-center space-x-2 text-sm text-gray-400 mb-6" data-testid="docs-breadcrumb">
-          <Link href="/docs" className="hover:text-violet-400 transition-colors">
+        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-6" data-testid="docs-breadcrumb">
+          <Link href="/docs" className="hover:text-blue-600 transition-colors">
             Docs
           </Link>
           <span>/</span>
           <Link 
             href={`/docs/${section.slug}`}
-            className="hover:text-violet-400 transition-colors"
+            className="hover:text-blue-600 transition-colors"
           >
             {section.title}
           </Link>
           <span>/</span>
-          <span className="text-white font-medium">{page.title}</span>
+          <span className="text-gray-900 font-medium">{page.title}</span>
         </div>
 
         {/* Page Header */}
         <div className="mb-8">
-          <Badge variant="secondary" className="mb-3 bg-violet-500/20 text-violet-300 border-violet-500/30" data-testid="section-badge">
+          <Badge variant="secondary" className="mb-3 bg-blue-100 text-blue-700 border-0" data-testid="section-badge">
             {section.title}
           </Badge>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-4" data-testid="page-title">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4" data-testid="page-title">
             {page.title}
           </h1>
-          <p className="text-xl text-gray-300" data-testid="page-summary">
+          <p className="text-xl text-gray-600" data-testid="page-summary">
             {page.summary}
           </p>
         </div>
 
-        <Separator className="mb-8 bg-white/10" />
+        <Separator className="mb-8 bg-gray-200" />
 
         {/* Content */}
         <div className="prose-custom max-w-none" data-testid="page-content">
@@ -446,7 +371,7 @@ export default function DocsPage() {
         </div>
 
         {/* Footer Navigation */}
-        <div className="mt-16 pt-8 border-t border-white/10">
+        <div className="mt-16 pt-8 border-t border-gray-200">
           <div className="flex justify-between">
             <div>
               {/* Previous page logic would go here */}

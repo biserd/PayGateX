@@ -4,7 +4,7 @@ import { useSEO } from "@/hooks/use-seo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Sparkles, Zap, Shield, Users, ChevronRight, Webhook, Key, Globe, Menu, X } from "lucide-react";
+import { Coins, Zap, Shield, Users, ChevronRight, Webhook, Key, Globe, Menu, X } from "lucide-react";
 
 interface ReleaseData {
   id: string;
@@ -35,14 +35,14 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
     badge: {
       text: "Latest",
       variant: "secondary",
-      className: "bg-green-500/20 text-green-300 border-green-500/30"
+      className: "bg-green-100 text-green-700 border-0"
     },
     description: "🌐 Revolutionary public discovery platform - the \"Etherscan for x402\" - where developers and AI agents discover payment-enabled APIs",
     sections: [
       {
         title: "Public Service Discovery",
         icon: Globe,
-        iconColor: "text-cyan-400",
+        iconColor: "text-blue-600",
         items: [
           "Public directory accessible to all developers and AI agents (no authentication required)",
           "Multi-source aggregation from Coinbase Bazaar and x402 Index",
@@ -54,7 +54,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "Advanced Search & Filtering",
         icon: Zap,
-        iconColor: "text-violet-400",
+        iconColor: "text-blue-600",
         items: [
           "Full-text search across service names and descriptions",
           "Category filtering (AI, Weather, Finance, Media, News, and more)",
@@ -65,8 +65,8 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       },
       {
         title: "Automated Data Collection",
-        icon: Sparkles,
-        iconColor: "text-amber-400",
+        icon: Zap,
+        iconColor: "text-orange-600",
         items: [
           "Hourly automated scraper refreshes directory data",
           "Resilient multi-source fetching with timeout protection",
@@ -86,14 +86,14 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
     badge: {
       text: "Stable",
       variant: "outline",
-      className: "border-white/20 text-gray-300"
+      className: "border-gray-300 text-gray-700"
     },
     description: "🔧 Production-ready tools for API providers to manage and monetize their endpoints",
     sections: [
       {
         title: "Webhook System",
         icon: Webhook,
-        iconColor: "text-purple-400",
+        iconColor: "text-purple-600",
         items: [
           "HMAC-SHA256 cryptographic signing for secure webhook verification",
           "Exponential backoff retry with 5 attempts (1s, 2s, 4s, 8s, 16s intervals)",
@@ -106,7 +106,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "API Key Management",
         icon: Key,
-        iconColor: "text-amber-400",
+        iconColor: "text-amber-600",
         items: [
           "High-entropy key generation (pk_live_*) with 256-bit randomness",
           "SHA-256 hashing - keys stored securely, plaintext never persisted",
@@ -120,7 +120,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "Security Enhancements",
         icon: Shield,
-        iconColor: "text-green-400",
+        iconColor: "text-green-600",
         items: [
           "Organization ownership validation before webhook/key operations",
           "HMAC-SHA256 payload signing for webhooks",
@@ -139,14 +139,14 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
     badge: {
       text: "Stable",
       variant: "outline",
-      className: "border-white/20 text-gray-300"
+      className: "border-gray-300 text-gray-700"
     },
     description: "🤖 PayGate x402 now supports AI agent integrations through Google Cloud's Agent Payments Protocol",
     sections: [
       {
         title: "AP2 Agent Support",
         icon: Users,
-        iconColor: "text-violet-400",
+        iconColor: "text-blue-600",
         items: [
           "Support for AP2-Agent-ID and AP2-Mandate-Hash headers",
           "Enhanced 402 Payment Required responses with agent-parseable metadata", 
@@ -156,7 +156,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "Cost Estimation API",
         icon: Zap,
-        iconColor: "text-cyan-400",
+        iconColor: "text-blue-600",
         items: [
           "GET /api/v1/pricing/estimate - Single endpoint cost estimation",
           "POST /api/v1/pricing/batch-estimate - Bulk cost estimation for agent planning",
@@ -166,7 +166,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "Platform Versioning & Capabilities",
         icon: Shield,
-        iconColor: "text-green-400",
+        iconColor: "text-green-600",
         items: [
           "GET /api/version - Comprehensive platform capability discovery",
           "Feature detection API with ap2Compatible: true",
@@ -184,14 +184,14 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
     badge: {
       text: "Stable",
       variant: "outline",
-      className: "border-white/20 text-gray-300"
+      className: "border-gray-300 text-gray-700"
     },
     description: "🚀 Complete x402 payment protocol implementation with comprehensive SaaS platform",
     sections: [
       {
         title: "Core Features",
         icon: Shield,
-        iconColor: "text-blue-400",
+        iconColor: "text-blue-600",
         items: [
           "x402 Payment Protocol Implementation",
           "Multi-tenant Organization Support", 
@@ -202,7 +202,7 @@ const RELEASE_DATA: (ReleaseData | { id: string; type: 'roadmap' })[] = [
       {
         title: "Payment Features", 
         icon: Zap,
-        iconColor: "text-green-400",
+        iconColor: "text-green-600",
         items: [
           "Base Network USDC Integration",
           "Configurable Escrow System",
@@ -257,21 +257,21 @@ export default function ReleaseNotes() {
   const renderContent = () => {
     if (isRoadmap) {
       return (
-        <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm">
+        <Card className="bg-white border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-3xl text-white flex items-center">
-              <Sparkles className="w-6 h-6 mr-3 text-violet-400" />
+            <CardTitle className="text-3xl text-gray-900 flex items-center">
+              <Zap className="w-6 h-6 mr-3 text-blue-600" />
               Upcoming Features
             </CardTitle>
-            <CardDescription className="text-lg text-gray-300">
+            <CardDescription className="text-lg text-gray-600">
               Features planned for future releases
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {ROADMAP_ITEMS.map((item, index) => (
-                <div key={index} className="flex items-center text-gray-300">
-                  <span className="w-2 h-2 bg-blue-400 rounded-full mr-4 flex-shrink-0 mt-1"></span>
+                <div key={index} className="flex items-center text-gray-600">
+                  <span className="w-2 h-2 bg-blue-600 rounded-full mr-4 flex-shrink-0 mt-1"></span>
                   <span className="text-lg">{item}</span>
                 </div>
               ))}
@@ -285,7 +285,7 @@ export default function ReleaseNotes() {
     const release = selectedData;
 
     return (
-      <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm" data-testid={`release-${release.id}`}>
+      <Card className="bg-white border border-gray-200" data-testid={`release-${release.id}`}>
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
@@ -294,22 +294,22 @@ export default function ReleaseNotes() {
                   variant={release.badge.variant}
                   className={release.badge.className}
                 >
-                  {release.badge.text === "Latest" && <Sparkles className="w-3 h-3 mr-1" />}
+                  {release.badge.text === "Latest" && <Zap className="w-3 h-3 mr-1" />}
                   {release.badge.text}
                 </Badge>
               )}
-              <CardTitle className="text-3xl text-white">Version {release.version}</CardTitle>
+              <CardTitle className="text-3xl text-gray-900">Version {release.version}</CardTitle>
             </div>
-            <span className="text-sm text-gray-400">{release.date}</span>
+            <span className="text-sm text-gray-500">{release.date}</span>
           </div>
-          <CardDescription className="text-lg text-gray-300">
+          <CardDescription className="text-lg text-gray-600">
             {release.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
           {release.sections.map((section, index) => (
             <div key={index}>
-              <h4 className="text-xl font-semibold text-white mb-4 flex items-center">
+              <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                 <section.icon className={`w-5 h-5 mr-3 ${section.iconColor}`} />
                 {section.title}
               </h4>
@@ -317,10 +317,10 @@ export default function ReleaseNotes() {
                 {section.items.map((item, itemIndex) => (
                   <li key={itemIndex} className="flex items-start">
                     <span className={`w-2 h-2 ${section.iconColor.replace('text-', 'bg-')} rounded-full mt-2 mr-4 flex-shrink-0`}></span>
-                    <span className="text-gray-300 text-base leading-relaxed">
+                    <span className="text-gray-600 text-base leading-relaxed">
                       {item.includes('GET /') || item.includes('POST /') ? (
                         <>
-                          <code className="bg-slate-800 px-2 py-1 rounded text-sm text-cyan-300">
+                          <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-900 border border-gray-200">
                             {item.split(' - ')[0]}
                           </code>
                           {item.split(' - ')[1] && ` - ${item.split(' - ')[1]}`}
@@ -336,9 +336,9 @@ export default function ReleaseNotes() {
           ))}
 
           {release.highlight && (
-            <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-violet-500/20">
-              <p className="text-base text-gray-300">
-                <strong className="text-violet-300">Strategic Impact:</strong> {release.highlight.replace('Strategic Impact: ', '')}
+            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-base text-gray-600">
+                <strong className="text-blue-700">Strategic Impact:</strong> {release.highlight.replace('Strategic Impact: ', '')}
               </p>
             </div>
           )}
@@ -348,127 +348,63 @@ export default function ReleaseNotes() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
-                           radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), 
-                           radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.15) 0%, transparent 50%)`
-        }} />
-      </div>
-      
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
-      <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Coins className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
-              <p className="text-xs text-gray-400 font-medium hidden sm:block">Release Notes</p>
-            </div>
+            <span className="text-xl font-bold text-gray-900">PayGate x402</span>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-home"
-            >
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-home">
               Home
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/directory"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-directory"
-            >
-              🌐 Directory
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/docs"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-docs"
-            >
-              Documentation
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/contact"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-contact"
-            >
+            </a>
+            <a href="/directory" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-directory">
+              Directory
+            </a>
+            <a href="/docs" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-docs">
+              Docs
+            </a>
+            <a href="/contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-contact">
               Contact
-            </Button>
-            <Button 
-              onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
-              data-testid="button-login"
-            >
-              Sign In
-            </Button>
-          </div>
+            </a>
+          </nav>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <Button
-              onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
-              data-testid="mobile-button-login-top"
-            >
-              Sign In
-            </Button>
+          <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-300 hover:text-white hover:bg-white/10 p-2"
+              className="md:hidden text-gray-600"
               data-testid="mobile-menu-button"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+            
+            <Button 
+              onClick={() => window.location.href = "/auth"}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
+              data-testid="button-login"
+            >
+              Sign In
             </Button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10">
-            <div className="container mx-auto px-4 py-4 space-y-2">
-              <button
-                onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-home"
-              >
-                Home
-              </button>
-              <button
-                onClick={() => { window.location.href = "/directory"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-directory"
-              >
-                🌐 Directory
-              </button>
-              <button
-                onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-docs"
-              >
-                Documentation
-              </button>
-              <button
-                onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-contact"
-              >
-                Contact
-              </button>
-            </div>
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <nav className="container mx-auto px-4 py-4 space-y-2">
+              <a href="/" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-home">Home</a>
+              <a href="/directory" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-directory">Directory</a>
+              <a href="/docs" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-docs">Docs</a>
+              <a href="/contact" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-contact">Contact</a>
+            </nav>
           </div>
         )}
       </header>
@@ -478,10 +414,10 @@ export default function ReleaseNotes() {
         <div className="container mx-auto px-6 py-12">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold mb-6 text-gray-900">
               Release Notes
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Stay up to date with the latest PayGate x402 features, improvements, and updates
             </p>
           </div>
@@ -490,9 +426,9 @@ export default function ReleaseNotes() {
           <div className="flex gap-8 max-w-7xl mx-auto">
             {/* Left Sidebar - Version Navigation */}
             <div className="w-80 flex-shrink-0">
-              <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm sticky top-8 h-fit">
+              <Card className="bg-white border border-gray-200 shadow-sm sticky top-8 h-fit">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg text-white">Versions</CardTitle>
+                  <CardTitle className="text-lg text-gray-900">Versions</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="space-y-1 p-4">
@@ -502,8 +438,8 @@ export default function ReleaseNotes() {
                           onClick={() => setSelectedVersion(item.id)}
                           className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center justify-between group ${
                             selectedVersion === item.id
-                              ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-violet-500/30 text-white'
-                              : 'hover:bg-slate-800/50 text-gray-300 hover:text-white'
+                              ? 'bg-blue-50 border border-blue-200 text-gray-900'
+                              : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900'
                           }`}
                           data-testid={`version-nav-${item.id}`}
                         >
@@ -511,17 +447,17 @@ export default function ReleaseNotes() {
                             {item.id === 'roadmap' ? (
                               <div>
                                 <div className="font-medium">Roadmap</div>
-                                <div className="text-xs text-gray-400">Upcoming Features</div>
+                                <div className="text-xs text-gray-500">Upcoming Features</div>
                               </div>
                             ) : (
                               'type' in item ? null : (
                                 <div>
                                   <div className="font-medium">v{(item as ReleaseData).version}</div>
-                                  <div className="text-xs text-gray-400">{(item as ReleaseData).date}</div>
+                                  <div className="text-xs text-gray-500">{(item as ReleaseData).date}</div>
                                   {(item as ReleaseData).badge?.text === "Latest" && (
                                     <Badge 
                                       variant="secondary" 
-                                      className="text-xs mt-1 bg-green-500/20 text-green-300 border-green-500/30"
+                                      className="text-xs mt-1 bg-green-100 text-green-700 border-0"
                                     >
                                       {(item as ReleaseData).badge.text}
                                     </Badge>
@@ -551,17 +487,17 @@ export default function ReleaseNotes() {
                 <Button
                   onClick={() => window.location.href = "/docs"}
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   data-testid="button-docs"
                 >
-                  View Documentation
+                  ← Documentation
                 </Button>
                 <Button
-                  onClick={() => window.location.href = "/auth"}
-                  className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
-                  data-testid="button-get-started"
+                  onClick={() => window.location.href = "/contact"}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  data-testid="button-contact"
                 >
-                  Get Started
+                  Contact Support →
                 </Button>
               </div>
             </div>
@@ -570,37 +506,26 @@ export default function ReleaseNotes() {
       </main>
 
       {/* Footer */}
-      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+      <footer className="border-t border-gray-200 bg-white mt-16">
         <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-4 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                <Sparkles className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3 mb-6 md:mb-0">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Coins className="w-5 h-5 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                PayGate x402
-              </span>
+              <span className="text-xl font-bold text-gray-900">PayGate x402</span>
             </div>
             <div className="text-center md:text-right space-y-2">
               <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-                <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
                   Privacy Policy
                 </a>
-                <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
-                  About
-                </a>
-                <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
-                  FAQ
-                </a>
-                <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
                   Terms of Service
                 </a>
               </div>
-              <p className="text-gray-400">
-                © 2025 PayGate x402. Built with HTTP 402 protocol.
-              </p>
-              <p className="text-sm text-gray-500">
-                Version 1.3.0
+              <p className="text-gray-500">
+                © 2025 PayGate x402. API monetization made simple.
               </p>
             </div>
           </div>

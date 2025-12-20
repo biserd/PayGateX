@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Sparkles, Mail, Send, Menu, X } from "lucide-react";
+import { ArrowLeft, Coins, Mail, Send, Menu, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useSEO } from "@/hooks/use-seo";
@@ -84,163 +84,98 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 via-blue-950/10 to-cyan-950/20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
-                           radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%), 
-                           radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.15) 0%, transparent 50%)`
-        }} />
-      </div>
-      
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
-      <header className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl blur opacity-50 animate-pulse" />
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Coins className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">PayGate x402</h1>
-              <p className="text-xs text-gray-400 font-medium hidden sm:block">Contact Us</p>
-            </div>
+            <span className="text-xl font-bold text-gray-900">PayGate x402</span>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-home"
-            >
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-home">
               Home
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/directory"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-directory"
-            >
-              🌐 Directory
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/docs"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-docs"
-            >
-              Documentation
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/contact"}
-              className="text-gray-300 hover:text-white hover:bg-white/10"
-              data-testid="nav-contact"
-            >
-              Contact
-            </Button>
-            <Button 
-              onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-2.5 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25"
-              data-testid="button-login"
-            >
-              Sign In
-            </Button>
-          </div>
+            </a>
+            <a href="/directory" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-directory">
+              Directory
+            </a>
+            <a href="/docs" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-docs">
+              Docs
+            </a>
+            <a href="/release-notes" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-release-notes">
+              Release Notes
+            </a>
+          </nav>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <Button
-              onClick={() => window.location.href = "/auth"}
-              className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 px-3 py-2 text-sm"
-              data-testid="mobile-button-login-top"
-            >
-              Sign In
-            </Button>
+          <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-300 hover:text-white hover:bg-white/10 p-2"
+              className="md:hidden text-gray-600"
               data-testid="mobile-menu-button"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+            
+            <Button 
+              onClick={() => window.location.href = "/auth"}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
+              data-testid="button-login"
+            >
+              Sign In
             </Button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10">
-            <div className="container mx-auto px-4 py-4 space-y-2">
-              <button
-                onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-home"
-              >
-                Home
-              </button>
-              <button
-                onClick={() => { window.location.href = "/directory"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-directory"
-              >
-                🌐 Directory
-              </button>
-              <button
-                onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-docs"
-              >
-                Documentation
-              </button>
-              <button
-                onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
-                data-testid="mobile-nav-contact"
-              >
-                Contact
-              </button>
-            </div>
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <nav className="container mx-auto px-4 py-4 space-y-2">
+              <a href="/" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-home">Home</a>
+              <a href="/directory" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-directory">Directory</a>
+              <a href="/docs" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-docs">Docs</a>
+              <a href="/release-notes" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-release-notes">Release Notes</a>
+            </nav>
           </div>
         )}
       </header>
 
       {/* Main Content */}
-      <div className="relative container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-12 lg:py-16">
         <div className="max-w-2xl mx-auto">
           {/* Page Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <div className="flex items-center justify-center space-x-3 mb-4 sm:mb-6">
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-violet-500/25">
-                <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl blur opacity-50 animate-pulse" />
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <Mail className="w-6 h-6 text-blue-600" />
               </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3 sm:mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Contact Us
             </h1>
-            <p className="text-lg sm:text-xl text-gray-300 px-4 sm:px-0">
+            <p className="text-lg text-gray-600">
               Have questions about PayGate x402? We'd love to hear from you.
             </p>
           </div>
 
           {/* Contact Form Card */}
-          <Card className="bg-slate-900/50 border-white/10 backdrop-blur-sm mx-2 sm:mx-0">
-            <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
-              <CardTitle className="text-white text-xl sm:text-2xl">Send us a message</CardTitle>
-              <CardDescription className="text-gray-400 text-sm sm:text-base">
+          <Card className="bg-white border border-gray-200 shadow-sm">
+            <CardHeader className="p-6">
+              <CardTitle className="text-gray-900 text-2xl">Send us a message</CardTitle>
+              <CardDescription className="text-gray-600">
                 Fill out the form below and we'll get back to you as soon as possible.
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-4 sm:px-6 pb-6">
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <CardContent className="p-6 pt-0">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="name" className="text-white mb-2 block text-sm font-medium">
+                    <Label htmlFor="name" className="text-gray-900 mb-2 block text-sm font-medium">
                       Name *
                     </Label>
                     <Input
@@ -248,13 +183,13 @@ export default function ContactPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white h-12 text-base"
+                      className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900 h-12"
                       data-testid="input-name"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="text-white mb-2 block text-sm font-medium">
+                    <Label htmlFor="email" className="text-gray-900 mb-2 block text-sm font-medium">
                       Email *
                     </Label>
                     <Input
@@ -262,7 +197,7 @@ export default function ContactPage() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
-                      className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white h-12 text-base"
+                      className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900 h-12"
                       data-testid="input-email"
                       required
                     />
@@ -270,7 +205,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="subject" className="text-white mb-2 block text-sm font-medium">
+                  <Label htmlFor="subject" className="text-gray-900 mb-2 block text-sm font-medium">
                     Subject *
                   </Label>
                   <Input
@@ -278,14 +213,14 @@ export default function ContactPage() {
                     type="text"
                     value={formData.subject}
                     onChange={(e) => handleChange("subject", e.target.value)}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white h-12 text-base"
+                    className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900 h-12"
                     data-testid="input-subject"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="message" className="text-white mb-2 block text-sm font-medium">
+                  <Label htmlFor="message" className="text-gray-900 mb-2 block text-sm font-medium">
                     Message *
                   </Label>
                   <Textarea
@@ -293,7 +228,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={(e) => handleChange("message", e.target.value)}
                     rows={5}
-                    className="bg-slate-800/50 border-white/10 focus:border-violet-500/50 focus:ring-violet-500/20 text-white resize-none text-base min-h-[120px]"
+                    className="bg-gray-50 border-gray-200 focus:border-blue-600 focus:ring-blue-600/20 text-gray-900 resize-none min-h-[120px]"
                     data-testid="input-message"
                     required
                   />
@@ -302,7 +237,7 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   disabled={contactMutation.isPending}
-                  className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 border-0 px-6 py-4 sm:py-3 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/25 text-base h-12 sm:h-auto"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium h-12"
                   data-testid="button-send-message"
                 >
                   {contactMutation.isPending ? (
@@ -322,10 +257,10 @@ export default function ContactPage() {
           </Card>
 
           {/* Contact Info */}
-          <div className="mt-8 sm:mt-12 text-center px-4 sm:px-0">
-            <p className="text-gray-400 text-sm sm:text-base">
+          <div className="mt-12 text-center">
+            <p className="text-gray-600">
               You can also reach us directly at{" "}
-              <a href="mailto:hello@paygate402.com" className="text-violet-400 hover:text-cyan-400 transition-colors underline decoration-violet-400/50 hover:decoration-cyan-400/50 break-all">
+              <a href="mailto:hello@paygate402.com" className="text-blue-600 hover:text-blue-700 transition-colors underline">
                 hello@paygate402.com
               </a>
             </p>
@@ -334,37 +269,26 @@ export default function ContactPage() {
       </div>
 
       {/* Footer */}
-      <footer className="relative border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+      <footer className="border-t border-gray-200 bg-white mt-16">
         <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-4 mb-6 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                <Sparkles className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3 mb-6 md:mb-0">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Coins className="w-5 h-5 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                PayGate x402
-              </span>
+              <span className="text-xl font-bold text-gray-900">PayGate x402</span>
             </div>
             <div className="text-center md:text-right space-y-2">
               <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-                <a href="/privacy" className="text-gray-400 hover:text-white transition-colors" data-testid="link-privacy">
+                <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
                   Privacy Policy
                 </a>
-                <a href="/about" className="text-gray-400 hover:text-white transition-colors" data-testid="link-about">
-                  About
-                </a>
-                <a href="/faq" className="text-gray-400 hover:text-white transition-colors" data-testid="link-faq">
-                  FAQ
-                </a>
-                <a href="/terms" className="text-gray-400 hover:text-white transition-colors" data-testid="link-terms">
+                <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
                   Terms of Service
                 </a>
               </div>
-              <p className="text-gray-400">
-                © 2025 PayGate x402. Built with HTTP 402 protocol.
-              </p>
-              <p className="text-sm text-gray-500">
-                Version 1.3.0
+              <p className="text-gray-500">
+                © 2025 PayGate x402. API monetization made simple.
               </p>
             </div>
           </div>
