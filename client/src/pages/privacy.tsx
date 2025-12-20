@@ -176,6 +176,9 @@ export default function PrivacyPolicy() {
                 <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-privacy">
                   Privacy Policy
                 </a>
+                <a href="/faq" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-faq-footer">
+                  FAQ
+                </a>
                 <a href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors" data-testid="link-terms">
                   Terms of Service
                 </a>

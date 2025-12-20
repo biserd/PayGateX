@@ -662,6 +662,9 @@ export default function Landing() {
               <a href="/terms" className="hover:text-blue-600 transition-colors" data-testid="link-terms">
                 Terms
               </a>
+              <a href="/faq" className="hover:text-blue-600 transition-colors" data-testid="link-faq-footer">
+                FAQ
+              </a>
               <a href="/contact" className="hover:text-blue-600 transition-colors" data-testid="link-contact-footer">
                 Contact
               </a>
