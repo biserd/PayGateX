@@ -10,7 +10,7 @@ import AuthPage from "@/pages/auth-page";
 import ReleaseNotes from "@/pages/release-notes";
 
 import Dashboard from "@/pages/dashboard";
-import Endpoints from "@/pages/endpoints";
+import PaidTools from "@/pages/paid-tools";
 import Analytics from "@/pages/analytics";
 import Compliance from "@/pages/compliance";
 import Escrow from "@/pages/escrow";
@@ -61,11 +61,12 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/" component={PaidTools} />
+      <Route path="/dashboard" component={PaidTools} />
+      <Route path="/legacy-dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/directory" component={Directory} />
-      <Route path="/endpoints" component={Endpoints} />
+      <Route path="/endpoints" component={PaidTools} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/compliance" component={Compliance} />
       <Route path="/escrow" component={Escrow} />

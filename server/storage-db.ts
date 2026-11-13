@@ -41,6 +41,7 @@ import {
   escrowHoldings,
   disputes,
   auditLogs,
+  apiKeys,
   webhookEndpoints,
   contactSubmissions,
   x402Services
@@ -55,6 +56,24 @@ export class DatabaseStorage implements IStorage {
   async getOrganization(id: string): Promise<Organization | undefined> {
     const [org] = await db.select().from(organizations).where(eq(organizations.id, id));
     return org || undefined;
+  }
+
+  async getApiKeys(orgId: string): Promise<ApiKey[]> {
+    return db.select().from(apiKeys).where(eq(apiKeys.orgId, orgId)).orderBy(desc(apiKeys.createdAt));
+  }
+
+  async getApiKeyById(id: string): Promise<ApiKey | undefined> {
+    const [key] = await db.select().from(apiKeys).where(eq(apiKeys.id, id));
+    return key;
+  }
+
+  async createApiKey(key: InsertApiKey): Promise<ApiKey> {
+    const [created] = await db.insert(apiKeys).values(key).returning();
+    return created;
+  }
+
+  async revokeApiKey(id: string): Promise<void> {
+    await db.update(apiKeys).set({ isActive: false, revokedAt: new Date() }).where(eq(apiKeys.id, id));
   }
 
   async createOrganization(org: InsertOrganization): Promise<Organization> {

@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import { sendNewUserNotification } from "./email-service";
+import { pool } from "./db";
 
 declare global {
   namespace Express {
@@ -34,7 +35,7 @@ export function setupAuth(app: Express) {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    pool,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
@@ -47,12 +48,15 @@ export function setupAuth(app: Express) {
     store: sessionStore,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to true in production with HTTPS
+      sameSite: "lax",
+      secure: process.env.PAYGATE_PUBLIC_URL?.startsWith("https:") ?? false,
       maxAge: sessionTtl,
     },
   };
 
-  app.set("trust proxy", 1);
+  // In HTTPS mode deploy behind one trusted reverse proxy, with direct access
+  // to the Express listener blocked by the operator.
+  if (sessionSettings.cookie?.secure) app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
@@ -85,6 +89,11 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, email, password } = req.body;
+      if (typeof username !== "string" || !/^[a-zA-Z0-9_-]{3,50}$/.test(username)
+        || typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        || typeof password !== "string" || password.length < 8 || password.length > 256) {
+        return res.status(400).json({ error: "Use a valid email, username, and password of 8 to 256 characters" });
+      }
       
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(username);
@@ -120,7 +129,7 @@ export function setupAuth(app: Express) {
       });
 
       // Send email notification to admin (don't block user registration if email fails)
-      sendNewUserNotification(user.username, user.email)
+      if (process.env.PAYGATE_LOCAL_DEMO !== "1") sendNewUserNotification(user.username, user.email)
         .then((success) => {
           if (success) {
             console.log(`Admin notification sent for new user: ${user.username}`);

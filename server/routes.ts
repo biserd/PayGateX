@@ -11,15 +11,11 @@ import { clientContactSubmissionSchema, insertWebhookEndpointSchema, insertApiKe
 import { WebhookService } from "./services/webhook-service";
 import { apiKeyService } from "./services/api-key-service";
 import { directoryScheduler } from "./services/directory-scheduler";
+import { setupPaygate } from "./paygate/setup";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
 const facilitatorAdapter = createFacilitatorAdapter(facilitatorType);
-console.log(`[FACILITATOR] Initialized facilitator adapter:`, {
-  type: facilitatorType,
-  timestamp: new Date().toISOString(),
-  note: facilitatorType === "mock" ? "Using mock facilitator for development - no real payments will be processed" : `Using ${facilitatorType} facilitator for real payment processing`
-});
 const meteringService = new DatabaseMeteringService(storage);
 const usageAnalytics = new UsageAnalytics(storage);
 const webhookService = new WebhookService(storage);
@@ -34,13 +30,24 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure database is seeded with demo data
-  await ensureSeeded();
+  if (process.env.PAYGATE_ENABLE_LEGACY === "1") await ensureSeeded();
   
   // Setup authentication
   setupAuth(app);
+  await setupPaygate(app);
   
-  // Start x402 Directory scheduler (runs hourly scraper)
-  directoryScheduler.start();
+  // Keep the old v1 demo opt-in. Its routes share one demo organization.
+  if (process.env.PAYGATE_ENABLE_LEGACY === "1") directoryScheduler.start();
+  else {
+    const legacy = [
+      "/proxy", "/api/endpoints", "/api/services", "/api/settings", "/api/organization",
+      "/api/compliance", "/api/x402", "/api/payments", "/api/test-facilitator",
+      "/api/x402-manifest", "/api/x402-discovery",
+      "/api/v1/pricing", "/api/transactions", "/api/usage-records", "/api/analytics",
+      "/api/dashboard/summary", "/api/audit", "/api/escrow", "/api/admin",
+    ];
+    app.use(legacy, (_req, res) => res.status(404).json({ error: "Legacy demo route disabled" }));
+  }
   
   const httpServer = createServer(app);
 
@@ -1347,8 +1354,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/keys", isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      const keys = await storage.getApiKeys(user.orgId || DEMO_ORG_ID);
-      res.json(keys);
+      if (!user.orgId || !["member", "admin"].includes(user.role)) return res.sendStatus(403);
+      const keys = await storage.getApiKeys(user.orgId);
+      res.json(keys.map(({ keyHash, ...key }) => key));
     } catch (error) {
       console.error("Get API keys error:", error);
       res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
@@ -1359,6 +1367,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/keys", isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
+      if (!user.orgId || !["member", "admin"].includes(user.role)) return res.sendStatus(403);
+      if (!req.is("application/json") || (process.env.PAYGATE_PUBLIC_URL && req.get("Origin")
+        && req.get("Origin") !== new URL(process.env.PAYGATE_PUBLIC_URL).origin)) return res.sendStatus(403);
       const { name } = req.body;
       
       if (!name) {
@@ -1368,14 +1379,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { key, hash, prefix } = apiKeyService.generateKey();
       
       const keyData = insertApiKeySchema.parse({
-        orgId: user.orgId || DEMO_ORG_ID,
+        orgId: user.orgId,
         name,
         keyHash: hash,
         prefix,
         isActive: true
       });
       
-      const apiKey = await storage.createApiKey(keyData);
+      const { keyHash, ...apiKey } = await storage.createApiKey(keyData);
       
       res.json({
         ...apiKey,
@@ -1396,13 +1407,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const user = req.user as any;
+      if (!user.orgId || !["member", "admin"].includes(user.role)) return res.sendStatus(403);
       
       const key = await storage.getApiKeyById(id);
       if (!key) {
         return res.status(404).json({ error: "API key not found" });
       }
       
-      if (key.orgId !== (user.orgId || DEMO_ORG_ID)) {
+      if (key.orgId !== user.orgId) {
         return res.status(403).json({ error: "Unauthorized to revoke this API key" });
       }
       

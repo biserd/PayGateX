@@ -93,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      queryClient.removeQueries({ predicate: q => q.queryKey[0] !== "/api/user" });
       queryClient.setQueryData(["/api/user"], null);
       toast({
         title: "Logged out",

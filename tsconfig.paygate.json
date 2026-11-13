@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "incremental": false, "target": "ES2022", "types": ["node", "vite/client", "passport"] },
+  "include": ["server/paygate/*.ts", "shared/paygate.ts", "client/src/pages/paid-tools.tsx"],
+  "exclude": ["node_modules", "**/*.test.ts"]
+}

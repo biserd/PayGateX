@@ -1,5 +1,7 @@
 # PayGate x402
 
+**PayGate402 MVP:** Use the [seller setup, sandbox demo, and v2 API guide](docs/PAYGATE402.md) to publish an existing API as a paid HTTP endpoint and MCP tool. The rest of this README describes the legacy v1 demo.
+
 **Production-ready SaaS platform for API monetization using the x402 payment protocol**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

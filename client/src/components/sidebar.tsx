@@ -1,43 +1,16 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  ChartLine, 
-  Plug, 
-  DollarSign, 
-  BarChart3, 
-  Shield, 
-  Lock, 
-  Settings,
-  Coins,
-  Wallet,
-  FileText,
-  Webhook,
-  Key,
-  ShieldAlert
-} from "lucide-react";
+import { Plug, Coins, Key } from "lucide-react";
 
 const baseNavigation = [
-  { name: "Dashboard", href: "/", icon: ChartLine },
-  { name: "API Endpoints", href: "/endpoints", icon: Plug },
-  { name: "Webhooks", href: "/webhooks", icon: Webhook },
+  { name: "Paid tools", href: "/endpoints", icon: Plug },
   { name: "API Keys", href: "/api-keys", icon: Key },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
-  { name: "Compliance", href: "/compliance", icon: Shield },
-  { name: "Escrow", href: "/escrow", icon: Lock },
-  { name: "Transaction Audit", href: "/audit", icon: FileText },
-  { name: "Wallet Test", href: "/wallet-test", icon: Wallet },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
-
-  // Add admin link if user is admin
-  const navigation = user?.email === "admin@paygate402.com" 
-    ? [{ name: "Admin Dashboard", href: "/admin", icon: ShieldAlert }, ...baseNavigation]
-    : baseNavigation;
 
   // Generate initials from username
   const getInitials = (username: string) => {
@@ -55,8 +28,8 @@ export function Sidebar() {
         </div>
         
         <nav className="space-y-2">
-          {navigation.map((item) => {
-            const isActive = location === item.href;
+          {baseNavigation.map((item) => {
+            const isActive = location === item.href || (item.href === "/endpoints" && ["/", "/dashboard"].includes(location));
             return (
               <Link
                 key={item.name}
