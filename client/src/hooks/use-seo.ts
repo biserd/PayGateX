@@ -11,7 +11,7 @@ interface SEOProps {
 
 export function useSEO({ title, description, path = '', ogImage, keywords, structuredData }: SEOProps) {
   useEffect(() => {
-    const baseUrl = 'https://paygate-x402.replit.app';
+    const baseUrl = 'https://paygate402.com';
     const fullTitle = `${title} | PayGate x402`;
     
     document.title = fullTitle;
@@ -23,6 +23,7 @@ export function useSEO({ title, description, path = '', ogImage, keywords, struc
       'og:url': `${baseUrl}${path}`,
       'twitter:title': fullTitle,
       'twitter:description': description,
+      'twitter:url': `${baseUrl}${path}`,
     };
     
     if (keywords) {

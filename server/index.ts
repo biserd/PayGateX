@@ -3,6 +3,17 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+if (process.env.PAYGATE_PUBLIC_URL === "https://paygate402.com") {
+  const liveOrigin = new URL(process.env.PAYGATE_PUBLIC_URL);
+  app.use((req, res, next) => {
+    const host = req.get("host")?.toLowerCase();
+    if (host === "www.paygate402.com" && ["GET", "HEAD"].includes(req.method)) {
+      return res.redirect(308, liveOrigin.origin + req.originalUrl);
+    }
+    if (host !== liveOrigin.host) res.set("X-Robots-Tag", "noindex");
+    next();
+  });
+}
 app.use(express.json({ limit: "128kb" }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -21,6 +32,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  app.get("/healthz", (_req, res) => res.set("Cache-Control", "no-store").json({ ok: true }));
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);

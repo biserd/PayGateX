@@ -10,8 +10,8 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
-    title: 'API Monetization Platform - Blockchain Payments with x402 Protocol',
-    description: 'PayGate x402: Monetize APIs with automated blockchain micropayments. Enterprise dashboard, real-time analytics, escrow protection, compliance enforcement, webhooks, and public x402 Directory for discovering payment-enabled APIs.',
+    title: 'Charge per API call with x402',
+    description: 'Connect an API you already run, set a per-call price, and publish it as an x402 HTTP endpoint and MCP tool. Test payments with Base Sepolia USDC.',
     path: '/',
     keywords: 'API monetization, x402 protocol, blockchain payments, USDC, Base network, payment proxy, API commerce, AI agents, AP2, HTTP 402'
   });
@@ -86,7 +86,7 @@ export default function Landing() {
             <span className="text-blue-600">Revenue Streams</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto">
-            The enterprise platform for API monetization. Set your price, route traffic through our proxy, and watch the USDC roll in.
+            Connect an API you already run and set a price per call. Publish it as an x402 HTTP endpoint and MCP tool, with payments in Base Sepolia testnet USDC.
           </p>
           
           {/* Hero Visual - PayGate Dashboard Preview */}

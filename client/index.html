@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     
     <!-- Primary Meta Tags -->
-    <title>PayGate x402 - Blockchain API Monetization Platform | HTTP 402 Payment Protocol</title>
-    <meta name="title" content="PayGate x402 - Blockchain API Monetization Platform | HTTP 402 Payment Protocol" />
-    <meta name="description" content="Monetize your APIs with automated blockchain micropayments on Base. PayGate x402 implements the HTTP 402 protocol for trustless API payments. Enterprise SaaS platform + public x402 directory." />
+    <title>PayGate402 | Charge per API call with x402</title>
+    <meta name="title" content="PayGate402 | Charge per API call with x402" />
+    <meta name="description" content="Connect an API you already run, set a per-call price, and publish it as an x402 HTTP endpoint and MCP tool. Test payments with Base Sepolia USDC." />
     <meta name="keywords" content="API monetization, blockchain payments, HTTP 402, x402 protocol, API payment gateway, Base blockchain, USDC payments, API micropayments, AI agent payments, AP2 protocol, crypto API" />
     <meta name="author" content="PayGate x402" />
     <meta name="robots" content="index, follow" />
@@ -24,34 +24,35 @@
     <meta name="msapplication-TileColor" content="#2563EB" />
     
     <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-37XNGFDSN4"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-37XNGFDSN4');
+      if (window.location.origin === 'https://paygate402.com') {
+        const tag = document.createElement('script');
+        tag.async = true;
+        tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-37XNGFDSN4';
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-37XNGFDSN4');
+        document.head.appendChild(tag);
+      }
     </script>
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://paygate-x402.replit.app/" />
+    <link rel="canonical" href="https://paygate402.com/" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://paygate-x402.replit.app/" />
-    <meta property="og:title" content="PayGate x402 - Blockchain API Monetization Platform" />
-    <meta property="og:description" content="Monetize your APIs with automated blockchain micropayments on Base. Enterprise SaaS platform implementing the x402 protocol for trustless API payments." />
-    <meta property="og:image" content="https://paygate-x402.replit.app/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://paygate402.com/" />
+    <meta property="og:title" content="PayGate402 | Charge per API call with x402" />
+    <meta property="og:description" content="Publish an API you already run as a paid HTTP endpoint and MCP tool." />
     <meta property="og:site_name" content="PayGate x402" />
     <meta property="og:locale" content="en_US" />
     
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://paygate-x402.replit.app/" />
-    <meta property="twitter:title" content="PayGate x402 - Blockchain API Monetization Platform" />
-    <meta property="twitter:description" content="Monetize your APIs with automated blockchain micropayments on Base. Enterprise SaaS platform implementing the x402 protocol." />
-    <meta property="twitter:image" content="https://paygate-x402.replit.app/og-image.png" />
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content="https://paygate402.com/" />
+    <meta property="twitter:title" content="PayGate402 | Charge per API call with x402" />
+    <meta property="twitter:description" content="Publish an API you already run as a paid HTTP endpoint and MCP tool." />
     
     <!-- Structured Data - Organization -->
     <script type="application/ld+json">
@@ -60,14 +61,14 @@
       "@type": "Organization",
       "name": "PayGate x402",
       "description": "Blockchain API monetization platform implementing the x402 payment protocol",
-      "url": "https://paygate-x402.replit.app",
-      "logo": "https://paygate-x402.replit.app/favicon.svg",
+      "url": "https://paygate402.com",
+      "logo": "https://paygate402.com/favicon.svg",
       "foundingDate": "2025",
       "sameAs": [],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Customer Support",
-        "email": "hello@bigappledigital.nyc"
+        "email": "hello@paygate402.com"
       }
     }
     </script>
@@ -78,17 +79,9 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "PayGate x402",
-      "@id": "https://paygate-x402.replit.app",
-      "url": "https://paygate-x402.replit.app",
-      "description": "Enterprise SaaS platform for API monetization with blockchain payments",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://paygate-x402.replit.app/directory?search={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
+      "@id": "https://paygate402.com",
+      "url": "https://paygate402.com",
+      "description": "Publish an API you already run as a paid HTTP endpoint and MCP tool."
     }
     </script>
     
@@ -100,17 +93,9 @@
       "name": "PayGate x402",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "description": "Free tier available with pay-as-you-go pricing"
-      },
-      "description": "API monetization platform with blockchain micropayments on Base network using the x402 protocol",
-      "softwareVersion": "1.3.0",
-      "releaseNotes": "https://paygate-x402.replit.app/release-notes",
-      "url": "https://paygate-x402.replit.app",
-      "screenshot": "https://paygate-x402.replit.app/og-image.png"
+      "description": "Publish an API you already run as a paid HTTP endpoint and MCP tool.",
+      "releaseNotes": "https://paygate402.com/release-notes",
+      "url": "https://paygate402.com"
     }
     </script>
     
@@ -122,7 +107,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

@@ -76,10 +76,24 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  const shell = fs.readFileSync(path.resolve(distPath, "index.html"), "utf8");
+  const sitemap = fs.readFileSync(path.resolve(distPath, "sitemap.xml"), "utf8");
+  const canonicalRoot = "https://paygate402.com/";
+  const indexablePaths = new Set(Array.from(sitemap.matchAll(/<loc>([^<]+)<\/loc>/g), ([, url]) => new URL(url).pathname));
+  app.get("/index.html", (_req, res) => res.redirect(301, "/"));
+  app.use(express.static(distPath, { index: false }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.get("*", (req, res) => {
+    if (/^\/(api|mcp|x402)(\/|$)/.test(req.path)) {
+      return res.status(404).json({ error: "Not found" });
+    }
+    const publicPath = req.path.replace(/\/+$/, "") || "/";
+    if (!indexablePaths.has(publicPath)) {
+      res.set("X-Robots-Tag", "noindex");
+      return res.type("html").send(shell);
+    }
+    const canonical = new URL(publicPath, canonicalRoot).href;
+    const html = shell.replaceAll(`"${canonicalRoot}"`, `"${canonical}"`);
+    return res.type("html").send(html);
   });
 }
