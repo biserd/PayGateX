@@ -81,7 +81,6 @@ try {
     facilitatorUrl: demo.facilitatorUrl, rpcUrl: demo.rpc,
     upstreamOrigins: [demo.weather, demo.inventory], timeoutMs: previewOrigin ? 1500 : 500,
   });
-  if (serving) app.use(express.static("dist/public")).use("*", (_req, res) => res.sendFile("dist/public/index.html", { root: process.cwd() }));
   const api = "/api/seller/v1/operations";
   const buyerPayment = new x402Client().register(network, new ExactEvmScheme(toClientEvmSigner(demo.buyer, demo.publicClient)));
   const paidFetch = wrapFetchWithPayment(gatewayFetch, buyerPayment);
@@ -305,7 +304,58 @@ try {
   say("price edits, stale-quote rejection, pause, purchase recovery, metering and key revocation");
 
   if (serving) {
-    await call(pathFor(weather) + "/publish", "POST", { revision: weather.revision }, owner.bearer);
+    weather = (await call(pathFor(weather) + "/price", "PATCH", { revision: weather.revision, price: "0.02" }, owner.bearer)).data;
+    weather = (await call(pathFor(weather) + "/publish", "POST", { revision: weather.revision }, owner.bearer)).data;
+    if (containerPreview) {
+      const canBuy = (req: express.Request) => req.isAuthenticated?.() && req.user?.username === owner.user.username;
+      app.get("/staging/buyer", (req, res) => {
+        if (!canBuy(req)) return res.redirect("/auth");
+        res.type("html").send(`<!doctype html><html lang="en"><meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1"><title>PayGate402 sandbox buyer</title>
+          <style>body{font:1rem system-ui;max-width:42rem;margin:3rem auto;padding:0 1rem;color:#172033}
+          button{font:inherit;padding:.6rem;margin:.25rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f7;padding:1rem}</style>
+          <a href="/">Back to seller console</a><h1>Sandbox buyer</h1>
+          <p>Run a purchase against either published demo tool with the funded sandbox wallet.</p>
+          <button data-kind="http">Buy weather over HTTP</button><button data-kind="mcp">Buy inventory over MCP</button>
+          <pre id="result" aria-live="polite">The purchase result and receipt will appear here.</pre>
+          <script>
+          for (const button of document.querySelectorAll("button")) button.addEventListener("click",async()=>{
+            const result=document.querySelector("#result");
+            for (const b of document.querySelectorAll("button")) b.disabled=true;
+            result.textContent="Submitting sandbox purchase…";
+            try{
+              const reply=await fetch("/staging/buyer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:button.dataset.kind})});
+              result.textContent=JSON.stringify(await reply.json(),null,2);
+            }catch{result.textContent="Could not read the purchase response."}
+            finally{for(const b of document.querySelectorAll("button")) b.disabled=false}
+          });
+          </script></html>`);
+      });
+      app.post("/staging/buyer", async (req, res) => {
+        if (!canBuy(req) || req.get("origin") !== origin) return res.status(403).json({ error: "Sign in to the staging seller account" });
+        try {
+          if (req.body?.kind === "http") {
+            const response = await paidFetch(weather.connection!.http, init(wx));
+            return res.status(response.status).json(await response.json());
+          }
+          if (req.body?.kind === "mcp") {
+            const client = new Client({ name: "paygate402-staging-buyer", version: "1.0.0" });
+            const wrapped = wrapMCPClientWithPayment(client, buyerPayment);
+            try {
+              await wrapped.connect(new StreamableHTTPClientTransport(new URL(inventory.connection!.mcp), { fetch: gatewayFetch }));
+              const result = await wrapped.callTool("reserve_stock", stock);
+              return res.json(JSON.parse((result.content[0] as { text: string }).text));
+            } finally {
+              await client.close();
+            }
+          }
+          res.status(400).json({ error: "Choose an HTTP or MCP purchase" });
+        } catch {
+          res.status(503).json({ error: "Could not complete the sandbox purchase. Check whether the demo tool is published." });
+        }
+      });
+    }
+    app.use(express.static("dist/public")).use("*", (_req, res) => res.sendFile("dist/public/index.html", { root: process.cwd() }));
     ready = true;
     if (containerPreview) console.log(`Sandbox ready at ${origin}/auth`);
     else console.log(`Console: ${origin}/auth\nSandbox login: ${owner.user.username} / ${owner.user.password}\nPress Ctrl+C to stop.`);
