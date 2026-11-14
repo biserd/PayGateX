@@ -1,189 +1,157 @@
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import type { Express, Request } from "express";
 import session from "express-session";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
-import { promisify } from "util";
-import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { createHash, randomBytes } from "node:crypto";
 import connectPg from "connect-pg-simple";
-import { sendNewUserNotification } from "./email-service";
-import { pool } from "./db";
+import { z } from "zod";
+import { sql } from "drizzle-orm";
+import { organizations, users, type User } from "@shared/schema";
+import { db, pool } from "./db";
+import { storage } from "./storage";
+import { hasEmailSender, sendSignInLink } from "./email-service";
 
+type SelectUser = User;
 declare global {
   namespace Express {
     interface User extends SelectUser {}
   }
 }
 
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
+export interface SignInMailer {
+  available(): boolean;
+  send(email: string, link: string): Promise<boolean>;
 }
 
-async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
-}
+const emailAddress = z.string().trim().max(254).email().transform(email => email.toLowerCase());
+const tokenPattern = /^[A-Za-z0-9_-]{43}$/;
+const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+const publicUser = ({ id, username, email, role, orgId }: User) => ({ id, username, email, role, orgId });
 
-export function setupAuth(app: Express) {
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    pool,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
+async function redeemLink(tokenHash: string) {
+  return db.transaction(async tx => {
+    const { rows: [link] } = await tx.execute<{ email: string }>(
+      sql`UPDATE auth_login_links SET token_hash = NULL
+          WHERE token_hash = ${tokenHash} AND expires_at > now() RETURNING email`,
+    );
+    if (!link) return;
+
+    const matching = await tx.select().from(users).where(sql`lower(${users.email}) = ${link.email}`).limit(2);
+    if (matching.length === 1) return matching[0];
+    if (matching.length > 1) return;
+
+    const username = "seller-" + randomBytes(12).toString("hex");
+    const [org] = await tx.insert(organizations).values({
+      slug: username, name: "Seller workspace", email: link.email,
+    }).returning();
+    const [user] = await tx.insert(users).values({
+      email: link.email, username, orgId: org.id, password: "",
+    }).returning();
+    return user;
   });
+}
 
+export function setupAuth(app: Express, mailer: SignInMailer = { available: hasEmailSender, send: sendSignInLink }) {
+  const origin = process.env.PAYGATE_PUBLIC_URL;
+  const sessionTtl = 7 * 24 * 60 * 60;
+  const pgStore = connectPg(session);
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "your-session-secret-here",
+    secret: process.env.SESSION_SECRET || randomBytes(32).toString("hex"),
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
-    cookie: {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.PAYGATE_PUBLIC_URL?.startsWith("https:") ?? false,
-      maxAge: sessionTtl,
-    },
+    store: new pgStore({ pool, createTableIfMissing: false, ttl: sessionTtl, tableName: "sessions" }),
+    cookie: { httpOnly: true, sameSite: "lax", secure: origin?.startsWith("https:") ?? false, maxAge: sessionTtl * 1000 },
   };
-
-  // In HTTPS mode deploy behind one trusted reverse proxy, with direct access
-  // to the Express listener blocked by the operator.
   if (sessionSettings.cookie?.secure) app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
 
-  passport.use(
-    new LocalStrategy(async (username, password, done) => {
-      try {
-        const user = await storage.getUserByUsername(username);
-        if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false);
-        } else {
-          return done(null, user);
-        }
-      } catch (error) {
-        return done(error);
-      }
-    }),
-  );
-
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: string, done) => {
     try {
-      const user = await storage.getUser(id);
-      done(null, user);
+      done(null, await storage.getUser(id));
     } catch (error) {
       done(error);
     }
   });
 
-  app.post("/api/register", async (req, res, next) => {
+  const sameOriginJson = (req: Request) => req.is("application/json")
+    && (!req.get("Origin") || req.get("Origin") === origin);
+  app.use("/api/auth/email", (_req, res, next) => {
+    res.set({ "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" });
+    next();
+  });
+  app.post("/api/auth/email/request", async (req, res, next) => {
+    if (!sameOriginJson(req)) return res.status(403).json({ error: "Send the request from the PayGate402 sign-in page." });
+    const email = emailAddress.safeParse(req.body?.email);
+    if (!email.success) return res.status(400).json({ error: "Enter a valid email address." });
+    if (!origin || !mailer.available()) return res.status(503).json({ error: "Sign-in email is temporarily unavailable." });
     try {
-      const { username, email, password } = req.body;
-      if (typeof username !== "string" || !/^[a-zA-Z0-9_-]{3,50}$/.test(username)
-        || typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-        || typeof password !== "string" || password.length < 8 || password.length > 256) {
-        return res.status(400).json({ error: "Use a valid email, username, and password of 8 to 256 characters" });
+      const accepted = () => res.status(202).json({ message: "Check your email for a sign-in link." });
+      const key = hash(req.ip || req.socket.remoteAddress || "unknown");
+      const limit = await pool.query(
+        `INSERT INTO auth_link_request_limits (client_key, window_ends_at, requests)
+         VALUES ($1, now() + interval '15 minutes', 1)
+         ON CONFLICT (client_key) DO UPDATE SET
+           requests = CASE WHEN auth_link_request_limits.window_ends_at <= now() THEN 1 ELSE auth_link_request_limits.requests + 1 END,
+           window_ends_at = CASE WHEN auth_link_request_limits.window_ends_at <= now() THEN EXCLUDED.window_ends_at ELSE auth_link_request_limits.window_ends_at END
+         WHERE auth_link_request_limits.window_ends_at <= now() OR auth_link_request_limits.requests < 10`,
+        [key],
+      );
+      if (!limit.rowCount) return res.set("Retry-After", "900").status(429).json({ error: "Too many requests. Try again in a few minutes." });
+      await pool.query("DELETE FROM auth_link_request_limits WHERE window_ends_at <= now()");
+      await pool.query("DELETE FROM auth_login_links WHERE expires_at <= now()");
+
+      const token = randomBytes(32).toString("base64url");
+      const tokenHash = hash(token);
+      const issued = await pool.query(
+        `INSERT INTO auth_login_links (email, token_hash, issued_at, expires_at)
+         VALUES ($1, $2, now(), now() + interval '15 minutes')
+         ON CONFLICT (email) DO UPDATE
+         SET token_hash = EXCLUDED.token_hash, issued_at = EXCLUDED.issued_at, expires_at = EXCLUDED.expires_at
+         WHERE auth_login_links.issued_at <= now() - interval '1 minute'`,
+        [email.data, tokenHash],
+      );
+      if (!issued.rowCount) return accepted();
+      const link = new URL("/auth", origin);
+      link.hash = new URLSearchParams({ token }).toString();
+      if (!(await mailer.send(email.data, link.href))) {
+        await pool.query("DELETE FROM auth_login_links WHERE token_hash = $1", [tokenHash]);
+        return res.status(503).json({ error: "Sign-in email could not be sent. Try again shortly." });
       }
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ error: "Username already exists" });
-      }
-
-      const existingEmail = await storage.getUserByEmail(email);
-      if (existingEmail) {
-        return res.status(400).json({ error: "Email already exists" });
-      }
-
-      // Create organization for the new user
-      const orgSlug = `${username}-org`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-      const organization = await storage.createOrganization({
-        name: `${username} Organization`,
-        slug: orgSlug,
-        email: email,
-        sandboxMode: true,
-        escrowHoldHours: 24,
-        freeTierLimit: 100,
-        freeTierPeriodDays: 30
-      });
-
-      // Create user with their own organization
-      const hashedPassword = await hashPassword(password);
-      const user = await storage.createUser({
-        username,
-        email,
-        password: hashedPassword,
-        orgId: organization.id,
-        role: "member"
-      });
-
-      // Send email notification to admin (don't block user registration if email fails)
-      if (process.env.PAYGATE_LOCAL_DEMO !== "1") sendNewUserNotification(user.username, user.email)
-        .then((success) => {
-          if (success) {
-            console.log(`Admin notification sent for new user: ${user.username}`);
-          } else {
-            console.warn(`Failed to send admin notification for new user: ${user.username}`);
-          }
-        })
-        .catch((error) => {
-          console.error('Email notification error:', error);
-        });
-
-      req.login(user, (err) => {
-        if (err) return next(err);
-        res.status(201).json({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          orgId: user.orgId
-        });
-      });
+      return accepted();
     } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ error: "Registration failed" });
+      next(error);
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    const user = req.user as SelectUser;
-    res.status(200).json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      orgId: user.orgId
-    });
+  app.post("/api/auth/email/redeem", async (req, res, next) => {
+    if (!sameOriginJson(req)) return res.status(403).json({ error: "Open the link on the PayGate402 site." });
+    const invalid = () => res.status(400).json({ error: "This link is invalid, expired, or already used. Request a new one." });
+    const token = req.body?.token;
+    if (typeof token !== "string" || !tokenPattern.test(token)) return invalid();
+    try {
+      const user = await redeemLink(hash(token));
+      if (!user) return invalid();
+      req.login(user, error => {
+        if (error) return next(error);
+        res.json(publicUser(user));
+      });
+    } catch (error) {
+      next(error);
+    }
   });
 
   app.post("/api/logout", (req, res, next) => {
-    req.logout((err) => {
-      if (err) return next(err);
+    req.logout(error => {
+      if (error) return next(error);
       res.sendStatus(200);
     });
   });
 
   app.get("/api/user", (req, res) => {
+    res.set("Cache-Control", "no-store");
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const user = req.user as SelectUser;
-    res.json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      orgId: user.orgId
-    });
+    res.json(publicUser(req.user));
   });
 }

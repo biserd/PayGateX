@@ -6,7 +6,7 @@ import { z } from "zod";
 import { x402ProxyMiddleware } from "./middleware/x402-proxy";
 import { createFacilitatorAdapter } from "./services/facilitator-adapter";
 import { DatabaseMeteringService, UsageAnalytics } from "./services/metering";
-import { setupAuth } from "./auth";
+import { setupAuth, type SignInMailer } from "./auth";
 import { clientContactSubmissionSchema, insertWebhookEndpointSchema, insertApiKeySchema } from "@shared/schema";
 import { WebhookService } from "./services/webhook-service";
 import { apiKeyService } from "./services/api-key-service";
@@ -28,12 +28,12 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   next();
 };
 
-export async function registerRoutes(app: Express, fixtures?: PaygateTestFixtures): Promise<Server> {
+export async function registerRoutes(app: Express, fixtures?: PaygateTestFixtures, signInMailer?: SignInMailer): Promise<Server> {
   // Ensure database is seeded with demo data
   if (process.env.PAYGATE_ENABLE_LEGACY === "1") await ensureSeeded();
   
   // Setup authentication
-  setupAuth(app);
+  setupAuth(app, signInMailer);
   await setupPaygate(app, fixtures);
   
   // Keep the old v1 demo opt-in. Its routes share one demo organization.

@@ -7,6 +7,7 @@
   "vars": {
     "PAYGATE_PREVIEW_ORIGIN": "https://paygate402-staging.biser-d.workers.dev"
   },
+  "send_email": [{ "name": "SIGN_IN_EMAIL" }],
   "containers": [
     {
       "class_name": "PaygateStaging",

@@ -14,7 +14,7 @@ npm run test:paygate
 npm run demo:paygate -- --serve
 ```
 
-The last command runs the demo, then leaves the seller console open at `http://127.0.0.1:5000/auth` (override with `PORT`). Sign in with `sandbox_seller` / `local-sandbox-only`. The database, wallets, chain and upstreams are local and temporary; stop them with Ctrl+C.
+The last command runs the demo, then serves the public landing page at `http://127.0.0.1:5000/` (override with `PORT`). At `/auth`, request a link for `sandbox_seller@example.test` and open the link printed in the local terminal. The database, wallets, chain and upstreams are local and temporary. Stop them with Ctrl+C.
 
 The demo imports a weather GET operation with a path string and integer query input, then configures a separate inventory POST with typed body fields and an API key. It publishes both using the seller API, executes a weather purchase over HTTP and an inventory purchase over MCP, and reads the seller's sandbox token balance and stored receipts. The test also covers cross-tenant access, draft privacy, invalid and unpaid calls, price changes, pause, concurrent retries, duplicate authorizations, paid failures, disconnected clients and uncertain settlement/upstream outcomes. The chain uses a local EIP-3009 token at the Base Sepolia USDC address for wire compatibility; no public chain transaction is sent.
 
@@ -37,13 +37,16 @@ Set these variables before starting:
 | `SESSION_SECRET` | Random secret of at least 32 characters |
 | `PAYGATE_SECRET_KEY` | Persistent AES key: 32 random bytes as 64 hex characters |
 | `PAYGATE_PUBLIC_URL` | Bare HTTPS origin behind one trusted reverse proxy, or `http://127.0.0.1:5000` for local use |
+| `PAYGATE_SIGN_IN_FROM` | Email address on a domain onboarded for Cloudflare Email Sending |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account with the email sender domain |
+| `CLOUDFLARE_EMAIL_API_TOKEN` | Server-side Cloudflare token with Email Sending permission. The staging Worker uses its Email Sending binding instead. |
 | `PAYGATE_FACILITATOR_URL` | Optional; defaults to `https://x402.org/facilitator`. Must support exact v2 on `eip155:84532` |
 | `PAYGATE_RPC_URL` | Optional trusted Base Sepolia RPC URL for settlement reconciliation |
 | `PORT` | Optional, defaults to `5000` |
 
 Generate each secret independently with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Keep the encryption key across restarts and outside the database. Start with `node dist/index.js` with `NODE_ENV=production` (PowerShell: `$env:NODE_ENV = 'production'; node dist/index.js`).
 
-Sign up at `/auth`, then use **Paid tools**. Only Base Sepolia USDC is supported. To pay on public testnet, use a funded Base Sepolia USDC buyer and a valid seller wallet. Default upstreams require a public HTTPS destination on port 443, without redirects, user info, query strings, or fragments. Buyer inputs can supply query parameters and path fields. The local demo permits only operator-listed `127.0.0.1` fixture origins. Keep `PAYGATE_ENABLE_LEGACY` unset: the old v1 demo uses a shared demo organization and is unsuitable for public deployment.
+Request a one-time link at `/auth` and confirm sign-in to open **Paid tools**. Links expire in 15 minutes and a first sign-in creates a seller workspace. Only Base Sepolia USDC is supported. To pay on public testnet, use a funded Base Sepolia USDC buyer and a valid seller wallet. Default upstreams require a public HTTPS destination on port 443, without redirects, user info, query strings, or fragments. Buyer inputs can supply query parameters and path fields. The local demo permits only operator-listed `127.0.0.1` fixture origins. Keep `PAYGATE_ENABLE_LEGACY` unset because the old v1 demo uses a shared demo organization.
 
 ## Seller API
 

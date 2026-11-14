@@ -25,7 +25,7 @@
     
     <!-- Google Analytics (gtag.js) -->
     <script>
-      if (window.location.origin === 'https://paygate402.com') {
+      if (window.location.origin === 'https://paygate402.com' && window.location.pathname !== '/auth') {
         const tag = document.createElement('script');
         tag.async = true;
         tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-37XNGFDSN4';

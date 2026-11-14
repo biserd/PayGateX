@@ -123,8 +123,8 @@ curl -v "http://localhost:5000/proxy/your-org-id/your-service-id/endpoint" \
 
 #### Authentication
 ```
-POST /api/register     # User registration
-POST /api/login        # User authentication
+POST /api/auth/email/request  # Request a sign-in link with {email}
+POST /api/auth/email/redeem   # Confirm a one-time sign-in link with {token}
 POST /api/logout       # Session termination
 GET  /api/user         # Current user info
 ```

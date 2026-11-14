@@ -15,6 +15,36 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export const hasEmailSender = () => Boolean(
+  process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_EMAIL_API_TOKEN && process.env.PAYGATE_SIGN_IN_FROM,
+);
+
+export async function sendSignInLink(email: string, link: string): Promise<boolean> {
+  if (!hasEmailSender()) return false;
+  try {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(process.env.CLOUDFLARE_ACCOUNT_ID!)}/email/sending/send`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_EMAIL_API_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: process.env.PAYGATE_SIGN_IN_FROM,
+          to: email,
+          subject: "Your PayGate402 sign-in link",
+          text: `Open this link to sign in to PayGate402:\n\n${link}\n\nThe link can be used once and expires in 15 minutes. If you didn't request it, you can ignore this email.`,
+        }),
+        signal: AbortSignal.timeout(12_000),
+      },
+    );
+    const result = await response.json();
+    return response.ok && result.success === true
+      && (result.result?.queued?.includes(email) || result.result?.delivered?.includes(email));
+  } catch {
+    console.error("PayGate402 sign-in email delivery failed");
+    return false;
+  }
+}
+
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.error('Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.');

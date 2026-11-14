@@ -22,14 +22,14 @@ const containerPreview = process.argv.includes("--container");
 if (previewOrigin && (!serving || !/^https:\/\/[a-z0-9.-]+$/.test(previewOrigin))) {
   throw new Error("PAYGATE_PREVIEW_ORIGIN requires --serve and a bare HTTPS origin");
 }
-if (containerPreview && (!previewOrigin || !process.env.PAYGATE_PREVIEW_PASSWORD || process.env.PAYGATE_PREVIEW_PASSWORD.length < 16)) {
-  throw new Error("Configure the container preview origin and a preview password of at least 16 characters");
-}
+if (containerPreview && !previewOrigin) throw new Error("Configure the container preview origin");
 const app = express().use(express.json({ limit: "128kb" }));
 const say = (s: string) => console.log("PASS " + s);
 let origin: string;
 let localOrigin: string;
 let ready = false;
+const inbox = new Map<string, string>();
+const emailBridge = process.env.PAYGATE_EMAIL_BRIDGE;
 const gatewayFetch: typeof fetch = async (input, init) => {
   if (!containerPreview) return fetch(input, init);
   const request = new Request(input, init);
@@ -80,23 +80,72 @@ try {
   await registerRoutes(app, {
     facilitatorUrl: demo.facilitatorUrl, rpcUrl: demo.rpc,
     upstreamOrigins: [demo.weather, demo.inventory], timeoutMs: previewOrigin ? 1500 : 500,
+  }, {
+    available: () => !containerPreview || !ready || Boolean(emailBridge),
+    async send(email, link) {
+      if (!ready) {
+        inbox.set(email, link);
+        return true;
+      }
+      if (!containerPreview) {
+        console.log(`Local sign-in link for ${email}: ${link}`);
+        return true;
+      }
+      if (email.endsWith("@example.test") || !emailBridge) return false;
+      try {
+        const response = await fetch(emailBridge, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, link }),
+          signal: AbortSignal.timeout(12_000),
+        });
+        return response.ok;
+      } catch {
+        console.error("Cloudflare sign-in email bridge unavailable");
+        return false;
+      }
+    },
   });
   const api = "/api/seller/v1/operations";
   const buyerPayment = new x402Client().register(network, new ExactEvmScheme(toClientEvmSigner(demo.buyer, demo.publicClient)));
   const paidFetch = wrapFetchWithPayment(gatewayFetch, buyerPayment);
 
   async function seller(name: string) {
-    const user = { username: name, email: name + "@example.test",
-      password: containerPreview && name === "sandbox_seller" ? process.env.PAYGATE_PREVIEW_PASSWORD!
-        : previewOrigin ? randomBytes(24).toString("base64url") : "local-sandbox-only" };
-    const registration = await call("/api/register", "POST", user, {}, 201);
-    const cookie = registration.res.headers.get("set-cookie")!.split(";")[0];
+    const email = name + "@example.test";
+    await call("/api/auth/email/request", "POST", { email }, {}, 202);
+    const link = new URL(inbox.get(email)!);
+    assert.equal(link.origin, origin);
+    inbox.delete(email);
+    const token = new URLSearchParams(link.hash.slice(1)).get("token");
+    const signIn = await call("/api/auth/email/redeem", "POST", { token });
+    const cookie = signIn.res.headers.get("set-cookie")!.split(";")[0];
     const key = (await call("/api/keys", "POST", { name: "Sandbox CI" }, { cookie })).data;
     assert(!key.keyHash);
-    return { cookie, bearer: { Authorization: "Bearer " + key.key }, keyId: key.id, user };
+    return { cookie, bearer: { Authorization: "Bearer " + key.key }, keyId: key.id };
   }
   const owner = await seller("sandbox_seller");
   const outsider = await seller("other_seller");
+  const email = "link_test@example.test";
+  await call("/api/auth/email/request", "POST", { email }, { Origin: "https://other.example" }, 403);
+  await call("/api/auth/email/request", "POST", { email: email.toUpperCase() }, {}, 202);
+  const signInLink = new URL(inbox.get(email)!);
+  const token = new URLSearchParams(signInLink.hash.slice(1)).get("token");
+  await call("/api/auth/email/request", "POST", { email }, {}, 202);
+  assert.equal(inbox.get(email), signInLink.href);
+  const redeem = () => gatewayFetch(origin + "/api/auth/email/redeem", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }),
+  });
+  const attempts = await Promise.all([redeem(), redeem()]);
+  assert.deepEqual(attempts.map(response => response.status).sort(), [200, 400]);
+  assert.equal((await attempts.find(response => response.ok)!.json()).email, email);
+  assert.equal((await redeem()).status, 400);
+  await pool.query("UPDATE auth_login_links SET issued_at = now() - interval '2 minutes' WHERE email = $1", [email]);
+  await call("/api/auth/email/request", "POST", { email }, {}, 202);
+  const expired = new URLSearchParams(new URL(inbox.get(email)!).hash.slice(1)).get("token");
+  await pool.query("UPDATE auth_login_links SET expires_at = now() - interval '1 second' WHERE email = $1", [email]);
+  await call("/api/auth/email/redeem", "POST", { token: expired }, {}, 400);
+  inbox.delete(email);
+  say("email link delivery, same-origin enforcement, concurrent redemption, replay and expiration");
   const session = { cookie: owner.cookie, Origin: origin };
   await call(api, "GET", undefined, {}, 401);
   await call(api + "/import", "POST", {}, { cookie: owner.cookie, Origin: "https://other.example" }, 403);
@@ -307,14 +356,14 @@ try {
     weather = (await call(pathFor(weather) + "/price", "PATCH", { revision: weather.revision, price: "0.02" }, owner.bearer)).data;
     weather = (await call(pathFor(weather) + "/publish", "POST", { revision: weather.revision }, owner.bearer)).data;
     if (containerPreview) {
-      const canBuy = (req: express.Request) => req.isAuthenticated?.() && req.user?.username === owner.user.username;
+      const canBuy = (req: express.Request) => req.isAuthenticated?.();
       app.get("/staging/buyer", (req, res) => {
         if (!canBuy(req)) return res.redirect("/auth");
         res.type("html").send(`<!doctype html><html lang="en"><meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1"><title>PayGate402 sandbox buyer</title>
           <style>body{font:1rem system-ui;max-width:42rem;margin:3rem auto;padding:0 1rem;color:#172033}
           button{font:inherit;padding:.6rem;margin:.25rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f7;padding:1rem}</style>
-          <a href="/">Back to seller console</a><h1>Sandbox buyer</h1>
+          <a href="/dashboard">Back to seller console</a><h1>Sandbox buyer</h1>
           <p>Run a purchase against either published demo tool with the funded sandbox wallet.</p>
           <button data-kind="http">Buy weather over HTTP</button><button data-kind="mcp">Buy inventory over MCP</button>
           <pre id="result" aria-live="polite">The purchase result and receipt will appear here.</pre>
@@ -358,7 +407,7 @@ try {
     app.use(express.static("dist/public")).use("*", (_req, res) => res.sendFile("dist/public/index.html", { root: process.cwd() }));
     ready = true;
     if (containerPreview) console.log(`Sandbox ready at ${origin}/auth`);
-    else console.log(`Console: ${origin}/auth\nSandbox login: ${owner.user.username} / ${owner.user.password}\nPress Ctrl+C to stop.`);
+    else console.log(`Console: ${origin}/auth\nRequest a link for sandbox_seller@example.test, then open the link printed here.\nPress Ctrl+C to stop.`);
     await new Promise<void>(resolve => { process.once("SIGINT", () => resolve()); process.once("SIGTERM", () => resolve()); });
   }
 } finally {

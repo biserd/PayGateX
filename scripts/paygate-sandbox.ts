@@ -73,6 +73,7 @@ export async function sandbox(cleanup: Array<() => Promise<unknown>>) {
   });
   await database.exec(baseSchema);
   await database.exec(await readFile(new URL("../migrations/0001_paygate402.sql", import.meta.url), "utf8"));
+  await database.exec(await readFile(new URL("../migrations/0002_passwordless_auth.sql", import.meta.url), "utf8"));
   const pg = new PGLiteSocketServer({ db: database, host: "127.0.0.1", port: 0, maxConnections: 12 });
   await pg.start();
   cleanup.push(() => pg.stop());

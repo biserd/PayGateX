@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -30,6 +30,10 @@ import AdminDashboard from "@/pages/admin";
 
 function Router() {
   const { user, isLoading } = useAuth();
+  const [path] = useLocation();
+
+  if (path === "/") return <Landing />;
+  if (path === "/auth") return <AuthPage />;
 
   if (isLoading) {
     return (
@@ -42,8 +46,7 @@ function Router() {
   if (!user) {
     return (
       <Switch>
-        <Route path="/" component={Landing} />
-        <Route path="/auth" component={AuthPage} />
+        <Route path="/dashboard"><Redirect to="/auth" /></Route>
         <Route path="/directory" component={Directory} />
         <Route path="/release-notes" component={ReleaseNotes} />
         <Route path="/docs" component={DocsPage} />
@@ -61,7 +64,6 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={PaidTools} />
       <Route path="/dashboard" component={PaidTools} />
       <Route path="/legacy-dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminDashboard} />
