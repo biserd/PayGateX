@@ -11,7 +11,7 @@ import { clientContactSubmissionSchema, insertWebhookEndpointSchema, insertApiKe
 import { WebhookService } from "./services/webhook-service";
 import { apiKeyService } from "./services/api-key-service";
 import { directoryScheduler } from "./services/directory-scheduler";
-import { setupPaygate } from "./paygate/setup";
+import { setupPaygate, type PaygateTestFixtures } from "./paygate/setup";
 
 // Switch between different facilitator types for testing
 const facilitatorType = process.env.FACILITATOR_TYPE || "mock"; // Can be "mock", "coinbase", or "x402rs"
@@ -28,13 +28,13 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   next();
 };
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, fixtures?: PaygateTestFixtures): Promise<Server> {
   // Ensure database is seeded with demo data
   if (process.env.PAYGATE_ENABLE_LEGACY === "1") await ensureSeeded();
   
   // Setup authentication
   setupAuth(app);
-  await setupPaygate(app);
+  await setupPaygate(app, fixtures);
   
   // Keep the old v1 demo opt-in. Its routes share one demo organization.
   if (process.env.PAYGATE_ENABLE_LEGACY === "1") directoryScheduler.start();

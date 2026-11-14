@@ -16,9 +16,9 @@ import { ExactEvmScheme } from "@x402/evm/exact/facilitator";
 import { toFacilitatorEvmSigner } from "@x402/evm";
 import { asset, network } from "../server/paygate/payment";
 
-export async function listen(app: Express | Server, port = 0) {
+export async function listen(app: Express | Server, port = 0, host = "127.0.0.1") {
   const server = typeof app === "function" ? createServer(app) : app;
-  server.listen(port, "127.0.0.1");
+  server.listen(port, host);
   await once(server, "listening");
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("No local port");

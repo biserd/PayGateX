@@ -161,7 +161,9 @@ export function registerPaygate(app: Express, options: {
     if (p.settlement) res.set("PAYMENT-RESPONSE", encodePaymentResponseHeader(p.settlement));
     const pending = ["paid", "settling", "fulfilling", "payment_unknown", "upstream_unknown", "retryable"].includes(p.state);
     if (pending) res.set("Retry-After", "2");
-    res.status(status ?? (p.state === "failed" ? 502 : pending ? 202 : 200)).json(purchases.view(p));
+    // The gateway completed the purchase. Fulfillment failed at its upstream
+    // dependency. Keep the receipt body visible through proxies that replace 502s.
+    res.status(status ?? (p.state === "failed" ? 424 : pending ? 202 : 200)).json(purchases.view(p));
   }
   app.post(httpPath, route(async (req, res) => {
     if (!req.is("application/json")) throw new Problem(415, "Use application/json");

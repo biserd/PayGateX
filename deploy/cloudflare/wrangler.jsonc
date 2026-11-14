@@ -1,0 +1,22 @@
+{
+  "name": "paygate402-staging",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-13",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "PAYGATE_PREVIEW_ORIGIN": "https://paygate402-staging.biser-d.workers.dev"
+  },
+  "containers": [
+    {
+      "class_name": "PaygateStaging",
+      "image": "../../deploy/cloudflare/Dockerfile",
+      "instance_type": "basic",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "APP", "class_name": "PaygateStaging" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PaygateStaging"] }]
+}

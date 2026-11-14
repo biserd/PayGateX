@@ -17,11 +17,31 @@ import { listen, sandbox, secret } from "./paygate-sandbox";
 
 const cleanup: Array<() => Promise<unknown>> = [];
 const serving = process.argv.includes("--serve");
+const previewOrigin = process.env.PAYGATE_PREVIEW_ORIGIN;
+const containerPreview = process.argv.includes("--container");
+if (previewOrigin && (!serving || !/^https:\/\/[a-z0-9.-]+$/.test(previewOrigin))) {
+  throw new Error("PAYGATE_PREVIEW_ORIGIN requires --serve and a bare HTTPS origin");
+}
+if (containerPreview && (!previewOrigin || !process.env.PAYGATE_PREVIEW_PASSWORD || process.env.PAYGATE_PREVIEW_PASSWORD.length < 16)) {
+  throw new Error("Configure the container preview origin and a preview password of at least 16 characters");
+}
 const app = express().use(express.json({ limit: "128kb" }));
 const say = (s: string) => console.log("PASS " + s);
 let origin: string;
+let localOrigin: string;
+let ready = false;
+const gatewayFetch: typeof fetch = async (input, init) => {
+  if (!containerPreview) return fetch(input, init);
+  const request = new Request(input, init);
+  const url = new URL(request.url);
+  if (url.origin !== origin) throw new Error("Sandbox smoke test expected a preview URL");
+  const local = new URL(url.pathname + url.search, localOrigin);
+  const headers = new Headers(request.headers);
+  headers.set("x-forwarded-proto", "https");
+  return fetch(new Request(local, request), { headers });
+};
 async function call(path: string, method = "GET", body?: unknown, headers: Record<string, string> = {}, expected = 200) {
-  const res = await fetch(new URL(path, origin), {
+  const res = await gatewayFetch(new URL(path, origin), {
     method, headers: { ...(body === undefined ? {} : { "Content-Type": "application/json" }), ...headers },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
@@ -33,27 +53,43 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 try {
   const demo = await sandbox(cleanup);
-  const gateway = await listen(createServer(app), serving ? Number(process.env.PORT || 5000) : 0);
+  const gateway = await listen(createServer(app), serving ? Number(process.env.PORT || 5000) : 0,
+    containerPreview ? "0.0.0.0" : "127.0.0.1");
   cleanup.push(gateway.close);
-  origin = gateway.origin;
+  localOrigin = gateway.origin;
+  origin = previewOrigin ?? gateway.origin;
+  if (previewOrigin) {
+    app.use((_req, res, next) => {
+      res.set({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
+      next();
+    });
+    app.get("/healthz", (_req, res) => res.status(ready ? 200 : 503)
+      .json({ ok: ready, environment: "sandbox", checks: ready ? 9 : 0 }));
+    app.use(["/api/webhooks", "/api/contact"], (_req, res) => {
+      res.status(404).json({ error: "External notifications are disabled in this sandbox" });
+    });
+  }
   Object.assign(process.env, {
     SESSION_SECRET: randomBytes(32).toString("hex"),
     PAYGATE_PUBLIC_URL: origin, PAYGATE_SECRET_KEY: demo.encryptionKey,
-    PAYGATE_FACILITATOR_URL: demo.facilitatorUrl, PAYGATE_RPC_URL: demo.rpc,
-    PAYGATE_SANDBOX_ORIGINS: [demo.weather, demo.inventory].join(","),
-    PAYGATE_SANDBOX_TIMEOUT_MS: "500", PAYGATE_ENABLE_LEGACY: "0", PAYGATE_LOCAL_DEMO: "1",
+    PAYGATE_ENABLE_LEGACY: "0", PAYGATE_LOCAL_DEMO: "1",
   });
   const { pool } = await import("../server/db");
   cleanup.push(() => pool.end());
   const { registerRoutes } = await import("../server/routes");
-  await registerRoutes(app);
+  await registerRoutes(app, {
+    facilitatorUrl: demo.facilitatorUrl, rpcUrl: demo.rpc,
+    upstreamOrigins: [demo.weather, demo.inventory], timeoutMs: previewOrigin ? 1500 : 500,
+  });
   if (serving) app.use(express.static("dist/public")).use("*", (_req, res) => res.sendFile("dist/public/index.html", { root: process.cwd() }));
   const api = "/api/seller/v1/operations";
   const buyerPayment = new x402Client().register(network, new ExactEvmScheme(toClientEvmSigner(demo.buyer, demo.publicClient)));
-  const paidFetch = wrapFetchWithPayment(fetch, buyerPayment);
+  const paidFetch = wrapFetchWithPayment(gatewayFetch, buyerPayment);
 
   async function seller(name: string) {
-    const user = { username: name, email: name + "@example.test", password: "local-sandbox-only" };
+    const user = { username: name, email: name + "@example.test",
+      password: containerPreview && name === "sandbox_seller" ? process.env.PAYGATE_PREVIEW_PASSWORD!
+        : previewOrigin ? randomBytes(24).toString("base64url") : "local-sandbox-only" };
     const registration = await call("/api/register", "POST", user, {}, 201);
     const cookie = registration.res.headers.get("set-cookie")!.split(";")[0];
     const key = (await call("/api/keys", "POST", { name: "Sandbox CI" }, { cookie })).data;
@@ -122,7 +158,7 @@ try {
   });
   async function quote(url: string, input: unknown) {
     const before = [demo.reads, demo.attempts, demo.settlements];
-    const res = await fetch(url, init(input));
+    const res = await gatewayFetch(url, init(input));
     assert.equal(res.status, 402);
     const requirement = decodePaymentRequiredHeader(res.headers.get("PAYMENT-REQUIRED")!);
     const body = await res.json();
@@ -142,7 +178,7 @@ try {
   assert.equal(unpaid.requirement.accepts[0].amount, "20000");
   const badSig = await buyerPayment.createPaymentPayload(unpaid.requirement);
   badSig.payload.signature = "0x" + "0".repeat(130);
-  const denied = await fetch(wxUrl, init(wx, badSig));
+  const denied = await gatewayFetch(wxUrl, init(wx, badSig));
   assert.equal(denied.status, 402);
   assert.equal((await denied.json()).state, "quoted");
   say("public schema and price; invalid inputs and unpaid/invalid signatures do not call upstream or settle");
@@ -169,7 +205,7 @@ try {
     mcpRequired = paymentRequired;
     return paymentRequired.accepts[0].amount === "30000" && paymentRequired.accepts[0].payTo === demo.seller.address;
   } });
-  await mcp.connect(new StreamableHTTPClientTransport(new URL(inventory.connection!.mcp)));
+  await mcp.connect(new StreamableHTTPClientTransport(new URL(inventory.connection!.mcp), { fetch: gatewayFetch }));
   const tools = await mcp.listTools();
   assert.equal(tools.tools.length, 1);
   assert.equal(tools.tools[0].name, "reserve_stock");
@@ -192,7 +228,7 @@ try {
   const retry = await quote(wxUrl, wx);
   const signed = await buyerPayment.createPaymentPayload(retry.requirement);
   const reads = demo.reads, settlements = demo.settlements;
-  const concurrent = await Promise.all(Array.from({ length: 5 }, () => fetch(wxUrl, init(wx, signed))));
+  const concurrent = await Promise.all(Array.from({ length: 5 }, () => gatewayFetch(wxUrl, init(wx, signed))));
   assert(concurrent.every(r => [200, 202].includes(r.status)));
   assert.equal(demo.reads, reads + 1);
   assert.equal(demo.settlements, settlements + 1);
@@ -200,15 +236,15 @@ try {
   assert.equal(storedRetry.state, "succeeded");
   const otherQuote = await quote(wxUrl, wx);
   const reused = { ...signed, resource: otherQuote.requirement.resource };
-  assert.equal((await fetch(wxUrl, init(wx, reused))).status, 409);
+  assert.equal((await gatewayFetch(wxUrl, init(wx, reused))).status, 409);
   const distinct = await buyerPayment.createPaymentPayload(retry.requirement);
-  assert.equal((await fetch(wxUrl, init(wx, distinct))).status, 409);
+  assert.equal((await gatewayFetch(wxUrl, init(wx, distinct))).status, 409);
   assert.equal(demo.settlements, settlements + 1);
   say("five concurrent paid retries cause one transfer and one upstream execution; duplicate authorization blocked");
 
   const bad = await paidFetch(stockUrl, init({ ...stock, sku: "BAD" }));
   const failed = await bad.json();
-  assert.equal(bad.status, 502);
+  assert.equal(bad.status, 424);
   assert.equal(failed.state, "failed");
   assert.equal(failed.upstreamStatus, 422);
   assert.equal(failed.receipt.success, true);
@@ -242,7 +278,7 @@ try {
   const disconnectPayment = await buyerPayment.createPaymentPayload(disconnect.requirement);
   const ctrl = new AbortController();
   const count = demo.reads;
-  const dropping = fetch(wxUrl, { ...init(wx, disconnectPayment), signal: ctrl.signal }).catch(e => e);
+  const dropping = gatewayFetch(wxUrl, { ...init(wx, disconnectPayment), signal: ctrl.signal }).catch(e => e);
   for (let i = 0; i < 300 && demo.reads === count; i++) await delay(10);
   assert.equal(demo.reads, count + 1);
   ctrl.abort();
@@ -254,7 +290,7 @@ try {
   const oldQuote = await quote(wxUrl, wx);
   weather = (await call(pathFor(weather) + "/price", "PATCH", { revision: weather.revision, price: "0.04" }, owner.bearer)).data;
   assert.equal((await call(wxUrl)).data.price, "0.04");
-  assert.equal((await fetch(wxUrl, init(wx, await buyerPayment.createPaymentPayload(oldQuote.requirement)))).status, 409);
+  assert.equal((await gatewayFetch(wxUrl, init(wx, await buyerPayment.createPaymentPayload(oldQuote.requirement)))).status, 409);
   assert.equal((await call(directResult.recoveryUrl)).data.receipt.price, "0.02");
   weather = (await call(pathFor(weather) + "/pause", "POST", { revision: weather.revision }, owner.bearer)).data;
   await call(wxUrl, "GET", undefined, {}, 404);
@@ -270,7 +306,9 @@ try {
 
   if (serving) {
     await call(pathFor(weather) + "/publish", "POST", { revision: weather.revision }, owner.bearer);
-    console.log(`Console: ${origin}/auth\nSandbox login: ${owner.user.username} / ${owner.user.password}\nPress Ctrl+C to stop.`);
+    ready = true;
+    if (containerPreview) console.log(`Sandbox ready at ${origin}/auth`);
+    else console.log(`Console: ${origin}/auth\nSandbox login: ${owner.user.username} / ${owner.user.password}\nPress Ctrl+C to stop.`);
     await new Promise<void>(resolve => { process.once("SIGINT", () => resolve()); process.once("SIGTERM", () => resolve()); });
   }
 } finally {

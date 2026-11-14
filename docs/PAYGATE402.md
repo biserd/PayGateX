@@ -97,7 +97,7 @@ The console calls these same endpoints. Supported upstream auth types are `none`
 3. **Save the quote's `resource.url` before retrying.** It is the private purchase recovery URL, containing the purchase ID and a random recovery credential. The ID alone cannot retrieve a result. Treat the URL like a bearer secret; do not share or log it. It is also in the HTTP challenge body. The official SDK copies it into the retry payment payload. HTTP sends `PAYMENT-SIGNATURE`; MCP uses `_meta["x402/payment"]`.
 4. On settlement, the server attaches the x402 settlement response as `PAYMENT-RESPONSE` or `_meta["x402/payment-response"]`. The JSON result contains the purchase ID, state, result when available and the receipt with recipient, amount, payer, network and transaction. Repeat the same paid request or read `GET <recoveryUrl>`. A new unsigned call creates a new quote and should not be used to recover a paid call.
 
-Quotes expire after five minutes or when the seller edits, pauses or republishes the operation. The payment authorization nonce is unique across purchases. Concurrent retries cannot run settlement or fulfillment twice. Once payment is settled, a failed upstream call still has a receipt; the MVP does not automatically refund it.
+Quotes expire after five minutes or when the seller edits, pauses or republishes the operation. The payment authorization nonce is unique across purchases. Concurrent retries cannot run settlement or fulfillment twice. A terminal upstream failure returns HTTP 424 with the settled receipt. The MVP does not automatically refund it.
 
 | State | Next step |
 | --- | --- |
