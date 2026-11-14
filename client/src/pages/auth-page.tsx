@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { queryClient } from "@/lib/queryClient";
 
+const linkToken = () => new URLSearchParams(window.location.hash.slice(1)).get("token");
+
 export default function AuthPage() {
   const { user, isLoading } = useAuth();
   const [, navigate] = useLocation();
-  const [token, setToken] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("token"));
+  const [token, setToken] = useState(linkToken);
   const [email, setEmail] = useState("");
   const [sentTo, setSentTo] = useState("");
   const [error, setError] = useState("");
@@ -18,6 +20,17 @@ export default function AuthPage() {
 
   useEffect(() => {
     document.title = "Sign in | PayGate402";
+    const acceptLink = () => {
+      const nextToken = linkToken();
+      if (!nextToken) return;
+      setSentTo("");
+      setError("");
+      setToken(nextToken);
+    };
+    window.addEventListener("hashchange", acceptLink);
+    return () => window.removeEventListener("hashchange", acceptLink);
+  }, []);
+  useEffect(() => {
     if (token) window.history.replaceState(window.history.state, "", window.location.pathname);
   }, [token]);
   useEffect(() => {
