@@ -2,6 +2,38 @@ import { DurableObject } from "cloudflare:workers";
 
 const port = 8080;
 const inactivityMs = 30 * 60 * 1000;
+const retrySeconds = 5;
+
+function warmingResponse(request) {
+  const headers = {
+    "Cache-Control": "no-store",
+    "Retry-After": String(retrySeconds),
+    "X-Robots-Tag": "noindex, nofollow",
+  };
+  if (request.method === "GET" && request.headers.get("Accept")?.includes("text/html")) {
+    return new Response(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="${retrySeconds}">
+    <title>PayGate402 staging is starting</title>
+    <style>
+      body { margin: 0; padding: 12vh 1.5rem; background: #f8fafc; color: #0f172a; font: 1rem/1.6 system-ui, sans-serif; }
+      main { max-width: 32rem; margin: auto; }
+      h1 { line-height: 1.2; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>PayGate402 staging is starting</h1>
+      <p>This page refreshes automatically until the sandbox is ready.</p>
+    </main>
+  </body>
+</html>`, { status: 503, headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
+  }
+  return Response.json({ error: "The staging sandbox is starting. Retry shortly." }, { status: 503, headers });
+}
 
 export class PaygateStaging extends DurableObject {
   constructor(ctx, env) {
@@ -17,8 +49,9 @@ export class PaygateStaging extends DurableObject {
     return this.forward(request, container);
   }
 
-  async start(container) {
+  start(container) {
     if (!container.running) {
+      this.ready = false;
       container.start({
         enableInternet: true,
         env: {
@@ -28,49 +61,50 @@ export class PaygateStaging extends DurableObject {
         },
       });
       this.ctx.waitUntil(container.monitor().then(() => {
+        this.ready = false;
         console.log("PayGate402 staging container exited");
       }).catch(error => {
+        this.ready = false;
         console.error("PayGate402 staging container startup failed", error instanceof Error ? error.message : String(error));
       }));
-      await container.setInactivityTimeout(inactivityMs);
+      this.ctx.waitUntil(container.setInactivityTimeout(inactivityMs));
     }
-    const tcp = container.getTcpPort(port);
-    await this.waitForReady(tcp);
   }
 
-  async waitForReady(tcp) {
-    let lastError;
-    for (let i = 0; i < 120; i++) {
-      try {
-        const check = await tcp.fetch("http://localhost/healthz", { signal: AbortSignal.timeout(3000) });
-        await check.body?.cancel();
-        if (check.ok) return;
-      } catch (error) { lastError = error; }
-      await scheduler.wait(500);
-    }
-    throw new Error("Staging sandbox did not pass its startup checks", { cause: lastError });
+  async checkReady(tcp) {
+    const check = await tcp.fetch("http://localhost/healthz", { signal: AbortSignal.timeout(2000) });
+    await check.body?.cancel();
+    return check.ok;
   }
 
   async forward(request, container) {
+    let tcp;
     try {
-      if (!this.readiness) this.readiness = this.start(container);
-      await this.readiness;
+      this.start(container);
+      tcp = container.getTcpPort(port);
+      if (!this.ready && !await this.checkReady(tcp)) return warmingResponse(request);
+      this.ready = true;
+    } catch (error) {
+      console.log("PayGate402 staging readiness check", error instanceof Error ? error.message : String(error));
+      return warmingResponse(request);
+    }
+    try {
       const headers = new Headers(request.headers);
       headers.set("x-forwarded-proto", "https");
       headers.delete("x-forwarded-host");
       const incoming = new URL(request.url);
       incoming.protocol = "http:";
       const forwarded = new Request(new Request(incoming, request), { headers });
-      const response = await container.getTcpPort(port).fetch(forwarded);
+      const response = await tcp.fetch(forwarded);
       const result = new Response(response.body, response);
       result.headers.set("Cache-Control", "no-store");
       result.headers.set("X-Robots-Tag", "noindex, nofollow");
       return result;
     } catch (error) {
-      this.readiness = undefined;
+      this.ready = false;
       console.error("PayGate402 staging unavailable", error instanceof Error ? error.message : "request failed");
-      return Response.json({ error: "The staging sandbox is starting. Retry shortly." }, {
-        status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "5", "X-Robots-Tag": "noindex, nofollow" },
+      return Response.json({ error: "The staging sandbox did not return a response." }, {
+        status: 502, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" },
       });
     }
   }
