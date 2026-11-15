@@ -6,7 +6,8 @@
   "preview_urls": false,
   "vars": {
     "PAYGATE_PUBLIC_URL": "https://paygate402.com",
-    "PAYGATE_SIGN_IN_FROM": "signin@auth.paygate402.com"
+    "PAYGATE_SIGN_IN_FROM": "signin@auth.paygate402.com",
+    "PAYGATE_SUPPORT_EMAIL": "hello@paygate402.com"
   },
   "assets": {
     "directory": "../../dist/public",
@@ -19,6 +20,12 @@
     { "pattern": "www.paygate402.com", "custom_domain": true }
   ],
   "send_email": [{ "name": "SIGN_IN_EMAIL", "allowed_sender_addresses": ["signin@auth.paygate402.com"] }],
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "paygate402-production",
+    "database_id": "967faa0a-a1a7-4ca6-b6cd-e7756c108eb5",
+    "migrations_dir": "./d1"
+  }],
   "containers": [
     {
       "class_name": "PaygateProduction",

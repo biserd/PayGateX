@@ -4,25 +4,62 @@ const port = 8080;
 const inactivityMs = 30 * 60 * 1000;
 const retrySeconds = 5;
 const emailHost = "paygate-email.internal";
+const databaseHost = "paygate-d1.internal";
 const publicOrigin = env => env.PAYGATE_PUBLIC_URL ?? env.PAYGATE_PREVIEW_ORIGIN;
 const publicPages = new Set(["/", "/about", "/faq", "/contact", "/privacy", "/terms"]);
 const publicFiles = new Set(["/favicon.svg", "/robots.txt", "/sitemap.xml"]);
 const sellerPages = new Set(["/dashboard", "/endpoints", "/api-keys"]);
-const hasProductionSecrets = env => Boolean(env.DATABASE_URL && env.SESSION_SECRET && env.PAYGATE_SECRET_KEY);
+const hasProductionStorage = env => Boolean(env.DB && env.PAYGATE_SECRET_KEY);
+
+// Only the container's outbound HTTP intercept can reach this entrypoint.
+// Public requests use the distinct default export below.
+export class PaygateDatabase extends WorkerEntrypoint {
+  async fetch(request) {
+    if (request.method !== "POST" || new URL(request.url).pathname !== "/batch") {
+      return new Response(null, { status: 404 });
+    }
+    try {
+      const batch = await request.json();
+      if (!Array.isArray(batch) || batch.length < 1 || batch.length > 10) return new Response(null, { status: 400 });
+      const statements = batch.map(({ sql, params }) => this.env.DB.prepare(sql).bind(...params));
+      const results = await this.env.DB.batch(statements);
+      return Response.json(results.map(result => result.results), { headers: { "Cache-Control": "no-store" } });
+    } catch {
+      console.error("PayGate402 D1 batch failed");
+      return new Response(null, { status: 500 });
+    }
+  }
+}
 
 export class SignInEmail extends WorkerEntrypoint {
   async fetch(request) {
-    if (new URL(request.url).pathname !== "/sign-in" || request.method !== "POST") {
+    const path = new URL(request.url).pathname;
+    if (!["/sign-in", "/contact"].includes(path) || request.method !== "POST") {
       return new Response(null, { status: 404 });
     }
     const { PAYGATE_SIGN_IN_FROM: from, SIGN_IN_EMAIL: mailer } = this.env;
     const origin = publicOrigin(this.env);
     if (!from || !mailer) return new Response(null, { status: 503 });
     try {
-      const { email, link } = await request.json();
+      const body = await request.json();
+      const { email, link } = body;
+      if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return new Response(null, { status: 400 });
+      }
+      if (path === "/contact") {
+        const to = this.env.PAYGATE_SUPPORT_EMAIL;
+        const { name, subject, message } = body;
+        if (!to) return new Response(null, { status: 503 });
+        if (typeof name !== "string" || name.length > 150 || typeof subject !== "string" || subject.length > 200
+          || typeof message !== "string" || message.length > 5000) return new Response(null, { status: 400 });
+        await mailer.send({
+          from: { email: from, name: "PayGate402" }, to, replyTo: email, subject: "PayGate402 support request",
+          text: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}`,
+        });
+        return new Response(null, { status: 204 });
+      }
       const url = new URL(link);
-      if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-        || url.origin !== origin || url.pathname !== "/auth" || url.search || url.username || url.password
+      if (url.origin !== origin || url.pathname !== "/auth" || url.search || url.username || url.password
         || !/^#token=[A-Za-z0-9_-]{43}$/.test(url.hash)) {
         return new Response(null, { status: 400 });
       }
@@ -35,7 +72,7 @@ export class SignInEmail extends WorkerEntrypoint {
       console.log("PayGate402 sign-in email accepted by Cloudflare", result.messageId);
       return new Response(null, { status: 204 });
     } catch (error) {
-      console.error("Cloudflare sign-in email failed", error?.code ?? "send failed");
+      console.error("Cloudflare email failed", error?.code ?? "send failed");
       return new Response(null, { status: 503 });
     }
   }
@@ -93,12 +130,15 @@ class PaygateContainer extends DurableObject {
   start(container) {
     if (!container.running) {
       this.ready = false;
-      this.emailIntercepted = false;
       const production = this.env.PAYGATE_PUBLIC_URL;
       const env = { PORT: String(port), PAYGATE_EMAIL_BRIDGE: `http://${emailHost}/sign-in` };
       if (production) {
-        const { DATABASE_URL, SESSION_SECRET, PAYGATE_SECRET_KEY, PAYGATE_FACILITATOR_URL, PAYGATE_RPC_URL } = this.env;
-        Object.assign(env, { DATABASE_URL, SESSION_SECRET, PAYGATE_SECRET_KEY, PAYGATE_PUBLIC_URL: production });
+        const { PAYGATE_SECRET_KEY, PAYGATE_FACILITATOR_URL, PAYGATE_RPC_URL } = this.env;
+        Object.assign(env, {
+          PAYGATE_SECRET_KEY, PAYGATE_PUBLIC_URL: production,
+          PAYGATE_D1_BRIDGE: `http://${databaseHost}/batch`,
+          PAYGATE_CONTACT_BRIDGE: `http://${emailHost}/contact`,
+        });
         if (PAYGATE_FACILITATOR_URL) env.PAYGATE_FACILITATOR_URL = PAYGATE_FACILITATOR_URL;
         if (PAYGATE_RPC_URL) env.PAYGATE_RPC_URL = PAYGATE_RPC_URL;
       } else {
@@ -129,10 +169,14 @@ class PaygateContainer extends DurableObject {
     const staging = !this.env.PAYGATE_PUBLIC_URL;
     let tcp;
     try {
-      this.start(container);
-      if (!this.emailIntercepted) {
-        await container.interceptOutboundHttp(emailHost, this.ctx.exports.SignInEmail);
-        this.emailIntercepted = true;
+      if (!this.interceptsReady || !container.running) {
+        await this.ctx.blockConcurrencyWhile(async () => {
+          if (this.interceptsReady && container.running) return;
+          await container.interceptOutboundHttp(emailHost, this.ctx.exports.SignInEmail);
+          if (!staging) await container.interceptOutboundHttp(databaseHost, this.ctx.exports.PaygateDatabase);
+          this.start(container);
+          this.interceptsReady = true;
+        });
       }
       tcp = container.getTcpPort(port);
       if (!this.ready && !await this.checkReady(tcp)) return unavailableResponse(request, staging);
@@ -204,7 +248,7 @@ export default {
       const asset = await servePublicAssets(request, url, env.WEB);
       if (asset) return asset;
     }
-    if (env.PAYGATE_PUBLIC_URL && !hasProductionSecrets(env)) {
+    if (env.PAYGATE_PUBLIC_URL && !hasProductionStorage(env)) {
       return Response.json({ ok: false, error: "PayGate402 is temporarily unavailable." }, {
         status: 503, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
       });

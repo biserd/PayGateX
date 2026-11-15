@@ -12,7 +12,8 @@
     "db:paygate": "node scripts/migrate-paygate.mjs",
     "check:paygate": "tsc -p tsconfig.paygate.json",
     "demo:paygate": "tsx scripts/paygate-demo.ts",
-    "test:paygate": "tsx scripts/paygate-demo.ts"
+    "test:paygate": "tsx scripts/paygate-demo.ts",
+    "test:paygate:d1": "tsx scripts/paygate-demo.ts --d1"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.16",

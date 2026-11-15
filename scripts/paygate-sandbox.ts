@@ -65,7 +65,7 @@ const tokenAbi = parseAbi(["function mint(address to, uint256 value)", "function
 const secret = "local-inventory-demo-credential";
 export { secret };
 
-export async function sandbox(cleanup: Array<() => Promise<unknown>>) {
+export async function sandboxDatabase(cleanup: Array<() => Promise<unknown>>) {
   const database = await PGlite.create();
   cleanup.push(() => database.close());
   const baseSchema = execFileSync(process.execPath, ["node_modules/drizzle-kit/bin.cjs", "export"], {
@@ -78,7 +78,10 @@ export async function sandbox(cleanup: Array<() => Promise<unknown>>) {
   await pg.start();
   cleanup.push(() => pg.stop());
   process.env.DATABASE_URL = "postgres://sandbox:sandbox@" + pg.getServerConn() + "/postgres";
+  return database;
+}
 
+export async function sandbox(cleanup: Array<() => Promise<unknown>>) {
   const chain = ganache.server({ chain: { chainId: baseSepolia.id, hardfork: "shanghai" }, logging: { quiet: true } });
   await chain.listen(0, "127.0.0.1");
   cleanup.push(() => chain.close());
@@ -170,7 +173,7 @@ export async function sandbox(cleanup: Array<() => Promise<unknown>>) {
   const inventoryServer = await listen(inventory);
   cleanup.push(inventoryServer.close);
   return {
-    database, rpc, facilitatorUrl: facilitatorServer.origin, weather: weatherServer.origin, inventory: inventoryServer.origin,
+    rpc, facilitatorUrl: facilitatorServer.origin, weather: weatherServer.origin, inventory: inventoryServer.origin,
     seller, buyer, balance, mine, publicClient, get reads() { return reads; }, get writes() { return writes; },
     get attempts() { return attempts; }, get settlements() { return settlements; }, loseNextSettlement: () => { loseSettlement = true; },
     encryptionKey: toHex(randomBytes(32)).slice(2),

@@ -13,10 +13,12 @@ import { wrapFetchWithPayment } from "@x402/fetch";
 import { wrapMCPClientWithPayment } from "@x402/mcp";
 import { type SellerOperation } from "../shared/paygate";
 import { network, asset } from "../server/paygate/payment";
-import { listen, sandbox, secret } from "./paygate-sandbox";
+import { listen, sandbox, sandboxDatabase, secret } from "./paygate-sandbox";
+import type { Sql } from "../server/paygate/store";
 
 const cleanup: Array<() => Promise<unknown>> = [];
 const serving = process.argv.includes("--serve");
+const d1 = process.argv.includes("--d1");
 const previewOrigin = process.env.PAYGATE_PREVIEW_ORIGIN;
 const containerPreview = process.argv.includes("--container");
 if (previewOrigin && (!serving || !/^https:\/\/[a-z0-9.-]+$/.test(previewOrigin))) {
@@ -74,16 +76,14 @@ try {
     PAYGATE_PUBLIC_URL: origin, PAYGATE_SECRET_KEY: demo.encryptionKey,
     PAYGATE_ENABLE_LEGACY: "0", PAYGATE_LOCAL_DEMO: "1",
   });
-  const { pool } = await import("../server/db");
-  cleanup.push(() => pool.end());
-  const { registerRoutes } = await import("../server/routes");
   const { sendSignInLink } = await import("../server/email-service");
-  await registerRoutes(app, {
+  const fixtures = {
     facilitatorUrl: demo.facilitatorUrl, rpcUrl: demo.rpc,
     upstreamOrigins: [demo.weather, demo.inventory], timeoutMs: previewOrigin ? 1500 : 500,
-  }, {
+  };
+  const mailer = {
     available: () => !containerPreview || !ready || Boolean(emailBridge),
-    async send(email, link) {
+    async send(email: string, link: string) {
       if (!ready) {
         inbox.set(email, link);
         return true;
@@ -94,7 +94,22 @@ try {
       }
       return !email.endsWith("@example.test") && Boolean(emailBridge) && sendSignInLink(email, link);
     },
-  });
+  };
+  let database: Sql;
+  if (d1) {
+    const { sqliteFixture } = await import("./paygate-d1-fixture");
+    const { registerCloudflareApi } = await import("../server/cloudflare/api");
+    const sqlite = await sqliteFixture(cleanup);
+    database = sqlite;
+    await registerCloudflareApi(app, { db: sqlite, origin, key: demo.encryptionKey, mailer, fixtures });
+  } else {
+    await sandboxDatabase(cleanup);
+    const { pool } = await import("../server/db");
+    cleanup.push(() => pool.end());
+    const { registerRoutes } = await import("../server/routes");
+    database = pool;
+    await registerRoutes(app, fixtures, mailer);
+  }
   const api = "/api/seller/v1/operations";
   const buyerPayment = new x402Client().register(network, new ExactEvmScheme(toClientEvmSigner(demo.buyer, demo.publicClient)));
   const paidFetch = wrapFetchWithPayment(gatewayFetch, buyerPayment);
@@ -128,10 +143,14 @@ try {
   assert.deepEqual(attempts.map(response => response.status).sort(), [200, 400]);
   assert.equal((await attempts.find(response => response.ok)!.json()).email, email);
   assert.equal((await redeem()).status, 400);
-  await pool.query("UPDATE auth_login_links SET issued_at = now() - interval '2 minutes' WHERE email = $1", [email]);
+  await database.query(d1
+    ? "UPDATE auth_login_links SET issued_at = unixepoch() - 120 WHERE email = $1"
+    : "UPDATE auth_login_links SET issued_at = now() - interval '2 minutes' WHERE email = $1", [email]);
   await call("/api/auth/email/request", "POST", { email }, {}, 202);
   const expired = new URLSearchParams(new URL(inbox.get(email)!).hash.slice(1)).get("token");
-  await pool.query("UPDATE auth_login_links SET expires_at = now() - interval '1 second' WHERE email = $1", [email]);
+  await database.query(d1
+    ? "UPDATE auth_login_links SET expires_at = unixepoch() - 1 WHERE email = $1"
+    : "UPDATE auth_login_links SET expires_at = now() - interval '1 second' WHERE email = $1", [email]);
   await call("/api/auth/email/redeem", "POST", { token: expired }, {}, 400);
   inbox.delete(email);
   say("email link delivery, same-origin enforcement, concurrent redemption, replay and expiration");
@@ -174,7 +193,7 @@ try {
     await call(pathFor(op), "PUT", { config: { ...reservationConfig, payTo: demo.buyer.address }, revision: op.revision }, outsider.bearer, 404);
     await call(pathFor(op) + "/publish", "POST", { revision: op.revision }, owner.bearer, 409);
   }
-  const stored = await demo.database.query<{ auth_cipher: string }>("SELECT auth_cipher FROM paygate_operations WHERE id = $1", [inventory.id]);
+  const stored = await database.query<{ auth_cipher: string }>("SELECT auth_cipher FROM paygate_operations WHERE id = $1", [inventory.id]);
   assert(stored.rows[0].auth_cipher && !stored.rows[0].auth_cipher.includes(secret));
   assert(!JSON.stringify((await call(api, "GET", undefined, session)).data).includes(secret));
   async function publish(op: SellerOperation, input: unknown) {

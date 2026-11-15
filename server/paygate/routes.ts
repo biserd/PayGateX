@@ -41,6 +41,7 @@ const lookupId = (id: string) => {
 export function registerPaygate(app: Express, options: {
   store: PaygateStore; identity: { getApiKeyByHash(hash: string): Promise<{ orgId: string; isActive: boolean; revokedAt: Date | null } | undefined> }; origin: string;
   upstream: Upstream; payments: Payments; key: Buffer;
+  getSeller?: (req: Request) => Promise<{ orgId: string; role: string } | undefined>;
 }) {
   const { store, identity, origin, upstream, payments } = options;
   const secrets = credentials(options.key);
@@ -58,8 +59,9 @@ export function registerPaygate(app: Express, options: {
       if (entry && entry.isActive && !entry.revokedAt) return entry.orgId;
       throw new Problem(401, "Invalid seller API key");
     }
-    const user = req.user as { orgId?: string; role: string } | undefined;
-    if (!user?.orgId || !req.isAuthenticated?.()) throw new Problem(401, "Sign in or use a seller API key");
+    const user = options.getSeller ? await options.getSeller(req)
+      : req.isAuthenticated?.() ? req.user as { orgId?: string; role: string } : undefined;
+    if (!user?.orgId) throw new Problem(401, "Sign in or use a seller API key");
     if (!["admin", "member"].includes(user.role)) throw new Problem(403, "Seller access required");
     if (!["GET", "HEAD"].includes(req.method)) {
       if (req.get("Origin") && req.get("Origin") !== origin) throw new Problem(403, "Invalid seller request origin");
