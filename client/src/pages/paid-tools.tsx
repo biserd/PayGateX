@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DashboardHeader } from "@/components/dashboard-header";
-import { Sidebar } from "@/components/sidebar";
+import { SellerLayout } from "@/components/seller-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -120,10 +119,12 @@ export default function PaidTools() {
     catch { toast({ title: "Could not copy", description: "Select and copy the text directly." }); }
   }
 
-  return <div className="flex min-h-screen bg-slate-50">
-    <aside className="hidden lg:flex"><Sidebar /></aside>
-    <main className="mx-auto w-full max-w-5xl min-w-0 space-y-5 p-4 md:p-8">
-      <DashboardHeader title="Paid tools" description="Publish the API you already run as a paid HTTP endpoint and MCP tool." />
+  return <SellerLayout>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-3xl font-semibold tracking-tight" data-testid="page-title">Paid tools</h1>
+        <p className="mt-2 text-slate-600">Publish the API you already run as a paid HTTP endpoint and MCP tool.</p>
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         <select aria-label="Select an operation" className={selectClass + " max-w-sm"} value={selected?.id ?? ""}
           disabled={busy} onChange={e => load(operations.data?.find(op => op.id === e.target.value))}>
@@ -131,7 +132,6 @@ export default function PaidTools() {
           {operations.data?.map(op => <option key={op.id} value={op.id}>{op.name} · {op.status}</option>)}
         </select>
         {operations.isError && <span role="alert" className="text-sm text-red-700">Could not load operations.</span>}
-        <a href="/api-keys" className="text-sm text-blue-700 underline">API keys for CI</a>
       </div>
       <nav aria-label="Setup steps" className="flex flex-wrap gap-2">
         {[["Connect and price", 1], ["Run a sandbox call", 2], ["Publish and monitor", 3]].map(([label, n]) =>
@@ -227,6 +227,6 @@ export default function PaidTools() {
           </>}
         </Panel>
       </>}
-    </main>
-  </div>;
+    </div>
+  </SellerLayout>;
 }

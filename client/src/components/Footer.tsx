@@ -26,6 +26,7 @@ export function Footer({
     { href: "/privacy", label: "Privacy Policy", testId: "link-privacy" },
     ...(showAbout ? [{ href: "/about", label: "About", testId: "link-about" }] : []),
     { href: "/faq", label: "FAQ", testId: "link-faq-footer" },
+    { href: "/contact", label: "Contact" },
     { href: "/terms", label: "Terms of Service", testId: "link-terms" },
   ];
 
@@ -37,11 +38,11 @@ export function Footer({
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Coins className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">PayGate x402</span>
+            <span className="text-xl font-bold text-gray-900">PayGate402</span>
           </div>
           
           <div className="text-center md:text-right space-y-2">
-            <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+            <nav aria-label="Footer" className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
               {defaultLinks.map((link) => (
                 <a
                   key={link.href}
@@ -52,9 +53,9 @@ export function Footer({
                   {link.label}
                 </a>
               ))}
-            </div>
+            </nav>
             <p className="text-gray-500">
-              © {new Date().getFullYear()} PayGate x402. {footerText}
+              © {new Date().getFullYear()} PayGate402. {footerText}
             </p>
             {email && <p className="text-sm text-gray-500">{email}</p>}
             {showVersion && <p className="text-sm text-gray-500">Version {version}</p>}

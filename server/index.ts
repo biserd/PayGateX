@@ -15,6 +15,9 @@ if (process.env.PAYGATE_PUBLIC_URL === "https://paygate402.com") {
     next();
   });
 }
+app.get(/^\/release-notes(?:\/|$)/i, (_req, res) => {
+  res.set("X-Robots-Tag", "noindex").status(410).type("text").send("This page has been removed.");
+});
 app.use(express.json({ limit: "128kb" }));
 app.use(express.urlencoded({ extended: false }));
 

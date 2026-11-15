@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { PublicHeader } from "@/components/public-header";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
-import { Coins, Menu, X, Zap, Shield, Globe, Users } from "lucide-react";
+import { Zap, Shield, Globe, Users } from "lucide-react";
 import { useSEO } from "@/hooks/use-seo";
 
 export default function About() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
     title: 'About PayGate x402 - Revolutionizing API Monetization',
@@ -16,104 +15,7 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <a href="/" className="flex items-center space-x-2 sm:space-x-4 hover:opacity-80 transition-opacity" data-testid="logo-home">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">PayGate x402</h1>
-              <p className="text-xs text-gray-500 font-medium hidden sm:block">About</p>
-            </div>
-          </a>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/"}
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              data-testid="nav-home"
-            >
-              Home
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/docs"}
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              data-testid="nav-docs"
-            >
-              Documentation
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => window.location.href = "/contact"}
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              data-testid="nav-contact"
-            >
-              Contact
-            </Button>
-            <Button 
-              onClick={() => window.location.href = "/auth"}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
-              data-testid="button-login"
-            >
-              Sign In
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <Button
-              onClick={() => window.location.href = "/auth"}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm font-medium"
-              data-testid="mobile-button-login-top"
-            >
-              Sign In
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2"
-              data-testid="mobile-menu-button"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="container mx-auto px-4 py-4 space-y-2">
-              <button
-                onClick={() => { window.location.href = "/"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
-                data-testid="mobile-nav-home"
-              >
-                Home
-              </button>
-              <button
-                onClick={() => { window.location.href = "/docs"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
-                data-testid="mobile-nav-docs"
-              >
-                Documentation
-              </button>
-              <button
-                onClick={() => { window.location.href = "/contact"; setMobileMenuOpen(false); }}
-                className="w-full text-left px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md"
-                data-testid="mobile-nav-contact"
-              >
-                Contact
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
+      <PublicHeader />
 
       {/* Main Content */}
       <main className="bg-gradient-to-b from-white to-gray-50">

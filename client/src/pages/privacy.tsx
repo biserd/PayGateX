@@ -1,11 +1,8 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PublicHeader } from "@/components/public-header";
 import { Footer } from "@/components/Footer";
-import { Coins, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/use-seo";
 
 export default function PrivacyPolicy() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useSEO({
     title: 'Privacy Policy - PayGate x402',
@@ -16,61 +13,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer" data-testid="logo-home">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Coins className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">PayGate x402</span>
-          </a>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-home">
-              Home
-            </a>
-            <a href="/docs" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-docs">
-              Docs
-            </a>
-            <a href="/contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors" data-testid="nav-contact">
-              Contact
-            </a>
-          </nav>
-
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-gray-600"
-              data-testid="mobile-menu-button"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-            
-            <Button 
-              onClick={() => window.location.href = "/auth"}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5"
-              data-testid="button-login"
-            >
-              Sign In
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
-            <nav className="container mx-auto px-4 py-4 space-y-2">
-              <a href="/" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-home">Home</a>
-              <a href="/docs" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-docs">Docs</a>
-              <a href="/contact" className="block py-2 text-gray-600 hover:text-blue-600 font-medium" data-testid="mobile-nav-contact">Contact</a>
-            </nav>
-          </div>
-        )}
-      </header>
+      <PublicHeader />
 
       {/* Main Content */}
       <main className="relative">

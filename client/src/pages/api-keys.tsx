@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Key, Copy, Trash2, Plus, Eye, EyeOff } from "lucide-react";
-import { Sidebar } from "@/components/sidebar";
+import { SellerLayout } from "@/components/seller-layout";
 import { ApiKey } from "@shared/schema";
 
 export default function ApiKeys() {
@@ -104,15 +104,13 @@ export default function ApiKeys() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+    <SellerLayout>
+        <div>
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">API Key Management</h1>
+              <h1 className="mb-2 text-3xl font-semibold tracking-tight">API keys</h1>
               <p className="text-muted-foreground">
-                Manage API keys for authenticating requests to your endpoints
+                Create or revoke keys for the seller API.
               </p>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -263,7 +261,6 @@ export default function ApiKeys() {
             )}
           </Card>
         </div>
-      </div>
-    </div>
+    </SellerLayout>
   );
 }

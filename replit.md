@@ -69,8 +69,6 @@ Enhanced SEO across all public pages with keyword optimization and structured da
   - **JSON-LD FAQPage Schema**: Automatic structured data for 10 key Q&A pairs
 - **Documentation**: Dynamic per-page SEO with integration-specific titles and descriptions
   - Keywords: x402 documentation, API monetization guide, blockchain payments, integration guide
-- **Release Notes**: "Release Notes - PayGate x402 Updates & Features"
-  - Keywords: release notes, changelog, updates, new features, PayGate roadmap
 - **Privacy Policy**: "Privacy Policy - PayGate x402"
   - Keywords: privacy policy, data protection, blockchain privacy, GDPR
 - **Terms of Service**: "Terms of Service - PayGate x402"

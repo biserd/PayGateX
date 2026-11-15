@@ -5,8 +5,9 @@ const inactivityMs = 30 * 60 * 1000;
 const retrySeconds = 5;
 const emailHost = "paygate-email.internal";
 const publicOrigin = env => env.PAYGATE_PUBLIC_URL ?? env.PAYGATE_PREVIEW_ORIGIN;
-const publicPages = new Set(["/", "/about", "/faq", "/release-notes", "/contact", "/privacy", "/terms"]);
+const publicPages = new Set(["/", "/about", "/faq", "/contact", "/privacy", "/terms"]);
 const publicFiles = new Set(["/favicon.svg", "/robots.txt", "/sitemap.xml"]);
+const sellerPages = new Set(["/dashboard", "/endpoints", "/api-keys"]);
 const hasProductionSecrets = env => Boolean(env.DATABASE_URL && env.SESSION_SECRET && env.PAYGATE_SECRET_KEY);
 
 export class SignInEmail extends WorkerEntrypoint {
@@ -172,7 +173,7 @@ async function servePublicAssets(request, url, assets) {
   if (publicFiles.has(url.pathname) || url.pathname.startsWith("/assets/")) return assets.fetch(request);
   const page = url.pathname.replace(/\/+$/, "") || "/";
   const indexable = publicPages.has(page);
-  if (!indexable && page !== "/auth" && page !== "/docs" && !page.startsWith("/docs/")) return;
+  if (!indexable && page !== "/auth" && page !== "/directory" && page !== "/docs" && !page.startsWith("/docs/") && !sellerPages.has(page)) return;
   const html = await assets.fetch(new Request(new URL("/index.html", url), { method: request.method }));
   const headers = new Headers(html.headers);
   headers.set("Cache-Control", "no-cache");
@@ -193,6 +194,11 @@ export default {
     }
     if (url.origin !== publicOrigin(env)) {
       return new Response("Not found", { status: 404 });
+    }
+    if (/^\/release-notes(?:\/|$)/i.test(url.pathname)) {
+      return new Response(request.method === "HEAD" ? null : "This page has been removed.", {
+        status: 410, headers: { "X-Robots-Tag": "noindex" },
+      });
     }
     if (env.WEB && ["GET", "HEAD"].includes(request.method)) {
       const asset = await servePublicAssets(request, url, env.WEB);

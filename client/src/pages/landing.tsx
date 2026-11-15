@@ -1,4 +1,5 @@
-import { ArrowDown, ArrowRight, Braces, Coins, FlaskConical, LockKeyhole, ReceiptText, SlidersHorizontal } from "lucide-react";
+import { PublicHeader } from "@/components/public-header";
+import { ArrowDown, ArrowRight, Braces, FlaskConical, LockKeyhole, ReceiptText, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSEO } from "@/hooks/use-seo";
 
@@ -19,20 +20,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-950 [font-family:Geist,system-ui,sans-serif] selection:bg-blue-200">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-10">
-          <a href="/" className="inline-flex shrink-0 items-center gap-2.5 text-lg font-semibold tracking-tight">
-            <span className="grid size-9 place-items-center rounded-[11px] bg-blue-700 text-white"><Coins size={19} aria-hidden="true" /></span>
-            PayGate402
-          </a>
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-slate-600 sm:flex">
-            <a href="#how-it-works" className="hover:text-blue-700">How it works</a>
-            <a href="#for-buyers" className="hover:text-blue-700">For buyers</a>
-            <a href="/docs" className="hover:text-blue-700">Docs</a>
-          </nav>
-          <a href={sellerHref} className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold hover:border-blue-400 hover:text-blue-700">{user ? "Seller console" : "Sign in"}</a>
-        </div>
-      </header>
+      <PublicHeader />
       <main>
         <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-14 sm:px-10 sm:py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-28">
           <div>
@@ -68,7 +56,7 @@ export default function Landing() {
             </div>
           </div>
         </section>
-        <section id="how-it-works" className="scroll-mt-6 border-y border-slate-200 bg-white">
+        <section id="how-it-works" className="scroll-mt-24 border-y border-slate-200 bg-white">
           <div className="mx-auto max-w-7xl px-5 py-14 sm:px-10 sm:py-20">
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">From existing API to paid tool</h2>
             <div className="mt-8 grid gap-5 md:grid-cols-3">
@@ -84,7 +72,7 @@ export default function Landing() {
             <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="https://github.com/biserd/PayGateX/blob/paygate402/cloudflare-staging/docs/PAYGATE402.md#seller-api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your console.</p>
           </div>
         </section>
-        <section id="for-buyers" className="mx-auto grid max-w-7xl scroll-mt-6 gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2">
+        <section id="for-buyers" className="mx-auto grid max-w-7xl scroll-mt-24 gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">See what you’ll pay before you call.</h2>
             <p className="mt-4 max-w-lg leading-relaxed text-slate-600">Inspect the price and input schema, then call the endpoint with an x402 client or use a payment-aware MCP client.</p>
@@ -99,7 +87,8 @@ export default function Landing() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-5 py-8 text-sm sm:px-10">
           <a href="/" className="font-semibold">PayGate402</a>
           <nav aria-label="Footer" className="flex flex-wrap gap-5 text-slate-600">
-            <a href="/docs" className="hover:text-blue-700">Docs</a>
+            <a href="/faq" className="hover:text-blue-700">FAQ</a>
+            <a href="/contact" className="hover:text-blue-700">Contact</a>
             <a href="/privacy" className="hover:text-blue-700">Privacy</a>
             <a href="/terms" className="hover:text-blue-700">Terms</a>
           </nav>
