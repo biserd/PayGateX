@@ -1,0 +1,35 @@
+{
+  "name": "paygate402",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-13",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "PAYGATE_PUBLIC_URL": "https://paygate402.com",
+    "PAYGATE_SIGN_IN_FROM": "signin@auth.paygate402.com"
+  },
+  "assets": {
+    "directory": "../../dist/public",
+    "binding": "WEB",
+    "html_handling": "none",
+    "run_worker_first": true
+  },
+  "routes": [
+    { "pattern": "paygate402.com", "custom_domain": true },
+    { "pattern": "www.paygate402.com", "custom_domain": true }
+  ],
+  "send_email": [{ "name": "SIGN_IN_EMAIL", "allowed_sender_addresses": ["signin@auth.paygate402.com"] }],
+  "containers": [
+    {
+      "class_name": "PaygateProduction",
+      "image": "./Dockerfile.production",
+      "image_build_context": "../..",
+      "instance_type": "basic",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "APP", "class_name": "PaygateProduction" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PaygateProduction"] }]
+}

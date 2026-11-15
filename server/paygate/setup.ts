@@ -41,6 +41,7 @@ export async function setupPaygate(app: Express, fixtures?: PaygateTestFixtures)
     throw new Error("Facilitator must support v2 exact payments on Base Sepolia");
   }
   await pool.query("SELECT 1 FROM paygate_operations LIMIT 1");
+  await pool.query("SELECT 1 FROM auth_login_links LIMIT 1");
   registerPaygate(app, {
     store: new PaygateStore(pool),
     identity: {

@@ -5,9 +5,10 @@
   "workers_dev": true,
   "preview_urls": false,
   "vars": {
-    "PAYGATE_PREVIEW_ORIGIN": "https://paygate402-staging.biser-d.workers.dev"
+    "PAYGATE_PREVIEW_ORIGIN": "https://paygate402-staging.biser-d.workers.dev",
+    "PAYGATE_SIGN_IN_FROM": "signin@auth.paygate402.com"
   },
-  "send_email": [{ "name": "SIGN_IN_EMAIL" }],
+  "send_email": [{ "name": "SIGN_IN_EMAIL", "allowed_sender_addresses": ["signin@auth.paygate402.com"] }],
   "containers": [
     {
       "class_name": "PaygateStaging",

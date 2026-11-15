@@ -1,0 +1,24 @@
+name: PayGate402 production image
+
+on:
+  push:
+    branches: [main, paygate402/production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Linux image
+        run: docker build --platform linux/amd64 --file deploy/cloudflare/Dockerfile.production --tag paygate402-production:build .
+      - name: Export the image for the Cloudflare registry
+        run: docker save paygate402-production:build | gzip -1 > paygate402-production.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paygate402-production-image
+          path: paygate402-production.tar.gz
+          retention-days: 2

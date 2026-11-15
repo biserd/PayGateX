@@ -1,6 +1,7 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { pool } from "./db";
 
 const app = express();
 if (process.env.PAYGATE_PUBLIC_URL === "https://paygate402.com") {
@@ -32,7 +33,15 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  app.get("/healthz", (_req, res) => res.set("Cache-Control", "no-store").json({ ok: true }));
+  app.get("/healthz", async (_req, res) => {
+    res.set("Cache-Control", "no-store");
+    try {
+      await pool.query("SELECT 1");
+      res.json({ ok: true });
+    } catch {
+      res.status(503).json({ ok: false });
+    }
+  });
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);

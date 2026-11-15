@@ -16,12 +16,22 @@ const transporter = nodemailer.createTransport({
 });
 
 export const hasEmailSender = () => Boolean(
-  process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_EMAIL_API_TOKEN && process.env.PAYGATE_SIGN_IN_FROM,
+  process.env.PAYGATE_EMAIL_BRIDGE ||
+  (process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_EMAIL_API_TOKEN && process.env.PAYGATE_SIGN_IN_FROM),
 );
 
 export async function sendSignInLink(email: string, link: string): Promise<boolean> {
   if (!hasEmailSender()) return false;
   try {
+    if (process.env.PAYGATE_EMAIL_BRIDGE) {
+      const response = await fetch(process.env.PAYGATE_EMAIL_BRIDGE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, link }),
+        signal: AbortSignal.timeout(12_000),
+      });
+      return response.ok;
+    }
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(process.env.CLOUDFLARE_ACCOUNT_ID!)}/email/sending/send`,
       {

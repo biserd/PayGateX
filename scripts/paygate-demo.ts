@@ -77,6 +77,7 @@ try {
   const { pool } = await import("../server/db");
   cleanup.push(() => pool.end());
   const { registerRoutes } = await import("../server/routes");
+  const { sendSignInLink } = await import("../server/email-service");
   await registerRoutes(app, {
     facilitatorUrl: demo.facilitatorUrl, rpcUrl: demo.rpc,
     upstreamOrigins: [demo.weather, demo.inventory], timeoutMs: previewOrigin ? 1500 : 500,
@@ -91,19 +92,7 @@ try {
         console.log(`Local sign-in link for ${email}: ${link}`);
         return true;
       }
-      if (email.endsWith("@example.test") || !emailBridge) return false;
-      try {
-        const response = await fetch(emailBridge, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, link }),
-          signal: AbortSignal.timeout(12_000),
-        });
-        return response.ok;
-      } catch {
-        console.error("Cloudflare sign-in email bridge unavailable");
-        return false;
-      }
+      return !email.endsWith("@example.test") && Boolean(emailBridge) && sendSignInLink(email, link);
     },
   });
   const api = "/api/seller/v1/operations";

@@ -1,13 +1,23 @@
-# Deploy PayGate402 to paygate402.com
+# Deploy PayGate402 on Cloudflare
 
-Use the apex hostname `https://paygate402.com`. The repo is configured for Replit Autoscale and requires a Node.js server and PostgreSQL.
+Use `https://paygate402.com` for production. The production Worker runs the PayGate402 Node application in a container and stores users, seller configurations and purchase receipts in external PostgreSQL.
 
-1. Open the existing Replit project and pull the release commit. In Publishing, use `npm run build` and `npm run start`.
-2. Ensure the production database has the existing app tables. For a fresh, empty development database, use `npm run db:push` once. On the production database, apply the additive MVP migration with `npm run db:paygate` before starting the new release. Keep the existing database and back it up before making schema changes.
-3. Set `DATABASE_URL`, `SESSION_SECRET`, a persistent `PAYGATE_SECRET_KEY`, and `PAYGATE_PUBLIC_URL=https://paygate402.com` in the production environment. Keep secrets in the hosting environment. See the [application setup guide](PAYGATE402.md) for their formats and the optional facilitator and RPC settings.
-4. Publish the app and check `/healthz` on its deployment URL. Add `paygate402.com` as a custom domain in Replit and copy the exact A and TXT values for that deployment into Cloudflare. Set the A record to **DNS only** so Replit can manage HTTPS. Keep the verification record for certificate renewal. Only add `www` if it will also be bound to the deployment with a valid certificate.
-5. Preserve existing MX, TXT and any subdomain records from the Name.com zone before changing nameservers. After Name.com clears the `clientHold` and the DNS records are ready, set the registrar to the Cloudflare nameservers shown for the zone. Check DNS, TLS, the homepage, seller sign-in, and the payment routes on the apex.
-6. Use the existing PayGate402 GA4 property and web stream for `https://paygate402.com`. The app loads measurement ID `G-37XNGFDSN4` on the apex. Use GA4 Realtime to confirm a page view after release.
-7. Verify the existing `paygate402.com` Search Console Domain property using the apex TXT record. Submit `https://paygate402.com/sitemap.xml`. Link the verified property to the existing GA4 web stream under **Admin → Search Console links**.
+1. Confirm the zone is **Active** in Cloudflare and that both assigned nameservers are authoritative. Keep existing email and verification records. In **Email Service → Email Sending**, onboard `auth.paygate402.com` and verify the sender DNS records for `signin@auth.paygate402.com`.
+2. Identify the existing PayGate402 database and back it up before applying migrations. For a new, empty PayGate402 database, initialize the base schema once with `npm run db:push`. Apply the additive migrations with `npm run db:paygate` against the intended database. Use the persistent upstream credential encryption key if the database already contains PayGate402 tools.
+3. Set the following secrets on the **paygate402** Worker. Set them through Cloudflare or pass them from a secure runner using Wrangler's `--secrets-file` option. See the [application setup guide](PAYGATE402.md) for formats and optional facilitator and RPC settings.
+   - `DATABASE_URL` with PostgreSQL TLS
+   - `SESSION_SECRET`
+   - `PAYGATE_SECRET_KEY`
+4. Build and deploy the production container with Docker and Wrangler, or use the Linux image from the production workflow. With the existing registry image workflow, publish the artifact to the Cloudflare registry and set `containers[0].image` to its revision tag in a deployment copy of the Wrangler configuration.
 
-Use the [Replit custom domain guide](https://docs.replit.com/features/publishing/custom-domains), [Cloudflare nameserver setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/), and [Search Console DNS verification guide](https://support.google.com/webmasters/answer/9008080) for the account-side steps.
+```sh
+npm run build
+wrangler deploy --config deploy/cloudflare/wrangler.production.jsonc
+```
+
+The production Worker registers `paygate402.com` and `www.paygate402.com` as custom domains and redirects `www` to the apex. Cloudflare serves public pages and static assets at the edge. The app container handles APIs and seller sessions. The staging Worker runs separately on `workers.dev`.
+
+1. Verify HTTPS, `/healthz`, the landing page, the sitemap, and the `www` redirect. Request and redeem a real sign-in email with a test inbox. Publish a tool against a safe test upstream and verify the x402 price, MCP discovery and purchase recovery with Base Sepolia testnet USDC.
+2. Confirm a page view in GA4 Realtime for web stream `G-37XNGFDSN4`. Verify the Search Console Domain property via DNS, submit `https://paygate402.com/sitemap.xml`, and link the verified property to the existing GA4 web stream.
+
+See [Cloudflare custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/), [Cloudflare Email Sending](https://developers.cloudflare.com/email-service/configuration/domains/), and [Search Console DNS verification](https://support.google.com/webmasters/answer/9008080).
