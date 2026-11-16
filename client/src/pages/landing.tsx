@@ -69,7 +69,7 @@ export default function Landing() {
                 </article>;
               })}
             </div>
-            <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="https://github.com/biserd/PayGateX/blob/paygate402/cloudflare-staging/docs/PAYGATE402.md#seller-api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your dashboard.</p>
+            <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="/docs/seller/api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your dashboard.</p>
           </div>
         </section>
         <section id="for-buyers" className="mx-auto grid max-w-7xl scroll-mt-24 gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2">

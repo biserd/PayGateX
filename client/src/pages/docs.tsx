@@ -135,10 +135,10 @@ function DocsHomepage() {
   return (
     <div className="py-12">
       <h1 className="text-4xl font-bold text-gray-900 mb-6">
-        PayGate x402 Documentation
+        PayGate402 documentation
       </h1>
       <p className="text-xl text-gray-600 mb-12">
-        Complete guide to implementing API monetization with the x402 payment protocol
+        Publish paid API operations and connect to them over HTTP or MCP.
       </p>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -176,7 +176,7 @@ export default function DocsPage() {
   const pageSlug = params.page;
 
   // Find the current page
-  const result = findDocPage(sectionSlug || 'introduction', pageSlug);
+  const result = sectionSlug ? findDocPage(sectionSlug, pageSlug) : null;
   
   // Set page-specific SEO
   const seoTitle = result ? result.page.title : 'Documentation';
@@ -203,11 +203,11 @@ export default function DocsPage() {
 
         <div className="relative flex">
           <DocsSidebar currentPath={location} />
-          <div className="flex-1 p-8">
+          <main className="min-w-0 flex-1 px-5 py-8 sm:px-8">
             <div className="max-w-4xl mx-auto">
               {children}
             </div>
-          </div>
+          </main>
         </div>
 
         <Footer />
@@ -215,6 +215,14 @@ export default function DocsPage() {
     );
   };
   
+  if (!sectionSlug) {
+    return (
+      <LayoutWrapper>
+        <DocsHomepage />
+      </LayoutWrapper>
+    );
+  }
+
   // Page not found
   if (!result) {
     return (
@@ -237,15 +245,6 @@ export default function DocsPage() {
   }
 
   const { section, page } = result;
-
-  // Show docs homepage when no specific page is selected
-  if (!pageSlug) {
-    return (
-      <LayoutWrapper>
-        <DocsHomepage />
-      </LayoutWrapper>
-    );
-  }
 
   // Show specific documentation page
   return (
@@ -284,7 +283,7 @@ export default function DocsPage() {
 
         {/* Content */}
         <div className="prose-custom max-w-none" data-testid="page-content">
-          <MarkdownContent content={page.content} />
+          {typeof page.content === "string" ? <MarkdownContent content={page.content} /> : page.content}
         </div>
 
         {/* Footer Navigation */}

@@ -1,8 +1,11 @@
+import type { ReactNode } from "react";
+import { sellerDocs } from "./sellerDocs";
+
 export interface DocPage {
   slug: string;
   title: string;
   summary: string;
-  content: string; // Simplified to string content
+  content: ReactNode;
   seoDescription?: string;
 }
 
@@ -14,6 +17,7 @@ export interface DocSection {
 }
 
 export const docsData: DocSection[] = [
+  sellerDocs,
   {
     title: "Introduction",
     slug: "introduction", 

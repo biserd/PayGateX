@@ -20,7 +20,8 @@ export function DocsSidebar({ currentPath }: DocsSidebarProps) {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    introduction: true, // Default expanded
+    seller: true,
+    introduction: true,
   });
 
   const toggleSection = (sectionSlug: string) => {
@@ -40,7 +41,7 @@ export function DocsSidebar({ currentPath }: DocsSidebarProps) {
   })).filter(section => section.pages.length > 0);
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 text-gray-900 flex-shrink-0 h-screen overflow-y-auto">
+    <div className="hidden h-screen w-64 flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-white text-gray-900 md:block lg:w-80">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center space-x-3 mb-6">
@@ -48,7 +49,7 @@ export function DocsSidebar({ currentPath }: DocsSidebarProps) {
             <Coins className="w-4 h-4 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold text-gray-900">PayGate x402</span>
+            <span className="text-lg font-bold text-gray-900">PayGate402</span>
             <p className="text-xs text-gray-500">Documentation</p>
           </div>
         </div>
@@ -79,6 +80,7 @@ export function DocsSidebar({ currentPath }: DocsSidebarProps) {
                 {/* Section Header */}
                 <button
                   onClick={() => toggleSection(section.slug)}
+                  aria-expanded={!!isExpanded}
                   className={cn(
                     "w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-200",
                     "hover:bg-gray-50 group",
@@ -116,6 +118,7 @@ export function DocsSidebar({ currentPath }: DocsSidebarProps) {
                         <Link
                           key={page.slug}
                           href={pagePath}
+                          aria-current={isPageActive ? "page" : undefined}
                           className={cn(
                             "block p-2 pl-6 rounded-lg text-sm transition-all duration-200",
                             "hover:bg-gray-100 hover:text-gray-900 border border-transparent",
