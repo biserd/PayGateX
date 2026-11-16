@@ -12,7 +12,7 @@ interface SEOProps {
 export function useSEO({ title, description, path = '', ogImage, keywords, structuredData }: SEOProps) {
   useEffect(() => {
     const baseUrl = 'https://paygate402.com';
-    const fullTitle = `${title} | PayGate x402`;
+    const fullTitle = `${title} | PayGate402`;
     
     document.title = fullTitle;
     

@@ -1,13 +1,12 @@
-import { ArrowRight, BookOpen, Coins, Menu, Plug, ShoppingBag } from "lucide-react";
+import { ArrowRight, BookOpen, Coins, Menu, Plug } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const links = [
-  { href: "/#how-it-works", label: "For sellers", icon: Plug },
-  { href: "/#for-buyers", label: "For buyers", icon: ShoppingBag },
-  { href: "/docs", label: "Documentation", icon: BookOpen },
+  { href: "/#how-it-works", label: "How it works", icon: Plug },
+  { href: "/docs", label: "Docs", icon: BookOpen },
 ];
 
 export function SiteBrand() {

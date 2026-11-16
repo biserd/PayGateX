@@ -108,7 +108,7 @@ export default function AuthPage() {
             </div>
           ) : (
             <form className="mt-3 space-y-5" onSubmit={submit}>
-              <p className="leading-relaxed text-slate-600">Enter your email and we’ll send you a one-time sign-in link. Your first sign-in creates a seller workspace.</p>
+              <p className="leading-relaxed text-slate-600">Enter your email to get a one-time sign-in link. The first time you sign in, we’ll create a workspace for your APIs.</p>
               <div className="space-y-2">
                 <Label htmlFor="sign-in-email">Email address</Label>
                 <Input id="sign-in-email" type="email" name="email" autoComplete="email" value={email}

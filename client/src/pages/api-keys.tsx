@@ -110,7 +110,7 @@ export default function ApiKeys() {
             <div>
               <h1 className="mb-2 text-3xl font-semibold tracking-tight">API keys</h1>
               <p className="text-muted-foreground">
-                Create or revoke keys for the <a href="/docs/seller/api" className="text-blue-700 underline underline-offset-4">seller API</a>.
+                Create or revoke keys for your setup scripts. <a href="/docs/seller/api" className="text-blue-700 underline underline-offset-4">Read the API setup guide</a>.
               </p>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

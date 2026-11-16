@@ -183,8 +183,8 @@ export default function Directory() {
           ) : publishedServices.length === 0 ? (
             <Card className="bg-white border border-gray-200 shadow-sm p-8 text-center">
               <h2 className="text-xl font-semibold">No published tools yet</h2>
-              <p className="mt-2 text-gray-600">The buyer guide walks through pricing, payment, and receipts.</p>
-              <Button asChild className="mt-4 bg-blue-700 hover:bg-blue-800"><a href="/docs/seller/buyer-payments">Read the buyer guide</a></Button>
+              <p className="mt-2 text-gray-600">The payment guide shows how to check a price, pay for a call, and get a receipt.</p>
+              <Button asChild className="mt-4 bg-blue-700 hover:bg-blue-800"><a href="/docs/seller/buyer-payments">Read the payment guide</a></Button>
             </Card>
           ) : filteredServices.length === 0 ? (
             <Card className="bg-white border border-gray-200 shadow-sm p-12 text-center">

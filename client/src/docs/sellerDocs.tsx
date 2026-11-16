@@ -119,10 +119,10 @@ function SellerApiGuide() {
           ["POST /:id/test", <><code>{'{revision, input}'}</code> runs an unpaid upstream call and returns <code>ok</code>, <code>upstreamStatus</code>, and the successful result when available.</>],
           ["POST /:id/publish", <><code>{'{revision}'}</code> publishes a tested revision and returns connection details.</>],
           ["PATCH /:id/price", <><code>{'{revision, price}'}</code> updates the per-call price while retaining an existing successful test.</>],
-          ["POST /:id/pause", <><code>{'{revision}'}</code> removes the operation from discovery and stops new purchases. Buyers can still retrieve settled purchases.</>],
+          ["POST /:id/pause", <><code>{'{revision}'}</code> removes the operation from discovery and stops new purchases. Customers can still retrieve results and receipts for settled purchases.</>],
           ["GET /:id/activity", <>Read call and failure counts, the latest 30 attempts, and settled revenue in <code>revenueAtomic</code>. One USDC equals 1,000,000 atomic units.</>],
         ]} />
-        <p>Share the published links with buyers so they can <a href="/docs/seller/buyer-payments" className={linkStyle}>inspect the price, pay, and recover results</a>.</p>
+        <p>Share the published links with your customers so they can <a href="/docs/seller/buyer-payments" className={linkStyle}>check the price, pay, and recover results</a>.</p>
       </GuideSection>
     </div>
   );
@@ -155,26 +155,29 @@ function BuyerPaymentsGuide() {
       <GuideSection id="client-compatibility" title="Client compatibility">
         <p>Sandbox purchases were verified with <code>@x402/fetch</code> 2.31.0 over HTTP and <code>@x402/mcp</code> 2.31.0 with <code>@modelcontextprotocol/sdk</code> 1.32.2 over Streamable HTTP. An ordinary MCP client can discover the tool. A payment-aware client is required to sign the challenge and complete the purchase.</p>
         <p>The hosted release supports x402 v2 exact payments with Base Sepolia testnet USDC. Mainnet payments and automatic refunds are unavailable. ChatGPT plugin payment compatibility is unverified.</p>
-        <p><a href="/docs/seller/api" className={linkStyle}>Back to the Seller API guide</a></p>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <a href="/directory" className={linkStyle}>Browse published tools</a>
+          <a href="/docs/seller/api" className={linkStyle}>Automate API setup</a>
+        </div>
       </GuideSection>
     </div>
   );
 }
 
 export const sellerDocs: DocSection = {
-  title: "Seller API and payments",
+  title: "API setup and payments",
   slug: "seller",
   description: "Automate operations, publish HTTP and MCP tools, and recover paid calls.",
   pages: [
     {
       slug: "api",
-      title: "Seller API",
+      title: "Automate API setup",
       summary: "Create, test, publish, and manage paid operations from CI or your own scripts.",
       content: <SellerApiGuide />,
     },
     {
       slug: "buyer-payments",
-      title: "Buyer payments and recovery",
+      title: "Call a paid API",
       summary: "Inspect an operation, pay over HTTP or MCP, and retrieve results and receipts.",
       content: <BuyerPaymentsGuide />,
     },
