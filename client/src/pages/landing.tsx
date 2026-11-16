@@ -1,5 +1,7 @@
+import { useLayoutEffect } from "react";
 import { PublicHeader } from "@/components/public-header";
-import { ArrowDown, ArrowRight, Braces, FlaskConical, LockKeyhole, ReceiptText, SlidersHorizontal } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowDown, ArrowRight, Braces, FlaskConical, ReceiptText, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSEO } from "@/hooks/use-seo";
 
@@ -7,6 +9,12 @@ const steps = [
   { title: "Connect your API", detail: "Import an OpenAPI operation or enter a URL manually. Map incoming fields to your API and store upstream credentials server-side." },
   { title: "Set a price and test", detail: "Choose your per-call price and payout wallet. Run a sandbox call to check the response before you publish." },
   { title: "Publish and track usage", detail: "Copy the HTTP endpoint and MCP connection details. Track calls, settled payments, and failures. Change the price or pause at any time." },
+];
+
+const exampleInput = { city: "Sofia", days: 2 };
+const buyerRequests = [
+  { transport: "HTTP", request: "POST /x402/tools/<tool-id>\nContent-Type: application/json\n\n" + JSON.stringify(exampleInput, null, 2) },
+  { transport: "MCP", request: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "weather_forecast", arguments: exampleInput } }, null, 2) },
 ];
 
 export default function Landing() {
@@ -17,6 +25,13 @@ export default function Landing() {
     description: "Turn an API you already run into a paid HTTP endpoint and a typed MCP tool. Set a per-call price, test the integration, and track payments.",
     path: "/",
   });
+  useLayoutEffect(() => {
+    // Direct links can arrive before the SPA has rendered their target.
+    const section = window.location.hash.slice(1);
+    if (section === "how-it-works" || section === "for-buyers") {
+      document.getElementById(section)?.scrollIntoView();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-950 [font-family:Geist,system-ui,sans-serif] selection:bg-blue-200">
@@ -72,15 +87,41 @@ export default function Landing() {
             <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="/docs/seller/api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your dashboard.</p>
           </div>
         </section>
-        <section id="for-buyers" className="mx-auto grid max-w-7xl scroll-mt-24 gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2">
+        <section id="for-buyers" aria-labelledby="buyer-section-title" className="mx-auto grid max-w-7xl scroll-mt-24 items-start gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2 lg:gap-14">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">See what you’ll pay before you call.</h2>
-            <p className="mt-4 max-w-lg leading-relaxed text-slate-600">Inspect the price and input schema, then call the endpoint with an x402 client or use a payment-aware MCP client.</p>
+            <h2 id="buyer-section-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">Find and call paid APIs</h2>
+            <p className="mt-4 max-w-lg leading-relaxed text-slate-600">Open a tool to see its inputs and USDC price per call. Use an x402 client for HTTP or a payment-aware MCP client to call it from an agent.</p>
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a href="/docs/seller/buyer-payments" className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-800">
+                Read the buyer guide <ArrowRight size={16} aria-hidden="true" />
+              </a>
+              <a href="/directory" className="text-sm font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-900">Browse published tools</a>
+            </div>
+            <p className="mt-6 flex max-w-lg gap-3 text-sm leading-relaxed text-slate-600">
+              <ReceiptText size={18} className="mt-0.5 shrink-0 text-blue-700" aria-hidden="true" />
+              Save your purchase link to retrieve the result and receipt after a disconnect without paying again.
+            </p>
           </div>
-          <div className="space-y-5">
-            <div className="flex gap-3"><ReceiptText size={20} className="mt-0.5 shrink-0 text-blue-700" aria-hidden="true" /><p className="leading-relaxed text-slate-600">Use your purchase link to recover the result and receipt after a disconnect without paying again.</p></div>
-            <div className="flex gap-3"><LockKeyhole size={20} className="mt-0.5 shrink-0 text-blue-700" aria-hidden="true" /><p className="leading-relaxed text-slate-600">Both interfaces use the same price, payment verification, and receipt process.</p></div>
-          </div>
+          <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="buyer-example-title">
+            <h3 id="buyer-example-title" className="text-lg font-semibold">Example tool call</h3>
+            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              <code className="rounded bg-slate-100 px-2 py-1 text-slate-900">weather_forecast</code>
+              <strong className="font-semibold text-blue-800">0.02 USDC per call</strong>
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">Illustrative request on Base Sepolia testnet. No payment is sent from this preview.</p>
+            <Tabs defaultValue="HTTP" className="mt-4">
+              <TabsList aria-label="Example request transport" className="bg-slate-100 text-slate-700">
+                {buyerRequests.map(({ transport }) => <TabsTrigger key={transport} value={transport}>{transport}</TabsTrigger>)}
+              </TabsList>
+              {buyerRequests.map(({ transport, request }) => (
+                <TabsContent key={transport} value={transport}>
+                  <pre className="min-h-36 overflow-x-auto rounded-lg bg-slate-950 p-4 text-xs leading-5 text-slate-100 sm:text-sm" tabIndex={0}>
+                    <code>{request}</code>
+                  </pre>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </article>
         </section>
       </main>
       <footer className="border-t border-slate-200 bg-white">

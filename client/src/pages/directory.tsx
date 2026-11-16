@@ -16,7 +16,6 @@ import {
   CheckCircle,
   XCircle,
   ExternalLink,
-  TrendingUp,
   Zap,
 } from "lucide-react";
 import {
@@ -34,15 +33,16 @@ export default function Directory() {
   const [selectedNetwork, setSelectedNetwork] = useState<string>("all");
   
   useSEO({
-    title: 'x402 Public Directory - Discover Payment-Enabled APIs (The Etherscan for x402)',
-    description: 'Browse the definitive x402 directory - discover payment-enabled APIs with real-time pricing, blockchain verification, categories, networks, and metadata. Perfect for developers and AI agents seeking monetized API endpoints.',
+    title: 'Published x402 tools',
+    description: 'Browse published PayGate402 tools and check their inputs, price, and connection details before making a call.',
     path: '/directory',
-    keywords: 'x402 directory, payment-enabled APIs, API discovery, blockchain APIs, USDC pricing, Base network, AI agent APIs, Etherscan for x402'
+    keywords: 'x402 tools, payment-enabled APIs, USDC pricing, Base Sepolia, MCP'
   });
 
   // Fetch all services
-  const { data: services = [], isLoading: servicesLoading } = useQuery<X402Service[]>({
+  const { data: services = [], isLoading: servicesLoading, isError: servicesError, refetch: refetchServices } = useQuery<X402Service[]>({
     queryKey: ["/api/public/directory"],
+    staleTime: 30_000,
   });
 
   // Fetch categories
@@ -51,7 +51,8 @@ export default function Directory() {
   });
 
   // Filter services
-  const filteredServices = services.filter(service => {
+  const publishedServices = services.filter(service => service.isActive);
+  const filteredServices = publishedServices.filter(service => {
     const matchesSearch = searchTerm === "" || 
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -59,18 +60,14 @@ export default function Directory() {
     const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
     const matchesNetwork = selectedNetwork === "all" || service.network === selectedNetwork;
     
-    return matchesSearch && matchesCategory && matchesNetwork && service.isActive;
+    return matchesSearch && matchesCategory && matchesNetwork;
   });
 
   // Get unique networks (filter out nulls and ensure type safety)
   const networks = Array.from(new Set(services.map(s => s.network).filter((n): n is string => Boolean(n))));
 
   const formatPrice = (price: string | null) => {
-    if (!price) return "Free";
-    const num = parseFloat(price);
-    if (num === 0) return "Free";
-    if (num < 0.01) return `$${num.toFixed(6)}`;
-    return `$${num.toFixed(2)}`;
+    return price && Number(price) > 0 ? `${price} USDC` : "Free";
   };
 
   const getCategoryColor = (category: string | null) => {
@@ -98,17 +95,15 @@ export default function Directory() {
             <Globe className="w-8 h-8 text-blue-600" />
             <Zap className="w-6 h-6 text-yellow-500" />
           </div>
-          <h2 className="text-3xl sm:text-5xl font-bold mb-4 text-gray-900">
-            Discover x402 APIs
-          </h2>
+          <h1 className="text-3xl sm:text-5xl font-bold mb-4 text-gray-900">Published x402 tools</h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            The first public directory of payment-enabled APIs. Find, explore, and integrate blockchain-powered services.
+            Explore published tools and check their inputs and prices before you call them.
           </p>
 
           {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-8">
+          {publishedServices.length > 0 && <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-8">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{services.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{publishedServices.length}</div>
               <div className="text-sm text-gray-500">APIs Listed</div>
             </div>
             <div className="text-center">
@@ -119,12 +114,12 @@ export default function Directory() {
               <div className="text-2xl sm:text-3xl font-bold text-gray-900">{networks.length}</div>
               <div className="text-sm text-gray-500">Networks</div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="pb-8">
+      {publishedServices.length > 0 && <div className="pb-8">
         <div className="container mx-auto px-4 sm:px-6">
           <Card className="bg-white border border-gray-200 shadow-sm">
             <CardContent className="p-4 sm:p-6">
@@ -170,7 +165,7 @@ export default function Directory() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </div>}
 
       {/* Services Grid */}
       <div className="pb-20">
@@ -180,6 +175,17 @@ export default function Directory() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
               <p className="mt-4 text-gray-500">Loading services...</p>
             </div>
+          ) : servicesError && publishedServices.length === 0 ? (
+            <Card className="bg-white border border-gray-200 shadow-sm p-8 text-center">
+              <h2 className="text-xl font-semibold">Couldn’t load published tools</h2>
+              <Button className="mt-4" variant="outline" onClick={() => void refetchServices()}>Try again</Button>
+            </Card>
+          ) : publishedServices.length === 0 ? (
+            <Card className="bg-white border border-gray-200 shadow-sm p-8 text-center">
+              <h2 className="text-xl font-semibold">No published tools yet</h2>
+              <p className="mt-2 text-gray-600">The buyer guide walks through pricing, payment, and receipts.</p>
+              <Button asChild className="mt-4 bg-blue-700 hover:bg-blue-800"><a href="/docs/seller/buyer-payments">Read the buyer guide</a></Button>
+            </Card>
           ) : filteredServices.length === 0 ? (
             <Card className="bg-white border border-gray-200 shadow-sm p-12 text-center">
               <XCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -241,12 +247,14 @@ export default function Directory() {
 
                       <div className="pt-3 border-t border-gray-200">
                         <Button
-                          onClick={() => window.open(service.url, '_blank')}
+                          asChild
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
                           data-testid={`button-visit-${service.id}`}
                         >
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Visit API
+                          <a href={service.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4 mr-2" aria-hidden="true" />
+                            Inspect API
+                          </a>
                         </Button>
                       </div>
                     </div>
