@@ -371,7 +371,7 @@ try {
           <meta name="viewport" content="width=device-width,initial-scale=1"><title>PayGate402 sandbox buyer</title>
           <style>body{font:1rem system-ui;max-width:42rem;margin:3rem auto;padding:0 1rem;color:#172033}
           button{font:inherit;padding:.6rem;margin:.25rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f7;padding:1rem}</style>
-          <a href="/dashboard">Back to seller console</a><h1>Sandbox buyer</h1>
+          <a href="/dashboard">Back to Dashboard</a><h1>Sandbox buyer</h1>
           <p>Run a purchase against either published demo tool with the funded sandbox wallet.</p>
           <button data-kind="http">Buy weather over HTTP</button><button data-kind="mcp">Buy inventory over MCP</button>
           <pre id="result" aria-live="polite">The purchase result and receipt will appear here.</pre>

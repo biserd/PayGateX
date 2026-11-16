@@ -28,7 +28,7 @@ export default function Landing() {
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">Publish one operation as a paid HTTP endpoint and a typed MCP tool. Set your own price and let PayGate402 verify payments before forwarding calls.</p>
             <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
               <a href={sellerHref} className="inline-flex items-center gap-2.5 rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
-                {user ? "Open seller console" : "Get started"} <ArrowRight size={17} aria-hidden="true" />
+                {user ? "Open Dashboard" : "Get started"} <ArrowRight size={17} aria-hidden="true" />
               </a>
               <a href="#how-it-works" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-blue-700">See how it works <ArrowDown size={15} aria-hidden="true" /></a>
             </div>
@@ -69,7 +69,7 @@ export default function Landing() {
                 </article>;
               })}
             </div>
-            <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="https://github.com/biserd/PayGateX/blob/paygate402/cloudflare-staging/docs/PAYGATE402.md#seller-api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your console.</p>
+            <p className="mt-7 text-sm text-slate-600">Automating setup? Use the <a href="https://github.com/biserd/PayGateX/blob/paygate402/cloudflare-staging/docs/PAYGATE402.md#seller-api" className="font-semibold text-blue-700 underline underline-offset-4">seller API</a> with an API key from your dashboard.</p>
           </div>
         </section>
         <section id="for-buyers" className="mx-auto grid max-w-7xl scroll-mt-24 gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2">

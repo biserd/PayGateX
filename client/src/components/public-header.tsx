@@ -42,7 +42,7 @@ export function PublicHeader() {
         <div className="flex items-center gap-2 md:justify-self-end">
           <a href={user ? "/dashboard" : "/auth"} data-testid="button-login"
             className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg bg-slate-900 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800 sm:px-4">
-            {user ? "Seller console" : "Sign in"}
+            {user ? "Dashboard" : "Sign in"}
             <ArrowRight className="hidden size-4 sm:block" aria-hidden="true" />
           </a>
           <Sheet>
