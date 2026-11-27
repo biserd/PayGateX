@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
+import { siteOrigin } from '@shared/public-pages';
 
-interface SEOProps {
+export interface SEOProps {
   title: string;
   description: string;
   path?: string;
@@ -9,9 +10,13 @@ interface SEOProps {
   structuredData?: Record<string, unknown>;
 }
 
+export const PageMetadataContext = createContext<((metadata: SEOProps) => void) | null>(null);
+
 export function useSEO({ title, description, path = '', ogImage, keywords, structuredData }: SEOProps) {
+  const capture = useContext(PageMetadataContext);
+  capture?.({ title, description, path, ogImage, keywords, structuredData });
   useEffect(() => {
-    const baseUrl = 'https://paygate402.com';
+    const baseUrl = siteOrigin;
     const fullTitle = `${title} | PayGate402`;
     
     document.title = fullTitle;
@@ -73,6 +78,8 @@ export function useSEO({ title, description, path = '', ogImage, keywords, struc
         structuredScript.innerHTML = JSON.stringify(structuredData);
         document.head.appendChild(structuredScript);
       }
+    } else {
+      document.querySelector('script[data-structure="page-schema"]')?.remove();
     }
   }, [title, description, path, ogImage, keywords, structuredData]);
 }

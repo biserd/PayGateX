@@ -1,4 +1,5 @@
 import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
+import { appPages, indexablePages, isServicePath, prerenderedAsset } from "../../shared/public-pages";
 
 const port = 8080;
 const inactivityMs = 30 * 60 * 1000;
@@ -6,9 +7,7 @@ const retrySeconds = 5;
 const emailHost = "paygate-email.internal";
 const databaseHost = "paygate-d1.internal";
 const publicOrigin = env => env.PAYGATE_PUBLIC_URL ?? env.PAYGATE_PREVIEW_ORIGIN;
-const publicPages = new Set(["/", "/about", "/faq", "/contact", "/privacy", "/terms"]);
 const publicFiles = new Set(["/favicon.svg", "/robots.txt", "/sitemap.xml"]);
-const sellerPages = new Set(["/dashboard", "/endpoints", "/api-keys"]);
 const hasProductionStorage = env => Boolean(env.DB && env.PAYGATE_SECRET_KEY);
 
 // Only the container's outbound HTTP intercept can reach this entrypoint.
@@ -216,18 +215,24 @@ export class PaygateProduction extends PaygateContainer {}
 async function servePublicAssets(request, url, assets) {
   if (publicFiles.has(url.pathname) || url.pathname.startsWith("/assets/")) return assets.fetch(request);
   const page = url.pathname.replace(/\/+$/, "") || "/";
-  const indexable = publicPages.has(page);
-  if (!indexable && page !== "/auth" && page !== "/directory" && page !== "/docs" && !page.startsWith("/docs/") && !sellerPages.has(page)) return;
-  const html = await assets.fetch(new Request(new URL("/index.html", url), { method: request.method }));
+  if (isServicePath(page)) return;
+  if (page === "/index.html") return Response.redirect(new URL("/" + url.search, url), 308);
+  const read = path => assets.fetch(new Request(new URL(path, url), { method: request.method }));
+  const indexable = indexablePages.has(page);
+  let html = appPages.has(page) ? await read("/index.html")
+    : indexable || page.startsWith("/docs/") ? await read(prerenderedAsset(page)) : null;
+  const missing = !html || html.status === 404;
+  if (missing) {
+    await html?.body?.cancel();
+    html = await read(prerenderedAsset("/404"));
+  }
   const headers = new Headers(html.headers);
   headers.set("Cache-Control", "no-cache");
-  headers.delete("Content-Length");
-  headers.delete("ETag");
-  if (!indexable) headers.set("X-Robots-Tag", "noindex");
-  if (request.method === "HEAD") return new Response(null, { status: html.status, headers });
-  const canonical = new URL(page, url.origin).href;
-  const body = (await html.text()).replaceAll('"https://paygate402.com/"', JSON.stringify(canonical));
-  return new Response(body, { status: html.status, headers });
+  if (!indexable || missing) headers.set("X-Robots-Tag", "noindex");
+  return new Response(request.method === "HEAD" ? null : html.body, {
+    status: missing ? 404 : html.status,
+    headers,
+  });
 }
 
 export default {
