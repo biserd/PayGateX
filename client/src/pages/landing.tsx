@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { PublicHeader } from "@/components/public-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowDown, ArrowRight, Braces, FlaskConical, ReceiptText, SlidersHorizontal } from "lucide-react";
@@ -25,7 +25,7 @@ export default function Landing() {
     description: "Connect the API you already run, set a price per call, and share a link with your customers. Track calls and payments in your Dashboard.",
     path: "/",
   });
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Direct links can arrive before the SPA has rendered their target.
     const section = window.location.hash.slice(1);
     if (section === "how-it-works" || section === "for-buyers") {
@@ -84,7 +84,7 @@ export default function Landing() {
                 </article>;
               })}
             </div>
-            <p className="mt-7 text-sm text-slate-600"><a href="/docs/seller/api" className="font-semibold text-blue-700 underline underline-offset-4">Automate setup</a> with an API key from your Dashboard.</p>
+            <p className="mt-7 text-sm text-slate-600"><a href="/docs/seller/api" className="font-semibold text-blue-700 underline underline-offset-4">Read the API setup guide</a> to configure and publish an operation from CI.</p>
           </div>
         </section>
         <section id="for-buyers" aria-labelledby="payment-section-title" className="mx-auto grid max-w-7xl scroll-mt-24 items-start gap-8 px-5 py-14 sm:px-10 sm:py-20 md:grid-cols-2 lg:gap-14">

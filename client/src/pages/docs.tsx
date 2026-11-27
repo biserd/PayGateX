@@ -182,7 +182,7 @@ export default function DocsPage() {
   const seoTitle = result ? result.page.title : 'Documentation';
   const seoDescription = result 
     ? (result.page.seoDescription || result.page.summary)
-    : 'Complete documentation for PayGate x402 API monetization platform. Learn how to implement blockchain payments with the x402 protocol.';
+    : 'Learn how to publish the API you already run as a paid x402 endpoint and MCP tool, automate setup, and make a test payment.';
   const seoPath = result 
     ? `/docs/${result.section.slug}/${result.page.slug}`
     : '/docs';

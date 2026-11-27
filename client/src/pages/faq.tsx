@@ -64,7 +64,7 @@ export default function FAQ() {
             {questions.map(({ question, answer, link }) => (
               <AccordionItem key={question} value={question} className="rounded-lg border border-gray-200 bg-white px-6 shadow-sm">
                 <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">{question}</AccordionTrigger>
-                <AccordionContent className="text-gray-600">
+                <AccordionContent forceMount className="text-gray-600 data-[state=closed]:hidden">
                   <p>{answer}</p>
                   {link && <a className="mt-3 inline-block font-medium text-blue-700 underline underline-offset-4" href={link.href}>{link.label}</a>}
                 </AccordionContent>

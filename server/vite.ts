@@ -5,6 +5,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+import { appPages, indexablePages, isServicePath, prerenderedAsset } from "../shared/public-pages";
 
 const viteLogger = createLogger();
 
@@ -76,24 +77,20 @@ export function serveStatic(app: Express) {
     );
   }
 
-  const shell = fs.readFileSync(path.resolve(distPath, "index.html"), "utf8");
-  const sitemap = fs.readFileSync(path.resolve(distPath, "sitemap.xml"), "utf8");
-  const canonicalRoot = "https://paygate402.com/";
-  const indexablePaths = new Set(Array.from(sitemap.matchAll(/<loc>([^<]+)<\/loc>/g), ([, url]) => new URL(url).pathname));
   app.get("/index.html", (_req, res) => res.redirect(301, "/"));
+  app.use("/__pages", (_req, res) => res.status(404).set("X-Robots-Tag", "noindex").end());
   app.use(express.static(distPath, { index: false }));
 
   app.get("*", (req, res) => {
-    if (/^\/(api|mcp|x402)(\/|$)/.test(req.path)) {
+    if (isServicePath(req.path)) {
       return res.status(404).json({ error: "Not found" });
     }
     const publicPath = req.path.replace(/\/+$/, "") || "/";
-    if (!indexablePaths.has(publicPath)) {
-      res.set("X-Robots-Tag", "noindex");
-      return res.type("html").send(shell);
-    }
-    const canonical = new URL(publicPath, canonicalRoot).href;
-    const html = shell.replaceAll(`"${canonicalRoot}"`, `"${canonical}"`);
-    return res.type("html").send(html);
+    const indexable = indexablePages.has(publicPath);
+    if (!indexable) res.set("X-Robots-Tag", "noindex");
+    if (appPages.has(publicPath)) return res.sendFile(path.join(distPath, "index.html"));
+    const file = path.join(distPath, prerenderedAsset(publicPath));
+    if ((indexable || publicPath.startsWith("/docs/")) && fs.existsSync(file)) return res.sendFile(file);
+    return res.status(404).set("X-Robots-Tag", "noindex").sendFile(path.join(distPath, prerenderedAsset("/404")));
   });
 }
